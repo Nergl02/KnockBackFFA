@@ -1,6 +1,7 @@
 package cz.nerkub.NerKubKnockBackFFA;
 
 import cz.nerkub.NerKubKnockBackFFA.CustomFiles.CustomConfig;
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,6 +15,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	private CustomConfig messages;
 	private CustomConfig arenas;
+
+	private DamagerMap damagerMap;
 
 
 	@Override
@@ -33,8 +36,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
-		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, new Random()), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random()), this);
+		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap), this);
 
 
 		saveDefaultConfig();

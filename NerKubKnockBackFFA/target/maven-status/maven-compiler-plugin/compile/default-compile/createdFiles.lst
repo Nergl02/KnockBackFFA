@@ -1,4 +1,5 @@
 cz\nerkub\NerKubKnockBackFFA\listeners\PlayerDeathListener.class
+cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.class
 cz\nerkub\NerKubKnockBackFFA\listeners\BlockBreakListener.class
 cz\nerkub\NerKubKnockBackFFA\listeners\BlockBreakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\listeners\PlayerMoveListener.class
