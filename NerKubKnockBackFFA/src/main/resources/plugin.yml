@@ -1,0 +1,4 @@
+name: NerKubKnockBackFFA
+version: '${project.version}'
+main: cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA
+api-version: '1.20'

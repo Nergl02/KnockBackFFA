@@ -1,0 +1,8 @@
+# If set to true, when a player joins the server, they will spawn at the arena spawn position.
+bungee: true
+
+#block-break-time is in seconds
+block-break-time: 3 #Each break phase will last 3 seconds, which means the block will completely break after 12 seconds
+
+#The Y position at which a player dies when knocked into the void. Can be -10 or 10 (only full numbers)
+death-height: 0

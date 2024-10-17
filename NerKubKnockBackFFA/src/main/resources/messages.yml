@@ -1,0 +1,17 @@
+prefix: '&7[&3KnockBack&bFFA&7] &r'
+
+# You can add more if u want. Just type 11: 'your-next-kill-message'
+#
+# %player1% - returns the killer
+# %player2% - returns the victim (the player who have died)
+kill-messages:
+  1: '&a%player1% &7has knocked &c%player2% &7out of the arena! Great hit!'
+  2: '&a%player1% &7just eliminated &c%player2%&7! Who''s next?'
+  3: '&7Boom! &c%player2% &7was just launched into the unknown by &a%player1%&7.'
+  4: '&a%player1% &7showed &c%player2% &7their place! Great job!'
+  5: '&a%player1% &7means business! &c%player2% &7just got knocked out of the arena!'
+  6: '&a%player1% &7gave &c%player2% &7a one-way ticket out of the arena! Brutal!'
+  7: '&a%player1% &7just sent &c%player2% &7flying! Can they recover from that?'
+  8: '&7With precision, &a%player1% &7took down &c%player2% &7in a stunning move!'
+  9: '&a%player1% &7has proven their dominance by knocking &c%player2% &7into the void!'
+  10: '&c%player2% &7was no match for &a%player1%&7! A flawless victory!'

@@ -1,0 +1,20 @@
+knockback-stick:
+  # Instead of space use _ - blaze_rod, blue_wool
+  material: 'STICK'
+  # Display name of the item
+  display-name: '&dKnockBack Stick'
+  # Lore of the item
+  lore:
+    - '&fPush them to the void.'
+  # Power of knockback
+  knockback: 2
+  # When set to true - the enchantment will not be visible. When set to false - players will be able to see the enchantment
+  hide-enchantment: true
+
+bow:
+  display-name: '&dPunch Bow'
+  lore:
+    - '&fPlayers! Catch them all'
+    - '&flike Pokemons!'
+  punch: 2
+  hide-enchantment: true
