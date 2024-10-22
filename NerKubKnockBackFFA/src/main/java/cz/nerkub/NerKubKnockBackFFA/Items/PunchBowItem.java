@@ -32,11 +32,13 @@ public class PunchBowItem {
 			lore.add(ChatColor.translateAlternateColorCodes('&', line));
 		}
 
-		bowMeta.addEnchant(Enchantment.KNOCKBACK, plugin.getItems().getConfig().getInt("bow.punch"), true);
+		bowMeta.addEnchant(Enchantment.ARROW_KNOCKBACK, plugin.getItems().getConfig().getInt("bow.punch"), true);
 
 		if (plugin.getItems().getConfig().getBoolean("bow.hide-enchantment")) {
 			bowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
+
+		bowMeta.setUnbreakable(true);
 
 		bowMeta.setLore(lore);
 		bowItem.setItemMeta(bowMeta);

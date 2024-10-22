@@ -4,6 +4,8 @@ import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,6 +43,14 @@ public class PlayerDamageListener implements Listener {
 		if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
 			event.setCancelled(true);
 			player.teleport(targetLocation);
+		}
+	}
+
+	@EventHandler
+	public void onPlayerDamageByArrow (EntityDamageByEntityEvent event) {
+		Entity damager = event.getDamager();
+		if (damager instanceof Arrow) {
+			event.setDamage(0);
 		}
 	}
 

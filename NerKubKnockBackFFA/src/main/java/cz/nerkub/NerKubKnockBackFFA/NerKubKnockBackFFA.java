@@ -2,7 +2,9 @@ package cz.nerkub.NerKubKnockBackFFA;
 
 import cz.nerkub.NerKubKnockBackFFA.CustomFiles.CustomConfig;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
+import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
 import cz.nerkub.NerKubKnockBackFFA.Listeners.*;
 import cz.nerkub.NerKubKnockBackFFA.Managers.CommandManager;
@@ -23,6 +25,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
 	private final KnockBackStickItem knockBackStickItem = new KnockBackStickItem(this);
 	private final PunchBowItem punchBowItem = new PunchBowItem(this);
+	private final LeatherTunicItem leatherTunicItem = new LeatherTunicItem(this);
+	private final BuildBlockItem buildBlockItem = new BuildBlockItem(this);
 
 
 	@Override
@@ -43,8 +47,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, buildBlockItem), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem), this);
 		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
 		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);

@@ -21,3 +21,5 @@ kill-messages:
   8: '&7With precision, &a%player1% &7took down &c%player2% &7in a stunning move!'
   9: '&a%player1% &7has proven their dominance by knocking &c%player2% &7into the void!'
   10: '&c%player2% &7was no match for &a%player1%&7! A flawless victory!'
+
+block-break: '&cSorry, but breaking blocks is not allowed here!'
