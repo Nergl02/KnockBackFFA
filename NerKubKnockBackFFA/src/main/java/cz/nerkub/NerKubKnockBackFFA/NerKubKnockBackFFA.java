@@ -2,7 +2,10 @@ package cz.nerkub.NerKubKnockBackFFA;
 
 import cz.nerkub.NerKubKnockBackFFA.CustomFiles.CustomConfig;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
-import cz.nerkub.NerKubKnockBackFFA.listeners.*;
+import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
+import cz.nerkub.NerKubKnockBackFFA.Listeners.*;
+import cz.nerkub.NerKubKnockBackFFA.Managers.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,8 +18,11 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	private CustomConfig messages;
 	private CustomConfig arenas;
+	private CustomConfig items;
 
-	private DamagerMap damagerMap;
+	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
+	private final KnockBackStickItem knockBackStickItem = new KnockBackStickItem(this);
+	private final PunchBowItem punchBowItem = new PunchBowItem(this);
 
 
 	@Override
@@ -38,6 +44,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem), this);
+		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
+		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
+
+		getCommand("knbffa").setExecutor(new CommandManager(this));
 
 
 		saveDefaultConfig();
@@ -48,6 +60,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		messages.saveConfig();
 		arenas = new CustomConfig("arenas", "arenas.yml", this); // Directory can be "" to create file in the main plugin folder
 		arenas.saveConfig();
+		items = new CustomConfig("items", "items.yml", this);
+		items.saveConfig();
 
 	}
 
@@ -60,12 +74,16 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return plugin;
 	}
 
-	public CustomConfig getMessages(){
+	public CustomConfig getMessages() {
 		return messages;
 	}
 
-	public CustomConfig getArenas(){
+	public CustomConfig getArenas() {
 		return arenas;
+	}
+
+	public CustomConfig getItems() {
+		return items;
 	}
 
 }

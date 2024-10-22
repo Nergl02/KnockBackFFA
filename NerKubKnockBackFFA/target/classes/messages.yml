@@ -1,5 +1,11 @@
 prefix: '&7[&3KnockBack&bFFA&7] &r'
 
+reload: '&aAll configs were successfully reloaded.'
+
+# You can modify these settings in config.yml. Set them to true/false here to show or hide the join/leave messages.
+join-message: 'leave kokot'
+leave-message: 'join piče'
+
 # You can add more if u want. Just type 11: 'your-next-kill-message'
 #
 # %player1% - returns the killer

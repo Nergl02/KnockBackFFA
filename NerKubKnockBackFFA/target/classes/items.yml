@@ -5,7 +5,8 @@ knockback-stick:
   display-name: '&dKnockBack Stick'
   # Lore of the item
   lore:
-    - '&fPush them to the void.'
+    - '&7Punch them to the void.'
+    - '&7Be the best beast!'
   # Power of knockback
   knockback: 2
   # When set to true - the enchantment will not be visible. When set to false - players will be able to see the enchantment
@@ -14,7 +15,14 @@ knockback-stick:
 bow:
   display-name: '&dPunch Bow'
   lore:
-    - '&fPlayers! Catch them all'
-    - '&flike Pokemons!'
+    - '&7Players! Punch them all,'
+    - '&7they are like moving targets!'
   punch: 2
+  hide-enchantment: true
+
+swapper-ball:
+  display-name: '&dSwapper Ball'
+  lore:
+    - '&7Hit a player, and'
+    - '&7switch positions with them!'
   hide-enchantment: true

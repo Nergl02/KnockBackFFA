@@ -1,8 +1,20 @@
 # If set to true, when a player joins the server, they will spawn at the arena spawn position.
-bungee: true
+bungee-mode: true
 
-#block-break-time is in seconds
-block-break-time: 3 #Each break phase will last 3 seconds, which means the block will completely break after 12 seconds
+# block-break-time is in seconds.
+block-break-time: 3 #Each break phase will last 3 seconds, which means the block will completely break after 12 seconds.
 
-#The Y position at which a player dies when knocked into the void. Can be -10 or 10 (only full numbers)
+# The Y position at which a player dies when knocked into the void. Can be -10 or 10 (only full numbers).
 death-height: 0
+
+# TODO join-message true/false. If true, take join message from messages.yml
+join-message: true
+
+# TODO leave-message true/false. If true, take leave message from messages.yml
+leave-message: true
+
+# The maximum number of Ender Pearls a player can hold at one time.
+max-ender-pearls: 5
+
+# The maximum number of Arrows a player can hold at one time.
+max-arrows: 3

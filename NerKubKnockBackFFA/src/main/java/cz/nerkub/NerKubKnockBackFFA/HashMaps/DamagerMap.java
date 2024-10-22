@@ -8,14 +8,6 @@ import java.util.UUID;
 
 public class DamagerMap {
 
-	private static DamagerMap instance;
-
-	public static  DamagerMap getInstance(){
-		if (instance == null) {
-			instance = new DamagerMap();
-		}
-		return  instance;
-	}
 
 	public final Map<UUID, UUID> damagerMap = new HashMap<>();
 
