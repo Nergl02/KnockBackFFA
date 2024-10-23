@@ -1,6 +1,8 @@
+cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.class
+cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$1.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\DropItemListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\SwapperBallItem.class
@@ -10,11 +12,14 @@ cz\nerkub\NerKubKnockBackFFA\CustomFiles\CustomConfig.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
+cz\nerkub\NerKubKnockBackFFA\Managers\ScoreboardUpdater.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\FallDamageListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerDamageListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\KnockBackStickItem.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\ArenaManager.class
 cz\nerkub\NerKubKnockBackFFA\Items\LeatherTunicItem.class
 cz\nerkub\NerKubKnockBackFFA\Items\PunchBowItem.class

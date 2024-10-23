@@ -2,6 +2,7 @@ package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -18,25 +19,26 @@ public class PlayerMoveListener implements Listener {
 	private final DamagerMap damagerMap;
 	private final Random random;
 	private final BuildBlockItem buildBlockItem;
+	private final ArenaManager arenaManager;
 
 
-	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, BuildBlockItem buildBlockItem) {
+	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager) {
 		this.plugin = plugin;
 		this.damagerMap = damagerMap;
 		this.buildBlockItem = buildBlockItem;
+		this.arenaManager = arenaManager;
 		this.random = new Random();
 	}
 
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
-		Location spawn = player.getWorld().getSpawnLocation();
 
 		if (player.getLocation().getY() <= plugin.getConfig().getInt("death-height")) {
 			// POKUD NENÍ DAMAGER A HRÁČ SPADNE SÁM
 			if (!damagerMap.hasDamager(player.getUniqueId())) {
 
-				player.teleport(spawn);
+				arenaManager.teleportPlayerToCurrentArena(player);
 
 				player.getInventory().remove(new ItemStack(Material.ENDER_PEARL));
 				player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));
@@ -75,7 +77,7 @@ public class PlayerMoveListener implements Listener {
 			}
 			damagerMap.removeDamager(player.getUniqueId());
 			// Teleportace hráče na spawn
-			player.teleport(spawn);
+			arenaManager.teleportPlayerToCurrentArena(player);
 
 			player.getInventory().remove(new ItemStack(Material.ENDER_PEARL));
 			player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));

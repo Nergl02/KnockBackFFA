@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 
+import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.SubCommandManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.ChatColor;
@@ -8,9 +9,11 @@ import org.bukkit.entity.Player;
 public class ReloadSubCommand extends SubCommandManager {
 
 	private final NerKubKnockBackFFA plugin;
+	private final ScoreBoardManager scoreBoardManager;
 
-	public ReloadSubCommand(NerKubKnockBackFFA plugin) {
+	public ReloadSubCommand(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager) {
 		this.plugin = plugin;
+		this.scoreBoardManager = scoreBoardManager;
 	}
 
 	@Override
@@ -33,6 +36,7 @@ public class ReloadSubCommand extends SubCommandManager {
 		plugin.getMessages().reloadConfig();
 		plugin.getItems().reloadConfig();
 		plugin.reloadConfig();
+		scoreBoardManager.reloadScoreboard();
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("reload")));
 		return false;
 	}

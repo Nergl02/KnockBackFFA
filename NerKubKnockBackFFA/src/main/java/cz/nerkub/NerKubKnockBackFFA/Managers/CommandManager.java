@@ -2,6 +2,7 @@ package cz.nerkub.NerKubKnockBackFFA.Managers;
 
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.ReloadSubCommand;
+import cz.nerkub.NerKubKnockBackFFA.SubCommands.SetArenaSpawnCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,12 +14,15 @@ import java.util.ArrayList;
 public class CommandManager implements CommandExecutor {
 
 	private final NerKubKnockBackFFA plugin;
+	private final ScoreBoardManager scoreBoardManager;
 
 	private ArrayList<SubCommandManager> subCommandManagers = new ArrayList<>();
 
-	public CommandManager(NerKubKnockBackFFA plugin) {
+	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager) {
 		this.plugin = plugin;
-		subCommandManagers.add(new ReloadSubCommand(NerKubKnockBackFFA.getPlugin()));
+		this.scoreBoardManager = scoreBoardManager;
+		subCommandManagers.add(new ReloadSubCommand(NerKubKnockBackFFA.getPlugin(), scoreBoardManager));
+		subCommandManagers.add(new SetArenaSpawnCommand(NerKubKnockBackFFA.getPlugin()));
 	}
 
 	@Override

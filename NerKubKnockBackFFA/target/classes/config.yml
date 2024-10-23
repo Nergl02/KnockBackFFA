@@ -1,6 +1,9 @@
 # If set to true, when a player joins the server, they will spawn at the arena spawn position.
 bungee-mode: true
 
+# Time (in minutes) after which players will be teleported to the new arena
+arena-time: 1
+
 # block-break-time is in seconds.
 block-break-time: 3 #Each break phase will last 3 seconds, which means the block will completely break after 12 seconds.
 
@@ -24,3 +27,30 @@ max-arrows: 3
 build-blocks:
   default-amount: 16
   on-kill-reward: 4
+
+# ScoreBoard
+# %rank% returns the player's rank
+# %kills% returns the player's total kills
+# %deaths% returns the player's total deaths
+# %kd% returns the player's kill/death ratio (KD)
+# %killstreak% returns the player's current kill streak
+# %maxkillstreak% returns the player's highest kill streak
+# %currentarena% returns the name of the arena the player is currently in
+# %nextarenain% returns the time until the next arena starts
+scoreboard:
+  title: '&a&lKnockBackFFA'
+  lines:
+    14: ''
+    13: 'Rank: &b%rank%'
+    12: ''
+    11: 'Zabití: &a%kills%'
+    10: 'Úmrtí: &c%deaths%'
+    9: 'KD: &e%kd%'
+    8: ''
+    7: 'KillStreak: &a%killstreak%'
+    6: 'Max KillStreak: &a%maxkillstreak%'
+    5: ''
+    4: 'Arena: &b%currentarena%'
+    3: 'Další Arena za: &e%nextarenain%'
+    2: ''
+    1: '   &3play.nerkub.cz'

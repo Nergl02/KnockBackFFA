@@ -13,7 +13,11 @@ C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\ma
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerSwapperListener.java
+C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ArenaManager.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.java
+C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.java
+C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ScoreboardUpdater.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.java
 C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.java
+C:\Users\matej\Desktop\NerKub Studios\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.java

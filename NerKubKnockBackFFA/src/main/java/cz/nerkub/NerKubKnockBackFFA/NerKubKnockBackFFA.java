@@ -7,16 +7,24 @@ import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
 import cz.nerkub.NerKubKnockBackFFA.Listeners.*;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.CommandManager;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreboardUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
+
 
 public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	private static NerKubKnockBackFFA plugin;
+	private ArenaManager arenaManager;
+	private Random random;
 
 	private CustomConfig messages;
 	private CustomConfig arenas;
@@ -27,6 +35,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final PunchBowItem punchBowItem = new PunchBowItem(this);
 	private final LeatherTunicItem leatherTunicItem = new LeatherTunicItem(this);
 	private final BuildBlockItem buildBlockItem = new BuildBlockItem(this);
+	private ScoreBoardManager scoreBoardManager;
+	private ScoreboardUpdater scoreboardUpdater;
 
 
 	@Override
@@ -34,6 +44,9 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		// Plugin startup logic
 
 		plugin = this;
+		random = new Random();
+		arenaManager = new ArenaManager(this, scoreboardUpdater, random);
+		scoreBoardManager = new ScoreBoardManager(this);
 
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
@@ -47,13 +60,13 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, buildBlockItem), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, buildBlockItem, arenaManager), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager), this);
 		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
 		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
 
-		getCommand("knbffa").setExecutor(new CommandManager(this));
+		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager));
 
 
 		saveDefaultConfig();
@@ -66,6 +79,16 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		arenas.saveConfig();
 		items = new CustomConfig("items", "items.yml", this);
 		items.saveConfig();
+
+
+		// Spustíme střídání arén každých 15 minut
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				arenaManager.teleportPlayersToRandomArena();
+			}
+		}.runTaskTimer(this, 0, (long) plugin.getConfig().getInt("arena-time") * 20 * 60);  // 300 sekund = 15 minut
+
 
 	}
 
@@ -88,6 +111,14 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	public CustomConfig getItems() {
 		return items;
+	}
+
+	public ArenaManager getArenaManager() {
+		return arenaManager;
+	}
+
+	public ScoreBoardManager getScoreBoardManager() {
+		return scoreBoardManager;
 	}
 
 }

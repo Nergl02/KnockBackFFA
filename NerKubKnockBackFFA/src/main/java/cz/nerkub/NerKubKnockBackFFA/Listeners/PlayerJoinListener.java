@@ -4,9 +4,13 @@ import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
+import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,23 +26,29 @@ public class PlayerJoinListener implements Listener {
 	private final PunchBowItem punchBowItem;
 	private final LeatherTunicItem leatherTunicItem;
 	private final BuildBlockItem buildBlockItem;
+	private final ArenaManager arenaManager;
+	private final ScoreBoardManager scoreBoardManager;
 
-	public PlayerJoinListener(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem) {
+	public PlayerJoinListener(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager) {
 		this.plugin = plugin;
 		this.knockBackStickItem = knockBackStickItem;
 		this.punchBowItem = punchBowItem;
 		this.leatherTunicItem = leatherTunicItem;
 		this.buildBlockItem = buildBlockItem;
+		this.arenaManager = arenaManager;
+		this.scoreBoardManager = scoreBoardManager;
 	}
 
 	@EventHandler
 	public void onPlayerJoin (PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		Location spawn = player.getWorld().getSpawnLocation();
 
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
-			player.teleport(spawn);
+			// TODO Teleportovat hráče na základě aktivní arény!!
+			arenaManager.teleportPlayerToCurrentArena(player);
 		}
+
+		plugin.getScoreBoardManager().startScoreboardUpdater(player);
 
 		player.getInventory().clear();
 		player.getInventory().setItem(0, knockBackStickItem.createKnockBackStickItem());
