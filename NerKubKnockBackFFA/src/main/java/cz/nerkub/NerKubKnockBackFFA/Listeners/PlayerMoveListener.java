@@ -1,6 +1,9 @@
 package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
 import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
@@ -17,14 +20,20 @@ public class PlayerMoveListener implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
 	private final DamagerMap damagerMap;
+	private final KillStreakMap killStreakMap;
+	private final KillsMap killsMap;
+	private final DeathsMap deathsMap;
 	private final Random random;
 	private final BuildBlockItem buildBlockItem;
 	private final ArenaManager arenaManager;
 
 
-	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager) {
+	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager) {
 		this.plugin = plugin;
 		this.damagerMap = damagerMap;
+		this.killStreakMap = killStreakMap;
+		this.killsMap = killsMap;
+		this.deathsMap = deathsMap;
 		this.buildBlockItem = buildBlockItem;
 		this.arenaManager = arenaManager;
 		this.random = new Random();
@@ -39,6 +48,8 @@ public class PlayerMoveListener implements Listener {
 			if (!damagerMap.hasDamager(player.getUniqueId())) {
 
 				arenaManager.teleportPlayerToCurrentArena(player);
+				killStreakMap.removeInt(player.getUniqueId());
+				deathsMap.putInt(player.getUniqueId());
 
 				player.getInventory().remove(new ItemStack(Material.ENDER_PEARL));
 				player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));
@@ -75,7 +86,19 @@ public class PlayerMoveListener implements Listener {
 			} else {
 				Bukkit.getPlayer(damager).getInventory().setItem(8, buildBlockItem.createBuildBlockItem(4));
 			}
+
+			// Uložení zabití do databáze
+
 			damagerMap.removeDamager(player.getUniqueId());
+			killStreakMap.putInt(damager);
+			killStreakMap.removeInt(player.getUniqueId());
+			deathsMap.putInt(player.getUniqueId());
+			killsMap.putInt(damager);
+
+			if (killStreakMap.getInt(damager) == 5) {
+				Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', Bukkit.getPlayer(damager).getDisplayName() + " &adosáhl &eKillStreaku &ave výši &c" + (killStreakMap.getInt(damager)) + " &akillů."));
+			}
+
 			// Teleportace hráče na spawn
 			arenaManager.teleportPlayerToCurrentArena(player);
 

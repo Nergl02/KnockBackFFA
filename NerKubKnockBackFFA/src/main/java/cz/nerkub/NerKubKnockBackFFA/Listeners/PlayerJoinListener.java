@@ -1,5 +1,7 @@
 package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
+import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
@@ -29,7 +31,10 @@ public class PlayerJoinListener implements Listener {
 	private final ArenaManager arenaManager;
 	private final ScoreBoardManager scoreBoardManager;
 
-	public PlayerJoinListener(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager) {
+	private final DamagerMap damagerMap;
+	private final KillStreakMap killStreakMap;
+
+	public PlayerJoinListener(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DamagerMap damagerMap, KillStreakMap killStreakMap) {
 		this.plugin = plugin;
 		this.knockBackStickItem = knockBackStickItem;
 		this.punchBowItem = punchBowItem;
@@ -37,6 +42,8 @@ public class PlayerJoinListener implements Listener {
 		this.buildBlockItem = buildBlockItem;
 		this.arenaManager = arenaManager;
 		this.scoreBoardManager = scoreBoardManager;
+		this.damagerMap = damagerMap;
+		this.killStreakMap = killStreakMap;
 	}
 
 	@EventHandler
@@ -65,8 +72,11 @@ public class PlayerJoinListener implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit (PlayerQuitEvent event) {
+		Player player = event.getPlayer();
 		// TODO
 		// if in config.yml leave-message set to true, take leave-message from messages.yml if false, set to null
+		killStreakMap.removeInt(player.getUniqueId());
+		damagerMap.removeDamager(player.getUniqueId());
 		event.setQuitMessage(null);
 	}
 }

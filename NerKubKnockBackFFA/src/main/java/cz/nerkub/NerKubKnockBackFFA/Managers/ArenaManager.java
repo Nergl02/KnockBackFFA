@@ -16,6 +16,7 @@ public class ArenaManager {
 	private final NerKubKnockBackFFA plugin;
 	private final ScoreboardUpdater scoreboardUpdater;
 	private final Random random;
+	private  int timeRemaining;
 
 	private String currentArena;
 	private String lastArena;
@@ -32,6 +33,10 @@ public class ArenaManager {
 
 	public String getCurrentArena() {
 		return currentArena;
+	}
+
+	public int getTimeRemaining() {
+		return timeRemaining;
 	}
 
 	// Teleport hráče do aktuální arény

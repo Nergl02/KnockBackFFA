@@ -3,13 +3,16 @@ package cz.nerkub.NerKubKnockBackFFA.Listeners;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class PlayerDamageListener implements Listener {
@@ -35,22 +38,24 @@ public class PlayerDamageListener implements Listener {
 	}
 
 
-	// Zrušení EnderPearl damage
 	@EventHandler
-	public void onPlayerDamageByEnderPearl (PlayerTeleportEvent event) {
-		Player player = event.getPlayer();
-		Location targetLocation = event.getTo();
-		if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
-			event.setCancelled(true);
-			player.teleport(targetLocation);
-		}
-	}
+	public void onPlayerDamageByArrow(EntityDamageByEntityEvent event) {
+		if (event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+			Entity damager = event.getDamager();
 
-	@EventHandler
-	public void onPlayerDamageByArrow (EntityDamageByEntityEvent event) {
-		Entity damager = event.getDamager();
-		if (damager instanceof Arrow) {
-			event.setDamage(0);
+			if (damager instanceof Arrow) {
+				Arrow arrow = (Arrow) damager;
+				if (arrow.getShooter() instanceof Player) {
+					Player shooter = (Player) arrow.getShooter();
+					event.setDamage(0); // Nastaví poškození na nulu
+					damagerMap.putDamager(player.getUniqueId(), shooter.getUniqueId()); // Přidá útočníka do mapy
+				}
+			}
+			if (damager instanceof EnderPearl) {
+				EnderPearl enderPearl = (EnderPearl) damager;
+				event.setDamage(0);
+			}
 		}
 	}
 

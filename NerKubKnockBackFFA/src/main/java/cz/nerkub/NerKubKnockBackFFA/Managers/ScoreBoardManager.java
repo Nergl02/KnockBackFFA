@@ -1,6 +1,7 @@
 package cz.nerkub.NerKubKnockBackFFA.Managers;
 
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ public class ScoreBoardManager {
 	private Objective objective;
 	private Map<Integer, String> scoreBoardLines;
 	private String title;
+	private ArenaManager arenaManager;
 
 	public ScoreBoardManager(NerKubKnockBackFFA plugin) {
 		this.plugin = plugin;
@@ -39,6 +41,12 @@ public class ScoreBoardManager {
 		}
 	}
 
+	private String formatTime(int timeInSeconds) {
+		int minutes = timeInSeconds / 60;
+		int seconds = timeInSeconds % 60;
+		return String.format("%dm %ds", minutes, seconds);
+	}
+
 	public void updateScoreboard(Player player) {
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
 		Scoreboard scoreboard = manager.getNewScoreboard();
@@ -48,13 +56,13 @@ public class ScoreBoardManager {
 		// Aktualizuj řádky scoreboardu
 		for (Map.Entry<Integer, String> entry : scoreBoardLines.entrySet()) {
 			String line = entry.getValue();
-			// Nahrazení placeholderu %currentArena%
-			if (line.contains("%currentarena%")) {
-				String currentArena = plugin.getArenaManager().getCurrentArena();
-				line = line.replace("%currentarena%", currentArena != null ? currentArena : "N/A");
-			}
+
+			// Použijte PlaceholderAPI k nahrazení placeholderů
+			line = PlaceholderAPI.setPlaceholders(player, line);
+
+			// Vytvoření unikátního řádku pomocí týmu
 			Team team = scoreboard.registerNewTeam("line" + entry.getKey());
-			team.addEntry(ChatColor.values()[entry.getKey()] + "");  // Barvy, aby každý tým měl unikátní řádek
+			team.addEntry(ChatColor.values()[entry.getKey()] + "");  // Použití barev pro unikátní klíč
 			team.setPrefix(line);  // Zobrazí celý text jako prefix
 
 			objective.getScore(ChatColor.values()[entry.getKey()] + "").setScore(entry.getKey());
@@ -63,6 +71,7 @@ public class ScoreBoardManager {
 		// Přiřaď scoreboard hráči
 		player.setScoreboard(scoreboard);
 	}
+
 
 	public void reloadScoreboard() {
 		loadScoreboard(); // Obnoví scoreboard ze souboru

@@ -11,6 +11,8 @@ cz\nerkub\NerKubKnockBackFFA\Items\BuildBlockItem.class
 cz\nerkub\NerKubKnockBackFFA\CustomFiles\CustomConfig.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.class
+cz\nerkub\NerKubKnockBackFFA\HashMaps\DeathsMap.class
+cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreboardUpdater.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\FallDamageListener.class
@@ -18,8 +20,10 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerDamageListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\KnockBackStickItem.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
+cz\nerkub\NerKubKnockBackFFA\Expansions\KnockBackPlaceholderExpansion.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ArenaManager.class
 cz\nerkub\NerKubKnockBackFFA\Items\LeatherTunicItem.class
 cz\nerkub\NerKubKnockBackFFA\Items\PunchBowItem.class
+cz\nerkub\NerKubKnockBackFFA\HashMaps\KillStreakMap.class
