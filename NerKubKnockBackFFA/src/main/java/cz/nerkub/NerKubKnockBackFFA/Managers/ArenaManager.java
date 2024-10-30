@@ -16,7 +16,7 @@ public class ArenaManager {
 	private final NerKubKnockBackFFA plugin;
 	private final ScoreboardUpdater scoreboardUpdater;
 	private final Random random;
-	private  int timeRemaining;
+	private int timeRemaining;
 
 	private String currentArena;
 	private String lastArena;

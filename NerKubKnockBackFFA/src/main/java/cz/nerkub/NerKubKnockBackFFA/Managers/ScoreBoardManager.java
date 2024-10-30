@@ -34,7 +34,7 @@ public class ScoreBoardManager {
 		scoreBoardLines.clear(); // Vymazání předchozích řádků
 		for (String key : plugin.getConfig().getConfigurationSection("scoreboard.lines").getKeys(false)) {
 			int lineNumber = Integer.parseInt(key);
-			String lineText = ChatColor.translateAlternateColorCodes('&',plugin.getConfig().getString("scoreboard.lines." + key));
+			String lineText = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("scoreboard.lines." + key));
 			scoreBoardLines.put(lineNumber, lineText);
 			// Ladicí výstup
 			Bukkit.getLogger().info("Načten řádek pro scoreboard: " + lineNumber + ": " + lineText);

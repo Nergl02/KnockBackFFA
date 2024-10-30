@@ -42,19 +42,68 @@ build-blocks:
 scoreboard:
   title: '&a&lKnockBackFFA'
   lines:
-    16: ''
     15: 'Rank: &b%knbffa_rank%'
-    14: 'Coiny: &e%knbffa_coins%'
+    14: 'Coins: &e%knbffa_coins%'
     13: 'Elo: &c%knbffa_elo%'
     12: ''
-    11: 'Zabití: &a%knbffa_kills%'
-    10: 'Úmrtí: &c%knbffa_deaths%'
+    11: 'Kills: &a%knbffa_kills%'
+    10: 'Deaths: &c%knbffa_deaths%'
     9: 'KD: &e%knbffa_kd%'
     8: ''
     7: 'KillStreak: &a%knbffa_killstreak%'
     6: 'Max KillStreak: &a%knbffa_maxkillstreak%'
     5: ''
     4: 'Arena: &b%knbffa_currentarena%'
-    3: 'Další Arena za: &e%knbffa_nextarenain%'
+    3: 'Next Arena In: &e%knbffa_nextarenain%'
     2: ''
-    1: '   &3play.nerkub.cz'
+    1: '     &3server.ip'
+
+# The amount of ELO a player will gain for killing another player, or the amount that will be deducted if they die.
+elo:
+  kill-min: 3
+  kill-max: 7
+  death-min: 2
+  death-max: 5
+
+# You can only edit the text inside '' to change the display name or the minimum and maximum Elo values.
+ranks:
+  novice:
+    display: 'Novice'
+    min: 100
+    max: 399
+  apprentice:
+    display: 'Apprentice'
+    min: 400
+    max: 799
+  adept:
+    display: 'Adept'
+    min: 800
+    max: 1199
+  warrior:
+    display: 'Warrior'
+    min: 1200
+    max: 1599
+  champion:
+    display: 'Champion'
+    min: 1600
+    max: 1999
+  gladiator:
+    display: 'Gladiator'
+    min: 2000
+    max: 2399
+  hero:
+    display: 'Hero'
+    min: 2400
+    max: 2799
+  master:
+    display: 'Master'
+    min: 2800
+    max: 3199
+  legend:
+    display: 'Legend'
+    min: 3200
+    max: 3599
+  mythic:
+    display: 'Mythic'
+    min: 3600
+    max: 9999

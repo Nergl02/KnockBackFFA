@@ -30,7 +30,7 @@ public class BlockBreakListener implements Listener {
 		if (player.getGameMode() == GameMode.SURVIVAL && block.getType() == Material.QUARTZ_BLOCK) {
 			// Definujeme pole s materiály, které bude blok postupně měnit
 			Material[] stages = {
-					Material.QUARTZ_BLOCK,	  // První fáze: quartz block
+					Material.QUARTZ_BLOCK,      // První fáze: quartz block
 					Material.GREEN_CONCRETE,  // Druhá fáze: zelený beton
 					Material.YELLOW_CONCRETE, // Třetí fáze: žlutý beton
 					Material.ORANGE_CONCRETE, // Čtvrtá fáze: oranžový beton

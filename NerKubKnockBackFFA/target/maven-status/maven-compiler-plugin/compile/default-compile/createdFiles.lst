@@ -1,5 +1,6 @@
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.class
+cz\nerkub\NerKubKnockBackFFA\Managers\RankManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$1.class

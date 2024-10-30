@@ -35,6 +35,8 @@ public class ReloadSubCommand extends SubCommandManager {
 	public boolean perform(Player player, String[] args) {
 		plugin.getMessages().reloadConfig();
 		plugin.getItems().reloadConfig();
+		plugin.getPlayers().reloadConfig();
+		plugin.getArenas().reloadConfig();
 		plugin.reloadConfig();
 		scoreBoardManager.reloadScoreboard();
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("reload")));

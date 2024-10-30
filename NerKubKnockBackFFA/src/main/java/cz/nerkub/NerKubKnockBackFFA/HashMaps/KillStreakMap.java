@@ -9,7 +9,7 @@ public class KillStreakMap {
 	public final Map<UUID, Integer> killstreakMap = new HashMap<>();
 
 	public Integer putInt(UUID player) {
-		return killstreakMap.put(player, killstreakMap.getOrDefault(player,0) + 1);
+		return killstreakMap.put(player, killstreakMap.getOrDefault(player, 0) + 1);
 	}
 
 	public Integer getInt(UUID player) {

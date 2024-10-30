@@ -17,7 +17,7 @@ public class BuildBlockItem {
 		this.plugin = plugin;
 	}
 
-	public ItemStack createBuildBlockItem (int amount) {
+	public ItemStack createBuildBlockItem(int amount) {
 		ItemStack buildBlockItem = new ItemStack(Material.valueOf(plugin.getItems().getConfig().getString("build-block.material").toUpperCase()), amount);
 		ItemMeta buildBlockMeta = buildBlockItem.getItemMeta();
 

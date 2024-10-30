@@ -31,15 +31,17 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private CustomConfig messages;
 	private CustomConfig arenas;
 	private CustomConfig items;
+	private CustomConfig players;
 
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
 	private final KillStreakMap killStreakMap = new KillStreakMap();
 	private final DeathsMap deathsMap = new DeathsMap();
-	private final KillsMap killsMap = new KillsMap();
+	private final KillsMap killsMap = new KillsMap(this);
 	private final KnockBackStickItem knockBackStickItem = new KnockBackStickItem(this);
 	private final PunchBowItem punchBowItem = new PunchBowItem(this);
 	private final LeatherTunicItem leatherTunicItem = new LeatherTunicItem(this);
 	private final BuildBlockItem buildBlockItem = new BuildBlockItem(this);
+	private final RankManager rankManager = new RankManager(this);
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -68,8 +70,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap, killStreakMap), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap, killStreakMap, killsMap, rankManager), this);
 		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
 		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
@@ -87,6 +89,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		arenas.saveConfig();
 		items = new CustomConfig("items", "items.yml", this);
 		items.saveConfig();
+		players = new CustomConfig("players", "players.yml", this);
+		players.saveConfig();
 
 		new BukkitRunnable() {
 			@Override
@@ -104,7 +108,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		}.runTaskTimer(this, 0, 20L); // Každou sekundu (20 ticků)
 
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) { //
-			new KnockBackPlaceholderExpansion(this, killStreakMap, killsMap, deathsMap).register(); //
+			new KnockBackPlaceholderExpansion(this, killStreakMap, killsMap, deathsMap, rankManager).register(); //
 		}
 
 		// Zkontrolujte, zda je nějaká aréna nastavena
@@ -124,7 +128,11 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-
+		plugin.getPlayers().saveConfig();
+		plugin.getArenas().saveConfig();
+		plugin.getMessages().saveConfig();
+		plugin.saveConfig();
+		plugin.getItems().saveConfig();
 	}
 
 	public static NerKubKnockBackFFA getPlugin() {
@@ -141,6 +149,10 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	public CustomConfig getItems() {
 		return items;
+	}
+
+	public CustomConfig getPlayers() {
+		return players;
 	}
 
 	public ArenaManager getArenaManager() {

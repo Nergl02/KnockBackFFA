@@ -19,7 +19,7 @@ public class PunchBowItem {
 		this.plugin = plugin;
 	}
 
-	public ItemStack createBowItem () {
+	public ItemStack createBowItem() {
 		ItemStack bowItem = new ItemStack(Material.BOW);
 		ItemMeta bowMeta = bowItem.getItemMeta();
 

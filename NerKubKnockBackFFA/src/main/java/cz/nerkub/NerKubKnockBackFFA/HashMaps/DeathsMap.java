@@ -11,7 +11,7 @@ public class DeathsMap {
 	public final Map<UUID, Integer> deathsMap = new HashMap<>();
 
 	public Integer putInt(UUID player) {
-		return deathsMap.put(player, deathsMap.getOrDefault(player,0) + 1);
+		return deathsMap.put(player, deathsMap.getOrDefault(player, 0) + 1);
 	}
 
 	public Integer getInt(UUID player) {

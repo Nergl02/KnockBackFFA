@@ -21,7 +21,7 @@ public class SwapperBallItem {
 	}
 
 
-	public ItemStack createSwapperBallItem () {
+	public ItemStack createSwapperBallItem() {
 		ItemStack swapperBallItem = new ItemStack(Material.SNOWBALL);
 		ItemMeta swapperBallMeta = swapperBallItem.getItemMeta();
 
@@ -34,7 +34,7 @@ public class SwapperBallItem {
 			lore.add(ChatColor.translateAlternateColorCodes('&', line));
 		}
 
-		swapperBallMeta.addEnchant(Enchantment.DURABILITY, 1,true);
+		swapperBallMeta.addEnchant(Enchantment.DURABILITY, 1, true);
 
 		if (plugin.getItems().getConfig().getBoolean("swapper-ball.hide-enchantment")) {
 			swapperBallMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

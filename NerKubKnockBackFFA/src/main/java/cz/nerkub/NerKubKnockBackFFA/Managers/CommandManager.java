@@ -30,17 +30,17 @@ public class CommandManager implements CommandExecutor {
 
 		if (sender instanceof Player player) {
 			if (args.length > 0) {
-				for (int i = 0; i < getSubCommands().size(); i++){
-					if (args[0].equalsIgnoreCase(getSubCommands().get(i).getName())){
+				for (int i = 0; i < getSubCommands().size(); i++) {
+					if (args[0].equalsIgnoreCase(getSubCommands().get(i).getName())) {
 						getSubCommands().get(i).perform(player, args);
 					}
 				}
 			} else if (args.length == 0) {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&',"&7Visit our Discord &bhttps://discord.gg/YXm26egK6g &7for help!"));
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&',"&7------- " + "&7[&3KnockBack&bFFA&7]" + " &7-------"));
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Visit our Discord &bhttps://discord.gg/YXm26egK6g &7for help!"));
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7------- " + "&7[&3KnockBack&bFFA&7]" + " &7-------"));
 				for (int i = 0; i < getSubCommands().size(); i++) {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&',"&6> &3" + getSubCommands().get(i).getSyntax())  + ChatColor.translateAlternateColorCodes('&'," &b- ") +
-							ChatColor.translateAlternateColorCodes('&',"&7" + getSubCommands().get(i).getDescription()));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6> &3" + getSubCommands().get(i).getSyntax()) + ChatColor.translateAlternateColorCodes('&', " &b- ") +
+							ChatColor.translateAlternateColorCodes('&', "&7" + getSubCommands().get(i).getDescription()));
 				}
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7----------------------------"));
 

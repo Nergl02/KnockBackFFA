@@ -21,10 +21,10 @@ public class PlayerSwapperListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerSwap (EntityDamageByEntityEvent event) {
+	public void onPlayerSwap(EntityDamageByEntityEvent event) {
 
 		if (event.getEntity() instanceof Player) {
-			if (event.getDamager() instanceof Snowball){
+			if (event.getDamager() instanceof Snowball) {
 				Snowball snowball = (Snowball) event.getDamager();
 				Player victim = (Player) event.getEntity();
 				Player damager = (Player) snowball.getShooter();

@@ -11,7 +11,7 @@ public class DropItemListener implements Listener {
 
 
 	@EventHandler
-	public void onPlayerDropItem (PlayerDropItemEvent event) {
+	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
 
 		if (player.getGameMode() == GameMode.SURVIVAL) {
@@ -20,7 +20,7 @@ public class DropItemListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerMoveItem (InventoryClickEvent event) {
+	public void onPlayerMoveItem(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
 
 		if (player.getGameMode() == GameMode.SURVIVAL) {

@@ -23,3 +23,16 @@ kill-messages:
   10: '&c%player2% &7was no match for &a%player1%&7! A flawless victory!'
 
 block-break: '&cSorry, but breaking blocks is not allowed here!'
+
+
+# %rank% is not a full placeholder; it only works in this section. Do not use it in places such as the scoreboard, etc.!
+# It returns the rank that the player has been promoted to or demoted from.
+rank:
+  promoted: '&aCongratulations! You''ve been promoted to &e%rank%&a!'
+  demoted: '&cYou''ve been demoted to &e%rank%&c! Keep trying!'
+
+elo:
+  elo-lost: '&cYou lost &e%elo% &cElo for dying.'
+  elo-gained: '&aYou gained &e%elo% &aElo for the kill!'
+
+kill-streak: '&a%player% &7has just reached a killstreak of &e%killstreak%&7!'

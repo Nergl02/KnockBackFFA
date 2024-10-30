@@ -22,7 +22,7 @@ public class LeatherTunicItem {
 	}
 
 
-	public ItemStack createLeatherTunicItem () {
+	public ItemStack createLeatherTunicItem() {
 		ItemStack leatherTunicItem = new ItemStack(Material.LEATHER_CHESTPLATE);
 		LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) leatherTunicItem.getItemMeta();
 

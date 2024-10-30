@@ -3,6 +3,7 @@ package cz.nerkub.NerKubKnockBackFFA.Expansions;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
+import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -14,12 +15,14 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 	private final KillStreakMap killStreakMap;
 	private final KillsMap killsMap;
 	private final DeathsMap deathsMap;
+	private final RankManager rankManager;
 
-	public KnockBackPlaceholderExpansion(NerKubKnockBackFFA plugin, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap) {
+	public KnockBackPlaceholderExpansion(NerKubKnockBackFFA plugin, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, RankManager rankManager) {
 		this.plugin = plugin;
 		this.killStreakMap = killStreakMap;
 		this.killsMap = killsMap;
 		this.deathsMap = deathsMap;
+		this.rankManager = rankManager;
 	}
 
 	@Override
@@ -71,20 +74,20 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 
 		if (params.equals("kills")) {
 			// Načti kills z databáze
-			Integer kills = killsMap.getInt(player.getUniqueId());
+			Integer kills = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".kills");
 			return kills != null ? kills.toString() : "0"; // Pokud je null, vrať "0"
 		}
 
 		if (params.equals("deaths")) {
 			// Načti deaths z databáze
-			Integer deaths = deathsMap.getInt(player.getUniqueId());
+			Integer deaths = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".deaths");
 			return deaths != null ? deaths.toString() : "0"; // Pokud je null, vrať "0"
 		}
 
 		if (params.equals("kd")) {
 			// Načti kills a deaths
-			Integer kills = killsMap.getInt(player.getUniqueId());
-			Integer deaths = deathsMap.getInt(player.getUniqueId());
+			Integer kills = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".kills");
+			Integer deaths = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".deaths");
 
 			// Ověř, zda jsou kills a deaths null
 			if (kills == null) {
@@ -96,6 +99,18 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 
 			double kdRatio = (double) kills / deaths; // Vypočti KD poměr
 			return String.format("%.2f", kdRatio); // Formátování na dvě desetinná místa
+		}
+
+		if (params.equals("rank")) {
+			return plugin.getPlayers().getConfig().getString(player.getDisplayName() + ".rank");
+		}
+
+		if (params.equals("elo")) {
+			return plugin.getPlayers().getConfig().getString(player.getDisplayName() + ".elo");
+		}
+
+		if (params.equals("maxkillstreak")) {
+			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + (".max-kill-streak")));
 		}
 
 		return null; // Vrátí null, pokud placeholder neexistuje
