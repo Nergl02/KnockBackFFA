@@ -5,6 +5,9 @@ import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
 import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
@@ -28,9 +31,12 @@ public class PlayerMoveListener implements Listener {
 	private final BuildBlockItem buildBlockItem;
 	private final ArenaManager arenaManager;
 	private final RankManager rankManager;
+	private final KnockBackStickItem knockBackStickItem;
+	private final PunchBowItem punchBowItem;
+	private final LeatherTunicItem leatherTunicItem;
 
 
-	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager) {
+	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem) {
 		this.plugin = plugin;
 		this.damagerMap = damagerMap;
 		this.killStreakMap = killStreakMap;
@@ -39,6 +45,9 @@ public class PlayerMoveListener implements Listener {
 		this.buildBlockItem = buildBlockItem;
 		this.arenaManager = arenaManager;
 		this.rankManager = rankManager;
+		this.knockBackStickItem = knockBackStickItem;
+		this.punchBowItem = punchBowItem;
+		this.leatherTunicItem = leatherTunicItem;
 		this.random = new Random();
 	}
 
@@ -55,9 +64,12 @@ public class PlayerMoveListener implements Listener {
 				killStreakMap.removeInt(player.getUniqueId());
 				deathsMap.putInt(player.getUniqueId());
 
-				player.getInventory().remove(new ItemStack(Material.ENDER_PEARL));
+				player.getInventory().clear();
+
+				player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());
+				player.getInventory().setItem(2, punchBowItem.createBowItem());
+				player.getInventory().setItem(0, knockBackStickItem.createKnockBackStickItem());
 				player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));
-				player.getInventory().remove(new ItemStack(Material.ARROW));
 				player.getInventory().setItem(9, new ItemStack(Material.ARROW, 1));
 				player.getInventory().setItem(8, buildBlockItem.createBuildBlockItem(plugin.getConfig().getInt("build-blocks.default-amount")));
 
@@ -69,8 +81,6 @@ public class PlayerMoveListener implements Listener {
 				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".deaths", deaths);
 
 				plugin.getPlayers().saveConfig();
-
-				rankManager.savePlayerRank(player);
 
 				int minDeath = plugin.getConfig().getInt("elo.death-min");
 				int maxDeath = plugin.getConfig().getInt("elo.death-max");
@@ -90,7 +100,9 @@ public class PlayerMoveListener implements Listener {
 
 				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".elo", newElo);
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("elo.elo-lost").replace("%elo%", Integer.toString(eloLost))));
+				rankManager.savePlayerRank(player);
 				plugin.getPlayers().saveConfig();
+
 
 				return;
 			}
@@ -105,6 +117,7 @@ public class PlayerMoveListener implements Listener {
 							plugin.getMessages().getConfig().getString("kill-messages." + randomKey)
 									.replace("%player1%", Bukkit.getPlayer(damager).getDisplayName())
 									.replace("%player2%", player.getDisplayName())));
+
 
 			// Přidání Ender Pearl killerovi
 			Bukkit.getPlayer(damager).getInventory().addItem(new ItemStack(Material.ENDER_PEARL));
@@ -126,8 +139,6 @@ public class PlayerMoveListener implements Listener {
 			killStreakMap.putInt(damager);
 			killStreakMap.removeInt(player.getUniqueId());
 			deathsMap.putInt(player.getUniqueId());
-			rankManager.savePlayerRank(player);
-			rankManager.savePlayerRank(Bukkit.getPlayer(damager));
 
 			// Uložení killu
 			int kills = plugin.getPlayers().getConfig().getInt(Bukkit.getPlayer(damager).getDisplayName() + ".kills", 0);
@@ -143,16 +154,16 @@ public class PlayerMoveListener implements Listener {
 
 			killsMap.putInt(damager);
 
-			int minDeath = plugin.getConfig().getInt("elo.death-min");
-			int maxDeath = plugin.getConfig().getInt("elo.death-max");
+			int eloMinDeath = plugin.getConfig().getInt("elo.death-min");
+			int eloMaxDeath = plugin.getConfig().getInt("elo.death-max");
 
 			// Kontrola platnosti minimální a maximální hodnoty pro smrt
-			if (minDeath > maxDeath) {
+			if (eloMinDeath > eloMaxDeath) {
 				Bukkit.getLogger().severe("Error: death-max must be greater than or equal to death-min!");
 				return; // nebo jiná logika pro zpracování chyby
 			}
 
-			int eloLost = random.nextInt(maxDeath - minDeath + 1) + minDeath;
+			int eloLost = random.nextInt(eloMaxDeath - eloMinDeath + 1) + eloMinDeath;
 			int currentElo = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".elo", 0);
 			int newElo = currentElo - eloLost;
 
@@ -172,14 +183,44 @@ public class PlayerMoveListener implements Listener {
 			int currentEloDamager = plugin.getPlayers().getConfig().getInt(Bukkit.getPlayer(damager).getDisplayName() + ".elo", 0);
 			int newEloDamager = currentEloDamager + eloGained;
 
+			int coinMinKill = plugin.getConfig().getInt("coins.kill-min");
+			int coinMaxKill = plugin.getConfig().getInt("coins.kill-max");
+			int currentCoin = plugin.getPlayers().getConfig().getInt(Bukkit.getPlayer(damager).getDisplayName() + ".coins", 0);
+			int coinGained = random.nextInt(coinMaxKill - coinMinKill + 1) + coinMinKill;
+			int newCoin = currentCoin + coinGained;
+
 			plugin.getPlayers().getConfig().set(Bukkit.getPlayer(damager).getDisplayName() + ".elo", newEloDamager);
+			plugin.getPlayers().getConfig().set(Bukkit.getPlayer(damager).getDisplayName() + ".coins", newCoin);
 			Bukkit.getPlayer(damager).sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("elo.elo-gained").replace("%elo%", Integer.toString(eloGained))));
+			Bukkit.getPlayer(damager).sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("coins.coins-gained").replace("%coins%", Integer.toString(coinGained))));
 
 			// Nezapomeň uložit změny
 			plugin.getPlayers().saveConfig();
+			rankManager.savePlayerRank(Bukkit.getPlayer(damager));
+			rankManager.savePlayerRank(player);
 
-			if (killStreakMap.getInt(damager) % 5 == 0 && killStreakMap.getInt(damager) > 0) {
-				Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("kill-streak").replace("%player%", Bukkit.getPlayer(damager).getDisplayName()).replace("%killstreak%", String.valueOf(killStreakMap.getInt(damager)))));
+			// Získání hodnoty kill streaku
+			Integer killStreak = killStreakMap.getInt(damager);
+			if (killStreak != null && killStreak % 5 == 0 && killStreak > 0) {
+
+				int killStreakReward = plugin.getConfig().getInt("coins.kill-streak");
+				int killStreakGained = killStreak * killStreakReward;
+
+				newCoin = currentCoin + killStreakGained + coinGained;
+				plugin.getPlayers().getConfig().set(Bukkit.getPlayer(damager).getDisplayName() + ".coins", newCoin);
+
+				Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("kill-streak")
+								.replace("%player%", Bukkit.getPlayer(damager).getDisplayName())
+								.replace("%killstreak%", String.valueOf(killStreak))
+				));
+
+				Bukkit.getPlayer(damager).sendMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("coins.coins-kill-streak-gained")
+								.replace("%coins%", String.valueOf(killStreakGained))
+								.replace("%killstreak%", String.valueOf(killStreak))
+				));
+
 			}
 
 			int currentKillStreak = plugin.getPlayers().getConfig().getInt(Bukkit.getPlayer(damager).getDisplayName() + ".max-kill-streak");
@@ -191,6 +232,12 @@ public class PlayerMoveListener implements Listener {
 
 			// Teleportace hráče na spawn
 			arenaManager.teleportPlayerToCurrentArena(player);
+
+			player.getInventory().clear();
+
+			player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());
+			player.getInventory().setItem(2, punchBowItem.createBowItem());
+			player.getInventory().setItem(0, knockBackStickItem.createKnockBackStickItem());
 
 			player.getInventory().remove(new ItemStack(Material.ENDER_PEARL));
 			player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));

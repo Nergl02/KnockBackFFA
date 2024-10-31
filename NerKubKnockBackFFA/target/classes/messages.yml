@@ -6,6 +6,9 @@ reload: '&aAll configs were successfully reloaded.'
 join-message: 'leave kokot'
 leave-message: 'join piče'
 
+# %arena% will return the name of the created arena.
+arena-created: '&aThe arena &e%arena% &ahas been added to arenas.yml.'
+
 # You can add more if u want. Just type 11: 'your-next-kill-message'
 #
 # %player1% - returns the killer
@@ -35,4 +38,12 @@ elo:
   elo-lost: '&cYou lost &e%elo% &cElo for dying.'
   elo-gained: '&aYou gained &e%elo% &aElo for the kill!'
 
+coins:
+  coins-gained: '&aYou gained &e%coins% &aCoins for the kill!'
+  coins-kill-streak-gained: '&aYou gained &e%coins% &aCoins for the killstreak of &e%killstreak%&a!'
+
 kill-streak: '&a%player% &7has just reached a killstreak of &e%killstreak%&7!'
+
+safe-zone:
+  build: '&cHey, building is not allowed in the safe zone!'
+  attack: '&cHey, attacking is not allowed in the safe zone!'

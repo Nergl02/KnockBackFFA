@@ -11,10 +11,7 @@ import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -56,10 +53,17 @@ public class PlayerJoinListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+		String currentArena = plugin.getArenaManager().getCurrentArena();
 
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
 			// TODO Teleportovat hráče na základě aktivní arény!!
-			arenaManager.teleportPlayerToCurrentArena(player);
+			if (currentArena != null) {
+				// Přiřazení hráče do arény
+				arenaManager.teleportPlayerToCurrentArena(player);
+				player.sendMessage(ChatColor.GREEN + "Byl jsi přidán do arény: " + currentArena);
+			} else {
+				player.sendMessage(ChatColor.RED + "Žádná aréna není aktuálně dostupná.");
+			}
 		}
 
 		plugin.getScoreBoardManager().startScoreboardUpdater(player);

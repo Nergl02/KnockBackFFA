@@ -56,7 +56,7 @@ scoreboard:
     4: 'Arena: &b%knbffa_currentarena%'
     3: 'Next Arena In: &e%knbffa_nextarenain%'
     2: ''
-    1: '     &3server.ip'
+    1: '     &3your.server.ip'
 
 # The amount of ELO a player will gain for killing another player, or the amount that will be deducted if they die.
 elo:
@@ -64,6 +64,11 @@ elo:
   kill-max: 7
   death-min: 2
   death-max: 5
+
+coins:
+  kill-min: 3
+  kill-max: 10
+  kill-streak: 5
 
 # You can only edit the text inside '' to change the display name or the minimum and maximum Elo values.
 ranks:
@@ -107,3 +112,6 @@ ranks:
     display: 'Mythic'
     min: 3600
     max: 9999
+
+# This is the radius around the arena spawn where players are not allowed to attack others and build blocks
+safe-zone-radius: 15

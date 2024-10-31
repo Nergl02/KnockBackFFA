@@ -110,7 +110,11 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 		}
 
 		if (params.equals("maxkillstreak")) {
-			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + (".max-kill-streak")));
+			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".max-kill-streak"));
+		}
+
+		if (params.equals("coins")) {
+			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".coins"));
 		}
 
 		return null; // Vrátí null, pokud placeholder neexistuje

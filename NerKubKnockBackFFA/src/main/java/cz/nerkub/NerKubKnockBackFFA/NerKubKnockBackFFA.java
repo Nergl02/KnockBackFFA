@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
+import java.util.Set;
 
 
 public final class NerKubKnockBackFFA extends JavaPlugin {
@@ -61,20 +62,23 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv1.0.0"));
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studios"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studio"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|   \\|  | \\	&aPremium: &bThis plugin is a premium resource."));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| Visit our Discord for more! &ahttps://discord.gg/YXm26egK6g"));
 		Bukkit.getConsoleSender().sendMessage("");
 
-		getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
+		getServer().getPluginManager().registerEvents(new BlockBreakListener(this, arenaManager), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap, killStreakMap, killsMap, rankManager), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager,
+				knockBackStickItem, punchBowItem, leatherTunicItem), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap,
+				killStreakMap, killsMap, rankManager), this);
 		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
 		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
+		getServer().getPluginManager().registerEvents(new SafeZoneListener(this, arenaManager), this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager));
 
@@ -95,6 +99,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+
 				if (timeRemaining <= 0) {
 					arenaManager.teleportPlayersToRandomArena();
 					timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Obnovení na nastavený interval
@@ -104,6 +109,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					scoreBoardManager.updateScoreboard(player); // Aktualizujte scoreboard pro každého hráče
 				}
+
 			}
 		}.runTaskTimer(this, 0, 20L); // Každou sekundu (20 ticků)
 
@@ -116,7 +122,21 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			arenaManager.teleportPlayersToRandomArena();
 		}
 
+		loadCurrentArena();
 
+	}
+
+	private void loadCurrentArena() {
+		Set<String> arenas = getArenas().getConfig().getKeys(false);
+		if (arenas.isEmpty()) {
+			getLogger().warning("Žádné arény nebyly nalezeny v arenas.yml!");
+			return; // Pokud nejsou arény, ukonči metodu
+		}
+
+		// Nastav náhodnou arénu, nebo můžeš použít konkrétní logiku pro výběr
+		String firstArena = arenas.iterator().next(); // Získej první arénu
+		arenaManager.setCurrentArena(firstArena); // Nastav aktuální arénu
+		getLogger().info("Aktuální aréna byla nastavena na: " + firstArena);
 	}
 
 	public String formatTime(int seconds) {

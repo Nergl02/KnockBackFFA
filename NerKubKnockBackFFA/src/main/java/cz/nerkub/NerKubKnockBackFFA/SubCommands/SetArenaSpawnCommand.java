@@ -41,7 +41,7 @@ public class SetArenaSpawnCommand extends SubCommandManager {
 		plugin.getArenas().getConfig().set(arenaName + ".spawn.yaw", spawn.getYaw());
 		plugin.getArenas().getConfig().set(arenaName + ".spawn.pitch", spawn.getPitch());
 
-		player.sendMessage(ChatColor.GREEN + arenaName + " byla uložena do arenas.yml");
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("arena-created").replace("%arena%", args[1])));
 		plugin.getArenas().saveConfig();
 
 		return false;
