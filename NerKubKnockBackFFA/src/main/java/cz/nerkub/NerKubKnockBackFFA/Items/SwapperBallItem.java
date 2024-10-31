@@ -7,6 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,5 +45,11 @@ public class SwapperBallItem {
 		swapperBallItem.setItemMeta(swapperBallMeta);
 
 		return swapperBallItem;
+	}
+
+	public String getDisplayName() {
+		// Získání a překlad názvu předmětu přímo z konfigurace
+		return ChatColor.translateAlternateColorCodes('&',
+				plugin.getItems().getConfig().getString("swapper-ball.display-name"));
 	}
 }

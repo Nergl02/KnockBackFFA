@@ -3,6 +3,7 @@ package cz.nerkub.NerKubKnockBackFFA.Managers;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.ReloadSubCommand;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.SetArenaSpawnCommand;
+import cz.nerkub.NerKubKnockBackFFA.SubCommands.ShopSubCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,14 +16,17 @@ public class CommandManager implements CommandExecutor {
 
 	private final NerKubKnockBackFFA plugin;
 	private final ScoreBoardManager scoreBoardManager;
+	private final ShopManager shopManager;
 
 	private ArrayList<SubCommandManager> subCommandManagers = new ArrayList<>();
 
-	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager) {
+	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, ShopManager shopManager) {
 		this.plugin = plugin;
 		this.scoreBoardManager = scoreBoardManager;
-		subCommandManagers.add(new ReloadSubCommand(NerKubKnockBackFFA.getPlugin(), scoreBoardManager));
-		subCommandManagers.add(new SetArenaSpawnCommand(NerKubKnockBackFFA.getPlugin()));
+		this.shopManager = shopManager;
+		subCommandManagers.add(new ShopSubCommand(plugin, shopManager));
+		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager));
+		subCommandManagers.add(new SetArenaSpawnCommand(plugin));
 	}
 
 	@Override

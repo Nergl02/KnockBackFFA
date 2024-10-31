@@ -6,12 +6,10 @@ import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
-import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.*;
 import cz.nerkub.NerKubKnockBackFFA.Listeners.*;
 import cz.nerkub.NerKubKnockBackFFA.Managers.*;
+import cz.nerkub.NerKubKnockBackFFA.SubCommands.ShopSubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -33,6 +31,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private CustomConfig arenas;
 	private CustomConfig items;
 	private CustomConfig players;
+	private CustomConfig shop;
 
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
 	private final KillStreakMap killStreakMap = new KillStreakMap();
@@ -43,6 +42,9 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final LeatherTunicItem leatherTunicItem = new LeatherTunicItem(this);
 	private final BuildBlockItem buildBlockItem = new BuildBlockItem(this);
 	private final RankManager rankManager = new RankManager(this);
+	private final LevitationBootsItem levitationBootsItem = new LevitationBootsItem(this);
+	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
+	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem);
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -75,12 +77,14 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 				knockBackStickItem, punchBowItem, leatherTunicItem), this);
 		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap,
 				killStreakMap, killsMap, rankManager), this);
-		getServer().getPluginManager().registerEvents(new PlayerSwapperListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
 		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
 		getServer().getPluginManager().registerEvents(new SafeZoneListener(this, arenaManager), this);
+		getServer().getPluginManager().registerEvents(new LevitationBootsListener(this), this);
+		getServer().getPluginManager().registerEvents(new ShopBuyListener(this, shopManager), this);
 
-		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager));
+		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager));
 
 
 		saveDefaultConfig();
@@ -95,6 +99,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		items.saveConfig();
 		players = new CustomConfig("players", "players.yml", this);
 		players.saveConfig();
+		shop = new CustomConfig("shop", "shop.yml", this);
+		shop.saveConfig();
 
 		new BukkitRunnable() {
 			@Override
@@ -153,6 +159,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		plugin.getMessages().saveConfig();
 		plugin.saveConfig();
 		plugin.getItems().saveConfig();
+		plugin.getShop().saveConfig();
 	}
 
 	public static NerKubKnockBackFFA getPlugin() {
@@ -173,6 +180,10 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	public CustomConfig getPlayers() {
 		return players;
+	}
+
+	public CustomConfig getShop() {
+		return shop;
 	}
 
 	public ArenaManager getArenaManager() {

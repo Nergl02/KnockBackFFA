@@ -38,6 +38,7 @@ public class ReloadSubCommand extends SubCommandManager {
 		plugin.getPlayers().reloadConfig();
 		plugin.getArenas().reloadConfig();
 		plugin.reloadConfig();
+		plugin.getShop().reloadConfig();
 		scoreBoardManager.reloadScoreboard();
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("reload")));
 		return false;

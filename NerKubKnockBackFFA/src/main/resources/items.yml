@@ -41,3 +41,15 @@ leather-tunic:
     - '&7wear something colorful?'
   projectal-protection: 2
   hide-enchantment: true
+
+levitation-boots:
+  display-name: '&bLevitation Boots'
+  lore:
+    - '&7Rise above your enemies!'
+    - '&7These boots allow you to levitate'
+    - '&7and dodge incoming attacks.'
+  levitation:
+    effect: 10
+    # Duration in seconds
+    duration: 2
+  hide-enchantment: true
