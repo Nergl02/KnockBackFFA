@@ -69,6 +69,8 @@ public class ShopManager {
 		FileConfiguration playersConfig = plugin.getPlayers().getConfig(); // Zde získáváte config s hráči
 		int price = plugin.getShop().getConfig().getInt(itemKey + ".price");
 
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+
 		// Získání počtu coinů hráče
 		int playerCoins = playersConfig.getInt(player.getDisplayName() + ".coins");
 
@@ -80,10 +82,11 @@ public class ShopManager {
 
 			// Přidání itemu do inventáře hráče
 			player.getInventory().addItem(item);
-			player.sendMessage(ChatColor.GREEN + "You have successfully purchased " + item.getItemMeta().getDisplayName() + " for " + price + " coins.");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("shop.purchased")).replace("%item%", item.getItemMeta().getDisplayName()).replace("%price%", String.valueOf(price)));
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
 		} else {
-			player.sendMessage(ChatColor.RED + "You do not have enough coins to purchase this item!");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("shop.not-enough-coins")));
 			player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
 		}
 	}

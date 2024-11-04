@@ -60,13 +60,13 @@ public class PlayerJoinListener implements Listener {
 			if (currentArena != null) {
 				// Přiřazení hráče do arény
 				arenaManager.teleportPlayerToCurrentArena(player);
-				player.sendMessage(ChatColor.GREEN + "Byl jsi přidán do arény: " + currentArena);
-			} else {
-				player.sendMessage(ChatColor.RED + "Žádná aréna není aktuálně dostupná.");
 			}
+			// TODO else když je currentArena null, do konzole vypsat error
 		}
 
+
 		plugin.getScoreBoardManager().startScoreboardUpdater(player);
+		plugin.getScoreBoardManager().updateScoreboard(player);
 
 		player.getInventory().clear();
 		player.getInventory().setItem(0, knockBackStickItem.createKnockBackStickItem());

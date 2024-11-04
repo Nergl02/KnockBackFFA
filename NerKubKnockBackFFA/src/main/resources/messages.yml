@@ -47,3 +47,7 @@ kill-streak: '&a%player% &7has just reached a killstreak of &e%killstreak%&7!'
 safe-zone:
   build: '&cHey, building is not allowed in the safe zone!'
   attack: '&cHey, attacking is not allowed in the safe zone!'
+
+shop:
+  purchased: '&aYou have successfully purchased %item% &afor &e%price% &acoins.'
+  not-enough-coins: '&cYou do not have enough coins to purchase this item!'
