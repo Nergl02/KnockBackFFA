@@ -99,11 +99,13 @@ public class SafeZoneListener implements Listener {
 		String currentArena = arenaManager.getCurrentArena();
 		Location arenaSpawn = arenaManager.getArenaSpawn(currentArena);
 
-		// Zkontroluj, zda je hráč v bezpečnostní zóně
-		if (isInSafeZone(blockLocation, arenaSpawn)) {
-			event.setCancelled(true); // Zruš stavění
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("safe-zone.build")));
-			return; // Konec metody
+		if (player.getGameMode() != GameMode.CREATIVE) {
+			// Zkontroluj, zda je hráč v bezpečnostní zóně
+			if (isInSafeZone(blockLocation, arenaSpawn)) {
+				event.setCancelled(true); // Zruš stavění
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("safe-zone.build")));
+				return; // Konec metody
+			}
 		}
 	}
 

@@ -3,11 +3,22 @@ prefix: '&7[&3KnockBack&bFFA&7] &r'
 reload: '&aAll configs were successfully reloaded.'
 
 # You can modify these settings in config.yml. Set them to true/false here to show or hide the join/leave messages.
-join-message: 'leave kokot'
-leave-message: 'join piče'
+join-message: '&e%player% &ahas joined to the game.'
+leave-message: '&e%player% &chas left the game.'
+
+no-permission: '&cSorry, but you do not have permission to run this command.'
 
 # %arena% will return the name of the created arena.
 arena-created: '&aThe arena &e%arena% &ahas been added to arenas.yml.'
+arena-removed: '&aThe arena &e%arena% &ahas been successfully &cremoved&a.'
+invalid-arena: '&cThe arena &e%arena% &cdoes not exist!'
+arena-join: '&aYou have joined to the arena.'
+arena-leave: '&aYou have left the arena.'
+
+player-leave-command-not-in-arena: '&cYou are not in the arena.'
+
+bungee-true-join: '&cSorry, but you cannot use this command when bungee-mode is set to true'
+bungee-true-leave: '&cSorry, but you cannot use this command when bungee-mode is set to true'
 
 # You can add more if u want. Just type 11: 'your-next-kill-message'
 #
@@ -51,3 +62,7 @@ safe-zone:
 shop:
   purchased: '&aYou have successfully purchased %item% &afor &e%price% &acoins.'
   not-enough-coins: '&cYou do not have enough coins to purchase this item!'
+
+usages:
+  remove-arena: '&cUsage: /knbffa removearena <arenaName>'
+  setspawn-arena: '&cUsage: /knbffa setspawn <arenaName>'

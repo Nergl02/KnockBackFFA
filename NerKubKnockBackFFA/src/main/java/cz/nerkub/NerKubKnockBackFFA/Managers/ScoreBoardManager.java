@@ -83,4 +83,12 @@ public class ScoreBoardManager {
 	public void startScoreboardUpdater(Player player) {
 		new ScoreboardUpdater(plugin, player).runTaskTimer(plugin, 0, 20); // Aktualizuj každou sekundu (20 ticků)
 	}
+
+	public void removeScoreboard(Player player) {
+		// Set the player's scoreboard to a blank scoreboard to remove the current one
+		ScoreboardManager manager = Bukkit.getScoreboardManager();
+		if (manager != null) {
+			player.setScoreboard(manager.getNewScoreboard());
+		}
+	}
 }

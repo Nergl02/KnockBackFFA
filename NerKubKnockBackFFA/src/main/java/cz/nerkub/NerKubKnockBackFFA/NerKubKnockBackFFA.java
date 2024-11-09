@@ -45,6 +45,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final LevitationBootsItem levitationBootsItem = new LevitationBootsItem(this);
 	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
 	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem);
+	private InventoryManager inventoryManager = new InventoryManager();
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -56,7 +57,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		plugin = this;
 		random = new Random();
-		arenaManager = new ArenaManager(this, scoreboardUpdater, random);
+		arenaManager = new ArenaManager(this, scoreboardUpdater, random, inventoryManager);
 		scoreBoardManager = new ScoreBoardManager(this);
 		timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Převedeno na sekundy
 
@@ -76,15 +77,15 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager,
 				knockBackStickItem, punchBowItem, leatherTunicItem), this);
 		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap,
-				killStreakMap, killsMap, rankManager), this);
+				killStreakMap, killsMap, rankManager, inventoryManager), this);
 		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new DropItemListener(), this);
-		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this), this);
+		getServer().getPluginManager().registerEvents(new DropItemListener(this, arenaManager), this);
+		getServer().getPluginManager().registerEvents(new CancelBlockDestroyListener(this, arenaManager), this);
 		getServer().getPluginManager().registerEvents(new SafeZoneListener(this, arenaManager), this);
 		getServer().getPluginManager().registerEvents(new LevitationBootsListener(this), this);
 		getServer().getPluginManager().registerEvents(new ShopBuyListener(this, shopManager), this);
 
-		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager));
+		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager, killsMap, damagerMap));
 
 
 		saveDefaultConfig();
@@ -111,9 +112,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 					timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Obnovení na nastavený interval
 				} else {
 					timeRemaining--; // Snížení zbývajícího času každou sekundu
-				}
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					scoreBoardManager.updateScoreboard(player); // Aktualizujte scoreboard pro každého hráče
 				}
 
 			}
@@ -154,13 +152,26 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			// Zkontroluj, jestli je hráč v aréně
+			if (arenaManager.isPlayerInArena(player)) {
+				// Simuluj volání metody /knbffa leave
+				arenaManager.leaveArena(player);
+			}
+			inventoryManager.saveInventory(player);
+			inventoryManager.saveLocation(player);
+		}
+
 		plugin.getPlayers().saveConfig();
 		plugin.getArenas().saveConfig();
 		plugin.getMessages().saveConfig();
 		plugin.saveConfig();
 		plugin.getItems().saveConfig();
 		plugin.getShop().saveConfig();
+
 	}
+
 
 	public static NerKubKnockBackFFA getPlugin() {
 		return plugin;

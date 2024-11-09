@@ -31,6 +31,21 @@ public class SetArenaSpawnCommand extends SubCommandManager {
 
 	@Override
 	public boolean perform(Player player, String[] args) {
+
+		if (!player.hasPermission("knbffa.admin")) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
+					plugin.getMessages().getConfig().getString("no-permission")));
+			return false;
+		}
+
+		// Zkontrolujte, zda je argument pro název arény platný
+		if (args.length < 2) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					plugin.getMessages().getConfig().getString("prefix") +
+							plugin.getMessages().getConfig().getString("usages.setspawn-arena")));
+			return false; // Příkaz selhal, protože nebyl zadán správný název arény
+		}
+
 		Location spawn = player.getLocation();
 		String arenaName = args[1].toString();
 

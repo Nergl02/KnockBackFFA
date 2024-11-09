@@ -33,6 +33,13 @@ public class ReloadSubCommand extends SubCommandManager {
 
 	@Override
 	public boolean perform(Player player, String[] args) {
+
+		if (!player.hasPermission("knbffa.admin")) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
+					plugin.getMessages().getConfig().getString("no-permission")));
+			return false;
+		}
+
 		plugin.getMessages().reloadConfig();
 		plugin.getItems().reloadConfig();
 		plugin.getPlayers().reloadConfig();

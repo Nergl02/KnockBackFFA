@@ -2,10 +2,12 @@ package cz.nerkub.NerKubKnockBackFFA.Managers;
 
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.lang.foreign.Arena;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,14 +19,16 @@ public class ArenaManager {
 	private final ScoreboardUpdater scoreboardUpdater;
 	private final Random random;
 	private int timeRemaining;
+	private final InventoryManager inventoryManager;
 
 	private String currentArena;
 	private String lastArena;
 
-	public ArenaManager(NerKubKnockBackFFA plugin, ScoreboardUpdater scoreboardUpdater, Random random) {
+	public ArenaManager(NerKubKnockBackFFA plugin, ScoreboardUpdater scoreboardUpdater, Random random, InventoryManager inventoryManager) {
 		this.plugin = plugin;
 		this.scoreboardUpdater = scoreboardUpdater;
 		this.random = random;
+		this.inventoryManager = inventoryManager;
 	}
 
 	public void setCurrentArena(String arenaName) {
@@ -172,6 +176,51 @@ public class ArenaManager {
 			Bukkit.getLogger().info("Načítání arény: " + arenaName);
 			// Další kód pro načítání arény...
 		}
+	}
+
+	public String getArenaOfPlayer(Player player) {
+		// Pokud je hráč v aktuální aréně, vrátí její název
+		if (currentArena != null && player.getWorld().getName().equals(getArenaWorldName(currentArena))) {
+			return currentArena;
+		}
+		return null; // Pokud hráč není v žádné aréně, vrátí null
+	}
+
+	private String getArenaWorldName(String arenaName) {
+		return plugin.getArenas().getConfig().getString(arenaName + ".spawn.world");
+	}
+
+	public void removePlayerFromArena(Player player) {
+
+		if (!plugin.getConfig().getBoolean("bungee-mode")) {
+			// Zkontroluj, jestli je hráč v aktuální aréně
+			if (currentArena != null && player.getWorld().getName().equals(getArenaWorldName(currentArena))) {
+				// Proveď jakoukoli čistící logiku, například teleportuj hráče mimo arénu
+				inventoryManager.restoreLocation(player); // Teleportuj hráče ven z arény
+				Bukkit.getLogger().info("Hráč " + player.getName() + " byl odstraněn z arény: " + currentArena);
+			}
+		}
+
+	}
+
+	public boolean isPlayerInArena(Player player) {
+		String arena = plugin.getArenaManager().getArenaOfPlayer(player);
+		if (arena == null) {
+			return false;
+		}
+		return true;
+	}
+
+	public void leaveArena(Player player) {
+		// Obnovíš inventář a pozici hráče
+		inventoryManager.restoreInventory(player);
+		inventoryManager.restoreLocation(player);
+
+		// Oznámíš hráči, že opustil arénu (můžeš přidat vlastní zprávu)
+		player.sendMessage(ChatColor.GREEN + "Opustil jsi arénu.");
+
+		// Provádíš další potřebné operace pro opuštění arény (např. odstranění z arény)
+		plugin.getArenaManager().removePlayerFromArena(player);
 	}
 
 }

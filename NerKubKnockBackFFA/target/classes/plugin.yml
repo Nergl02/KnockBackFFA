@@ -9,3 +9,8 @@ commands:
   knbffa:
     description: Mother of all KNBFFA Commands
     usage: /<command>
+
+permissions:
+  knbffa.admin:
+    description: Permission for server admins
+    default: op

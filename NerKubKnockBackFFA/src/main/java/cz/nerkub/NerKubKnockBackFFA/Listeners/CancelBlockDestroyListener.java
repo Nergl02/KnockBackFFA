@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -14,9 +15,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 public class CancelBlockDestroyListener implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
+	private final ArenaManager arenaManager;
 
-	public CancelBlockDestroyListener(NerKubKnockBackFFA plugin) {
+	public CancelBlockDestroyListener(NerKubKnockBackFFA plugin, ArenaManager arenaManager) {
 		this.plugin = plugin;
+		this.arenaManager = arenaManager;
 	}
 
 
@@ -26,18 +29,22 @@ public class CancelBlockDestroyListener implements Listener {
 		Block block = event.getBlock();
 		Location blockLocation = block.getLocation();
 
-		if (player.getGameMode() != GameMode.CREATIVE) {
-			// Zobraz zprávu hráči
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					plugin.getMessages().getConfig().getString("prefix") +
-							plugin.getMessages().getConfig().getString("block-break")));
+		if (arenaManager.isPlayerInArena(player)) {
+			if (player.getGameMode() != GameMode.CREATIVE) {
+				// Zobraz zprávu hráči
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						plugin.getMessages().getConfig().getString("prefix") +
+								plugin.getMessages().getConfig().getString("block-break")));
 
-			// Zobraz částici pouze pro hráče
-			player.spawnParticle(Particle.DUST_PLUME, blockLocation.add(0, 0.5, 0), 20);
+				// Zobraz částici pouze pro hráče
+				player.spawnParticle(Particle.DUST_PLUME, blockLocation.add(0, 0.5, 0), 20);
 
-			// Zrušení události - pokud chceš blok zničit
-			event.setCancelled(true);
+				// Zrušení události - pokud chceš blok zničit
+				event.setCancelled(true);
+			}
 		}
+
+
 	}
 
 }
