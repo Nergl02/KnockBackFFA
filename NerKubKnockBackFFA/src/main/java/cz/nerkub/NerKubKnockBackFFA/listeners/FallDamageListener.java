@@ -1,4 +1,4 @@
-package cz.nerkub.NerKubKnockBackFFA.listeners;
+package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.entity.Player;
@@ -8,14 +8,14 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class FallDamageListener implements Listener {
 
-	 private NerKubKnockBackFFA plugin;
+	private NerKubKnockBackFFA plugin;
 
 	public FallDamageListener(NerKubKnockBackFFA plugin) {
 		this.plugin = plugin;
 	}
 
 	@EventHandler
-	public void onPlayerDamage (EntityDamageEvent event) {
+	public void onPlayerDamage(EntityDamageEvent event) {
 		Player player = (Player) event.getEntity();
 
 		if (event.getEntity() instanceof Player) {

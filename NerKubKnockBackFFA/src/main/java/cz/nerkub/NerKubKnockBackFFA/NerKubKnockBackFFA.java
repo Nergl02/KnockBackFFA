@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -44,7 +46,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final RankManager rankManager = new RankManager(this);
 	private final LevitationBootsItem levitationBootsItem = new LevitationBootsItem(this);
 	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
-	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem);
+	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
+	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem);
 	private InventoryManager inventoryManager = new InventoryManager();
 
 	private ScoreBoardManager scoreBoardManager;
@@ -84,6 +87,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new SafeZoneListener(this, arenaManager), this);
 		getServer().getPluginManager().registerEvents(new LevitationBootsListener(this), this);
 		getServer().getPluginManager().registerEvents(new ShopBuyListener(this, shopManager), this);
+		getServer().getPluginManager().registerEvents(new InvisibilityCloakListener(this), this);
+		getServer().getPluginManager().registerEvents(new ArmorInteractListener(this), this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager, killsMap, damagerMap));
 

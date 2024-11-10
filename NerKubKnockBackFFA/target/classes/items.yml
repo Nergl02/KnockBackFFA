@@ -1,15 +1,15 @@
 knockback-stick:
-  # Instead of space use _ - blaze_rod, blue_wool
+  # Instead of space use _ - blaze_rod, blue_wool.
   material: 'STICK'
-  # Display name of the item
+  # Display name of the item.
   display-name: '&dKnockBack Stick'
-  # Lore of the item
+  # Lore of the item.
   lore:
     - '&7Punch them to the void.'
     - '&7Be the best beast!'
-  # Power of knockback
+  # Power of knockback.
   knockback: 2
-  # When set to true - the enchantment will not be visible. When set to false - players will be able to see the enchantment
+  # When set to true - the enchantment will not be visible. When set to false - players will be able to see the enchantment.
   hide-enchantment: true
 
 build-block:
@@ -25,6 +25,19 @@ bow:
     - '&7Players! Punch them all,'
     - '&7they are like moving targets!'
   punch: 2
+  hide-enchantment: true
+
+invisibility-cloak:
+  material: 'GHAST_TEAR'
+  display-name: '&bInvisibility Cloak'
+  lore:
+    - '&7Vanish and gain a'
+    - '&7temporary advantage in battle!'
+  invisibility:
+    # Duration in seconds.
+    duration: 3
+    # If set to true, this will make the player's armor invisible as well.
+    remove-armor: true
   hide-enchantment: true
 
 swapper-ball:
@@ -50,6 +63,6 @@ levitation-boots:
     - '&7and dodge incoming attacks.'
   levitation:
     effect: 10
-    # Duration in seconds
+    # Duration in seconds.
     duration: 2
   hide-enchantment: true

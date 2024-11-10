@@ -62,6 +62,7 @@ public class PlayerJoinListener implements Listener {
 			// Pokud je bungee-mode vypnutý, obnovíme inventář a pozici
 			inventoryManager.restoreInventory(player);
 			inventoryManager.restoreLocation(player);
+			scoreBoardManager.removeScoreboard(player);
 		}
 
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
@@ -111,8 +112,6 @@ public class PlayerJoinListener implements Listener {
 			}
 
 		}
-
-		scoreBoardManager.removeScoreboard(player);
 		player.setGameMode(GameMode.SURVIVAL);
 
 	}

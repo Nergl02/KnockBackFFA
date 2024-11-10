@@ -43,6 +43,8 @@ public class LevitationBootsItem {
 				leatherArmorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 			}
 
+			leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
+
 			// Nastavení barvy bot
 			leatherArmorMeta.setColor(Color.fromRGB(173, 216, 230));
 

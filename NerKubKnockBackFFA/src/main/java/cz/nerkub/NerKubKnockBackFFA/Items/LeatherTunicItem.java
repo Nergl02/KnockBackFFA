@@ -41,6 +41,8 @@ public class LeatherTunicItem {
 			leatherArmorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
 
+		leatherArmorMeta.addItemFlags(ItemFlag.HIDE_DYE);
+
 		if (leatherArmorMeta != null) {
 			// Vygenerování náhodné barvy (RGB složky)
 			Random random = new Random();

@@ -66,3 +66,5 @@ shop:
 usages:
   remove-arena: '&cUsage: /knbffa removearena <arenaName>'
   setspawn-arena: '&cUsage: /knbffa setspawn <arenaName>'
+
+unknown-item: '&cUnknown item.'

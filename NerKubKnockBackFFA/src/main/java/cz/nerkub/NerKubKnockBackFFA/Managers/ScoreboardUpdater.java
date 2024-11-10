@@ -16,6 +16,7 @@ public class ScoreboardUpdater extends BukkitRunnable {
 
 	@Override
 	public void run() {
+		// Vykoná update scoreboardu každých 20 ticků
 		plugin.getScoreBoardManager().updateScoreboard(player);
 	}
 }

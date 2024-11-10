@@ -49,17 +49,19 @@ public class ShopBuyListener implements Listener {
 			}
 
 			String itemName = ChatColor.stripColor(itemMeta.getDisplayName());
-			switch (itemName) {
-				case "Levitation Boots":
-					shopManager.purchaseItem(player, clickedItem, "levitation-boots");
-					break;
+			String levitationBootsName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("levitation-boots.display-name")));
+			String swapperBallName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("swapper-ball.display-name")));
+			String invisibilityCloakName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("invisibility-cloak.display-name")));
 
-				case "Swapper Ball":
-					shopManager.purchaseItem(player, clickedItem, "swapper-ball");
-					break;
-
-				default:
-					player.sendMessage(ChatColor.RED + "Unknown item.");
+			if (itemName.equals(levitationBootsName)) {
+				shopManager.purchaseItem(player, clickedItem, "levitation-boots");
+			} else if (itemName.equals(swapperBallName)) {
+				shopManager.purchaseItem(player, clickedItem, "swapper-ball");
+			} else if (itemName.equals(invisibilityCloakName)) {
+				shopManager.purchaseItem(player, clickedItem, "invisibility-cloak");
+			} else {
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
+						plugin.getMessages().getConfig().getString("unknown-item")));
 			}
 		}
 	}

@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public class LevitationBootsListener implements Listener {
@@ -36,17 +37,21 @@ public class LevitationBootsListener implements Listener {
 			// Zkontroluj, zda má hráč kožené boty v hlavní nebo vedlejší ruce
 			if (mainHandItem.getType() == Material.LEATHER_BOOTS || offHandItem.getType() == Material.LEATHER_BOOTS) {
 				// Aplikuj efekt levitace
-				player.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION,
-						plugin.getItems().getConfig().getInt("levitation-boots.levitation.duration") * 20,
-						plugin.getItems().getConfig().getInt("levitation-boots.levitation.effect") - 1, true));
+				int duration = plugin.getItems().getConfig().getInt("levitation-boots.levitation.duration") * 20; // Sekundy na Ticks
+				int effectLevel = plugin.getItems().getConfig().getInt("levitation-boots.levitation.effect") - 1;
 
-				// Snížení počtu bot
-				if (mainHandItem.getType() == Material.LEATHER_BOOTS) {
-					mainHandItem.setAmount(mainHandItem.getAmount() - 1);
-				} else if (offHandItem.getType() == Material.LEATHER_BOOTS) {
-					offHandItem.setAmount(offHandItem.getAmount() - 1);
-				}
+				player.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, duration, effectLevel, true));
 
+				// Spustit časovač, který po uplynutí 'duration' odstraní boty
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						// Pokud hráč stále drží boty (kontrola, zda má boty ve slotu pro brnění)
+						if (player.getInventory().getBoots() != null && player.getInventory().getBoots().getType() == Material.LEATHER_BOOTS) {
+							player.getInventory().setBoots(null); // Seber boty
+						}
+					}
+				}.runTaskLater(plugin, duration); // Po uplynutí 'duration' odstraní boty
 			}
 		}
 	}

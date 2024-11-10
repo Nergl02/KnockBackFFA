@@ -3,8 +3,12 @@ package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 
 public class ArenaLeaveCommand extends SubCommandManager {
@@ -40,7 +44,6 @@ public class ArenaLeaveCommand extends SubCommandManager {
 
 	@Override
 	public boolean perform(Player player, String[] args) {
-
 		// Zkontroluj, zda hráč není v aréně
 		if (!arenaManager.isPlayerInArena(player)) {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
@@ -63,10 +66,9 @@ public class ArenaLeaveCommand extends SubCommandManager {
 		inventoryManager.restoreInventory(player);
 		inventoryManager.restoreLocation(player);
 
+		// TODO nefunguje odstranění scoreboardu
 		// Odstraň skóreboard
 		scoreBoardManager.removeScoreboard(player);
-		scoreBoardManager.updateScoreboard(player);
-
 
 		return false;
 	}

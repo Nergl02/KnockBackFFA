@@ -13,24 +13,20 @@ import java.util.Map;
 public class ScoreBoardManager {
 
 	private final NerKubKnockBackFFA plugin;
+	private final Map<Integer, String> scoreBoardLines;
+	private final Map<Player, ScoreboardUpdater> scoreboardUpdaters; // Mapa pro sledování updaters
 
-	private Scoreboard scoreboard;
-	private Objective objective;
-	private Map<Integer, String> scoreBoardLines;
 	private String title;
-	private ArenaManager arenaManager;
 
 	public ScoreBoardManager(NerKubKnockBackFFA plugin) {
 		this.plugin = plugin;
 		this.scoreBoardLines = new HashMap<>();
+		this.scoreboardUpdaters = new HashMap<>(); // Inicializace mapy
 		loadScoreboard(); // Načti scoreboard při inicializaci
 	}
 
 	private void loadScoreboard() {
-		// Načti název scoreboardu
 		title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("scoreboard.title", "Default Title"));
-
-		// Načti řádky scoreboardu
 		scoreBoardLines.clear(); // Vymazání předchozích řádků
 		for (String key : plugin.getConfig().getConfigurationSection("scoreboard.lines").getKeys(false)) {
 			int lineNumber = Integer.parseInt(key);
@@ -39,56 +35,52 @@ public class ScoreBoardManager {
 		}
 	}
 
-	private String formatTime(int timeInSeconds) {
-		int minutes = timeInSeconds / 60;
-		int seconds = timeInSeconds % 60;
-		return String.format("%dm %ds", minutes, seconds);
-	}
-
 	public void updateScoreboard(Player player) {
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
 		Scoreboard scoreboard = manager.getNewScoreboard();
 		Objective objective = scoreboard.registerNewObjective("gameInfo", "dummy", title);
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-		// Aktualizuj řádky scoreboardu
 		for (Map.Entry<Integer, String> entry : scoreBoardLines.entrySet()) {
-			String line = entry.getValue();
-
-			// Použijte PlaceholderAPI k nahrazení placeholderů
-			line = PlaceholderAPI.setPlaceholders(player, line);
-
-			// Vytvoření unikátního řádku pomocí týmu
+			String line = PlaceholderAPI.setPlaceholders(player, entry.getValue());
 			Team team = scoreboard.registerNewTeam("line" + entry.getKey());
-			team.addEntry(ChatColor.values()[entry.getKey()] + "");  // Použití barev pro unikátní klíč
-			team.setPrefix(line);  // Zobrazí celý text jako prefix
-
+			team.addEntry(ChatColor.values()[entry.getKey()] + "");
+			team.setPrefix(line);
 			objective.getScore(ChatColor.values()[entry.getKey()] + "").setScore(entry.getKey());
 		}
 
-		// Přiřaď scoreboard hráči
 		player.setScoreboard(scoreboard);
 	}
 
-
 	public void reloadScoreboard() {
-		loadScoreboard(); // Obnoví scoreboard ze souboru
-
-		// Zajistí okamžité změny ve scoreboardu
+		loadScoreboard();
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updateScoreboard(player);
 		}
 	}
 
 	public void startScoreboardUpdater(Player player) {
-		new ScoreboardUpdater(plugin, player).runTaskTimer(plugin, 0, 20); // Aktualizuj každou sekundu (20 ticků)
+		ScoreboardUpdater updater = new ScoreboardUpdater(plugin, player);
+		updater.runTaskTimer(plugin, 0, 20); // Aktualizace každou sekundu
+
+		// Přidejte updater do mapy pro pozdější zastavení
+		scoreboardUpdaters.put(player, updater);
+	}
+
+	public void stopScoreboardUpdater(Player player) {
+		ScoreboardUpdater updater = scoreboardUpdaters.remove(player); // Odeber a vrať updater
+		if (updater != null) {
+			updater.cancel(); // Zruš updater pro zastavení aktualizace
+		}
 	}
 
 	public void removeScoreboard(Player player) {
-		// Set the player's scoreboard to a blank scoreboard to remove the current one
+		stopScoreboardUpdater(player); // Zastavíme jakýkoliv probíhající updater
+
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
 		if (manager != null) {
 			player.setScoreboard(manager.getNewScoreboard());
+			player.sendMessage("Scoreboard has been removed.");
 		}
 	}
 }

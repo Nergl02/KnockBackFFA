@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.Managers;
 
+import cz.nerkub.NerKubKnockBackFFA.Items.InvisibilityCloakItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LevitationBootsItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.SwapperBallItem;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
@@ -7,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
 import org.bukkit.inventory.Inventory;
@@ -21,11 +23,13 @@ public class ShopManager {
 	private final NerKubKnockBackFFA plugin;
 	private final LevitationBootsItem levitationBootsItem;
 	private final SwapperBallItem swapperBallItem; // Přidání itemu pro SwapperBall
+	private final InvisibilityCloakItem invisibilityCloakItem;
 
-	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem) {
+	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem) {
 		this.plugin = plugin;
 		this.levitationBootsItem = levitationBootsItem;
 		this.swapperBallItem = swapperBallItem; // Inicializace
+		this.invisibilityCloakItem = invisibilityCloakItem;
 	}
 
 	public void openShop(Player player) {
@@ -45,6 +49,10 @@ public class ShopManager {
 		ItemStack swapperBall = swapperBallItem.createSwapperBallItem(); // Předpokládáme, že máte metodu pro vytvoření SwapperBall
 		addItemWithPriceToLore(swapperBall, "swapper-ball");
 		shopInventory.addItem(swapperBall);
+
+		ItemStack invisibilityCloak = invisibilityCloakItem.createInvisibilityCloakItem();
+		addItemWithPriceToLore(invisibilityCloak, "invisibility-cloak");
+		shopInventory.addItem(invisibilityCloak);
 	}
 
 	private void addItemWithPriceToLore(ItemStack item, String itemKey) {
