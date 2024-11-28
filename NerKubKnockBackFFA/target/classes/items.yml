@@ -18,6 +18,15 @@ build-block:
   lore:
     - '&7Be careful, these'
     - '&7blocks are about to break!'
+# Here you can change the different stages and their display using blocks
+# Each stage should indicate the block's condition, and how long it will take for it to be destroyed
+# green -> yellow -> orange -> red -> the block is destroyed.
+# It will not work if phases 1-4 are added or removed! You can only change the block material.
+  destroy-phases:
+    1: 'GREEN_CONCRETE'
+    2: 'YELLOW_CONCRETE'
+    3: 'ORANGE_CONCRETE'
+    4: 'RED_CONCRETE'
 
 bow:
   display-name: '&dPunch Bow'

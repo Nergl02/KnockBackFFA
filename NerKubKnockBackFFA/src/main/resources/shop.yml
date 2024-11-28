@@ -1,7 +1,8 @@
-
+# Change the title of the shop inventory
 title: '&8&lShop'
 
 levitation-boots:
+  # The price of specific item.
   price: 15
 
 swapper-ball:

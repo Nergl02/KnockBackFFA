@@ -31,14 +31,14 @@ public class BlockBreakListener implements Listener {
 		Block block = event.getBlock();
 
 		// Zkontrolujeme, zda je hráč v módu přežití (SURVIVAL) a zda umístil blok QUARTZ_BLOCK
-		if (player.getGameMode() == GameMode.SURVIVAL && block.getType() == Material.QUARTZ_BLOCK) {
+		if (player.getGameMode() == GameMode.SURVIVAL && block.getType() == Material.valueOf(plugin.getItems().getConfig().getString("build-block.material"))) {
 			// Definujeme pole s materiály, které bude blok postupně měnit
 			Material[] stages = {
-					Material.QUARTZ_BLOCK,      // První fáze: quartz block
-					Material.GREEN_CONCRETE,  // Druhá fáze: zelený beton
-					Material.YELLOW_CONCRETE, // Třetí fáze: žlutý beton
-					Material.ORANGE_CONCRETE, // Čtvrtá fáze: oranžový beton
-					Material.RED_CONCRETE     // Pátá fáze: červený beton
+					Material.valueOf(plugin.getItems().getConfig().getString("build-block.material")),      // První fáze: quartz block
+					Material.valueOf(plugin.getItems().getConfig().getString("build-block.destroy-phases.1")),  // Druhá fáze: zelený beton
+					Material.valueOf(plugin.getItems().getConfig().getString("build-block.destroy-phases.2")), // Třetí fáze: žlutý beton
+					Material.valueOf(plugin.getItems().getConfig().getString("build-block.destroy-phases.3")), // Čtvrtá fáze: oranžový beton
+					Material.valueOf(plugin.getItems().getConfig().getString("build-block.destroy-phases.4"))     // Pátá fáze: červený beton
 			};
 
 			// Spustíme proces postupného měnění bloku na materiály ve stages poli

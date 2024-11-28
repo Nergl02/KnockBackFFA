@@ -68,6 +68,7 @@ public class PlayerJoinListener implements Listener {
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
 			if (currentArena != null) {
 				// Přiřazení hráče do arény
+				plugin.getScoreBoardManager().removeScoreboard(player);
 				plugin.getScoreBoardManager().startScoreboardUpdater(player);
 				plugin.getScoreBoardManager().updateScoreboard(player);
 

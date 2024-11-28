@@ -3,6 +3,7 @@ package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ShopManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.SubCommandManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class ShopSubCommand extends SubCommandManager {
@@ -33,6 +34,7 @@ public class ShopSubCommand extends SubCommandManager {
 	@Override
 	public boolean perform(Player player, String[] args) {
 		shopManager.openShop(player);
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("shop-open")));
 
 		return false;
 	}

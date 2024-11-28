@@ -67,4 +67,5 @@ usages:
   remove-arena: '&cUsage: /knbffa removearena <arenaName>'
   setspawn-arena: '&cUsage: /knbffa setspawn <arenaName>'
 
+shop-open: "&aThe shop is now open!"
 unknown-item: '&cUnknown item.'
