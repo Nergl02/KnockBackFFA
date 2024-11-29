@@ -80,7 +80,6 @@ public class ScoreBoardManager {
 		ScoreboardManager manager = Bukkit.getScoreboardManager();
 		if (manager != null) {
 			player.setScoreboard(manager.getNewScoreboard());
-			player.sendMessage("Scoreboard has been removed.");
 		}
 	}
 }

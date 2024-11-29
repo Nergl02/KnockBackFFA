@@ -12,6 +12,7 @@ import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.ShopSubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -49,6 +50,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
 	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem);
 	private InventoryManager inventoryManager = new InventoryManager();
+	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -78,7 +80,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager,
-				knockBackStickItem, punchBowItem, leatherTunicItem), this);
+				knockBackStickItem, punchBowItem, leatherTunicItem, maxItemInInvListener), this);
 		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap,
 				killStreakMap, killsMap, rankManager, inventoryManager), this);
 		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
@@ -89,6 +91,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new ShopBuyListener(this, shopManager), this);
 		getServer().getPluginManager().registerEvents(new InvisibilityCloakListener(this), this);
 		getServer().getPluginManager().registerEvents(new ArmorInteractListener(this), this);
+		getServer().getPluginManager().registerEvents(new MaxItemInInvListener(this), this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager, killsMap, damagerMap));
 
@@ -120,6 +123,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 				}
 
 			}
+
 		}.runTaskTimer(this, 0, 20L); // Každou sekundu (20 ticků)
 
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) { //

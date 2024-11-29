@@ -18,6 +18,7 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\FallDamageListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\InvisibilityCloakListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\LevitationBootsListener.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\MaxItemInInvListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerDamageListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.java
@@ -35,6 +36,8 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaJoinCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaLeaveCommand.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaListCommand.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaTeleportCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\RemoveArenaCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.java

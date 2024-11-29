@@ -27,6 +27,7 @@ max-arrows: 3
 build-blocks:
   default-amount: 16
   on-kill-reward: 4
+  max-amount: 32
 
 # ScoreBoard
 # %knbffa_rank% returns the player's rank

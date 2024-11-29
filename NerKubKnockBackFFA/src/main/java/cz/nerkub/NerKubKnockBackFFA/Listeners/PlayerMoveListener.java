@@ -34,9 +34,10 @@ public class PlayerMoveListener implements Listener {
 	private final KnockBackStickItem knockBackStickItem;
 	private final PunchBowItem punchBowItem;
 	private final LeatherTunicItem leatherTunicItem;
+	private final MaxItemInInvListener maxItemInInvListener;
 
 
-	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem) {
+	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, MaxItemInInvListener maxItemInInvListener) {
 		this.plugin = plugin;
 		this.damagerMap = damagerMap;
 		this.killStreakMap = killStreakMap;
@@ -48,6 +49,7 @@ public class PlayerMoveListener implements Listener {
 		this.knockBackStickItem = knockBackStickItem;
 		this.punchBowItem = punchBowItem;
 		this.leatherTunicItem = leatherTunicItem;
+		this.maxItemInInvListener = maxItemInInvListener;
 		this.random = new Random();
 	}
 
@@ -106,7 +108,9 @@ public class PlayerMoveListener implements Listener {
 
 				return;
 			}
-
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// POKUD JE DAMAGER
+// --------------------------------------------------------------------------------------------------------------------------------------------
 			UUID damager = damagerMap.getDamager(player.getUniqueId());
 			Set<String> keys = plugin.getMessages().getConfig().getConfigurationSection("kill-messages").getKeys(false);
 			List<String> keyList = new ArrayList<>(keys);
@@ -118,6 +122,7 @@ public class PlayerMoveListener implements Listener {
 									.replace("%player1%", Bukkit.getPlayer(damager).getDisplayName())
 									.replace("%player2%", player.getDisplayName())));
 
+			maxItemInInvListener.checkPlayerInventory(Bukkit.getPlayer(damager));
 
 			// Přidání Ender Pearl killerovi
 			Bukkit.getPlayer(damager).getInventory().addItem(new ItemStack(Material.ENDER_PEARL));

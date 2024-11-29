@@ -31,6 +31,7 @@ cz\nerkub\NerKubKnockBackFFA\HashMaps\KillStreakMap.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.class
+cz\nerkub\NerKubKnockBackFFA\Listeners\MaxItemInInvListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\DropItemListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\SwapperBallItem.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
@@ -41,5 +42,7 @@ cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaTeleportCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\LevitationBootsListener.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaListCommand.class
 cz\nerkub\NerKubKnockBackFFA\Items\LeatherTunicItem.class

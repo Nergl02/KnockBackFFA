@@ -66,6 +66,10 @@ shop:
 usages:
   remove-arena: '&cUsage: /knbffa removearena <arenaName>'
   setspawn-arena: '&cUsage: /knbffa setspawn <arenaName>'
+  teleport-arena: '&cUsage: /knbffa teleport <arenaName>'
 
-shop-open: "&aThe shop is now open!"
+shop-open: '&aThe shop is now open!'
 unknown-item: '&cUnknown item.'
+
+no-arenas: '&cNo Arenas were found!'
+tp-arena: '&aYou have been teleported to the &e%arena% &aarena.'
