@@ -6,6 +6,7 @@ import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
+import cz.nerkub.NerKubKnockBackFFA.Listeners.DoubleJumpListener;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.*;
 import org.bukkit.ChatColor;
@@ -28,13 +29,15 @@ public class CommandManager implements CommandExecutor {
 	private final BuildBlockItem buildBlockItem;
 	private final RankManager rankManager;
 	private final InventoryManager inventoryManager;
+	private final PlayerMenuManager playerMenuManager;
+	private final DoubleJumpListener doubleJumpListener;
 
 	private final KillsMap killsMap;
 	private final DamagerMap damagerMap;
 
 	private ArrayList<SubCommandManager> subCommandManagers = new ArrayList<>();
 
-	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, ShopManager shopManager, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, RankManager rankManager, InventoryManager inventoryManager, KillsMap killsMap, DamagerMap damagerMap) {
+	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, ShopManager shopManager, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, RankManager rankManager, InventoryManager inventoryManager, PlayerMenuManager playerMenuManager, DoubleJumpListener doubleJumpListener, KillsMap killsMap, DamagerMap damagerMap) {
 		this.plugin = plugin;
 		this.scoreBoardManager = scoreBoardManager;
 		this.shopManager = shopManager;
@@ -45,16 +48,19 @@ public class CommandManager implements CommandExecutor {
 		this.buildBlockItem = buildBlockItem;
 		this.rankManager = rankManager;
 		this.inventoryManager = inventoryManager;
+		this.playerMenuManager = playerMenuManager;
+		this.doubleJumpListener = doubleJumpListener;
 		this.killsMap = killsMap;
 		this.damagerMap = damagerMap;
 		subCommandManagers.add(new ShopSubCommand(plugin, shopManager));
-		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager));
+		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener));
 		subCommandManagers.add(new SetArenaSpawnCommand(plugin));
 		subCommandManagers.add(new RemoveArenaCommand(plugin));
 		subCommandManagers.add(new ArenaJoinCommand(plugin, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, scoreBoardManager, rankManager, inventoryManager, killsMap));
 		subCommandManagers.add(new ArenaLeaveCommand(plugin, inventoryManager, arenaManager, scoreBoardManager, damagerMap));
 		subCommandManagers.add(new ArenaListCommand(plugin));
 		subCommandManagers.add(new ArenaTeleportCommand(plugin));
+		subCommandManagers.add(new PlayerMenuSubCommand(plugin, playerMenuManager));
 	}
 
 	@Override

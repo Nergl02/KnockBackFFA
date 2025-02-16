@@ -116,3 +116,8 @@ ranks:
 
 # This is the radius around the arena spawn where players are not allowed to attack others and build blocks
 safe-zone-radius: 15
+
+doublejump:
+  # Cooldown in seconds
+  cooldown: 5
+  power: 3

@@ -48,9 +48,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final LevitationBootsItem levitationBootsItem = new LevitationBootsItem(this);
 	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
 	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
-	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem);
+	private final FireBallLauncherItem fireBallLauncherItem = new FireBallLauncherItem(this);
+	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem);
 	private InventoryManager inventoryManager = new InventoryManager();
 	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
+	private final PlayerMenuManager playerMenuManager = new PlayerMenuManager(this);
+	private DoubleJumpListener doubleJumpListener;
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -65,6 +68,22 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		arenaManager = new ArenaManager(this, scoreboardUpdater, random, inventoryManager);
 		scoreBoardManager = new ScoreBoardManager(this);
 		timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Převedeno na sekundy
+		doubleJumpListener = new DoubleJumpListener(this);
+
+		saveDefaultConfig();
+		reloadConfig();
+
+		// Custom ConfigFiles
+		messages = new CustomConfig("messages", "messages.yml", this); // Directory can be "" to create file in the main plugin folder
+		messages.saveConfig();
+		arenas = new CustomConfig("arenas", "arenas.yml", this); // Directory can be "" to create file in the main plugin folder
+		arenas.saveConfig();
+		items = new CustomConfig("items", "items.yml", this);
+		items.saveConfig();
+		players = new CustomConfig("players", "players.yml", this);
+		players.saveConfig();
+		shop = new CustomConfig("shop", "shop.yml", this);
+		shop.saveConfig();
 
 
 		Bukkit.getConsoleSender().sendMessage("");
@@ -92,24 +111,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new InvisibilityCloakListener(this), this);
 		getServer().getPluginManager().registerEvents(new ArmorInteractListener(this), this);
 		getServer().getPluginManager().registerEvents(new MaxItemInInvListener(this), this);
+		getServer().getPluginManager().registerEvents(new FireBallLauncherListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(doubleJumpListener, this);
 
-		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager, killsMap, damagerMap));
+		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager,
+				playerMenuManager, doubleJumpListener, killsMap, damagerMap));
 
-
-		saveDefaultConfig();
-		reloadConfig();
-
-		// Custom ConfigFiles
-		messages = new CustomConfig("messages", "messages.yml", this); // Directory can be "" to create file in the main plugin folder
-		messages.saveConfig();
-		arenas = new CustomConfig("arenas", "arenas.yml", this); // Directory can be "" to create file in the main plugin folder
-		arenas.saveConfig();
-		items = new CustomConfig("items", "items.yml", this);
-		items.saveConfig();
-		players = new CustomConfig("players", "players.yml", this);
-		players.saveConfig();
-		shop = new CustomConfig("shop", "shop.yml", this);
-		shop.saveConfig();
 
 		new BukkitRunnable() {
 			@Override
@@ -137,6 +144,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		loadCurrentArena();
 
+		Metrics metrics = new Metrics(this, 24813);
+
 	}
 
 	private void loadCurrentArena() {
@@ -158,7 +167,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return String.format("%dm %ds", minutes, seconds);
 	}
 
-
 	@Override
 	public void onDisable() {
 
@@ -178,6 +186,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		plugin.saveConfig();
 		plugin.getItems().saveConfig();
 		plugin.getShop().saveConfig();
+
 
 	}
 

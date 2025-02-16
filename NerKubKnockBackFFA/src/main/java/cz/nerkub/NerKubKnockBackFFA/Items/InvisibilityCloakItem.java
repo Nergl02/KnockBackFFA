@@ -44,8 +44,4 @@ public class InvisibilityCloakItem {
 		return invisibilityCloakItem;
 	}
 
-	public String getDisplayName() {
-		return ChatColor.translateAlternateColorCodes('&',
-				plugin.getItems().getConfig().getString("invisibility-cloak.display-name"));
-	}
 }

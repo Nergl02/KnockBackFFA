@@ -1,19 +1,25 @@
 package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 
+import cz.nerkub.NerKubKnockBackFFA.Listeners.DoubleJumpListener;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.SubCommandManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 
 public class ReloadSubCommand extends SubCommandManager {
 
 	private final NerKubKnockBackFFA plugin;
 	private final ScoreBoardManager scoreBoardManager;
+	private DoubleJumpListener doubleJumpListener;
 
-	public ReloadSubCommand(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager) {
+	public ReloadSubCommand(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, DoubleJumpListener doubleJumpListener) {
 		this.plugin = plugin;
 		this.scoreBoardManager = scoreBoardManager;
+		this.doubleJumpListener = doubleJumpListener;
 	}
 
 	@Override
@@ -47,6 +53,15 @@ public class ReloadSubCommand extends SubCommandManager {
 		plugin.reloadConfig();
 		plugin.getShop().reloadConfig();
 		scoreBoardManager.reloadScoreboard();
+
+		// ✅ Odregistrování starého listeneru před registrací nového
+		HandlerList.unregisterAll(doubleJumpListener);
+
+		// ✅ Vytvoření nové instance a registrace
+		doubleJumpListener = new DoubleJumpListener(plugin);
+		Bukkit.getPluginManager().registerEvents(doubleJumpListener, plugin);
+		doubleJumpListener.reloadConfigValues();
+
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("reload")));
 		return false;
 	}

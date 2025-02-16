@@ -1,5 +1,6 @@
 # Change the title of the shop inventory
 title: '&8&lShop'
+size: 27
 
 levitation-boots:
   # The price of specific item.
@@ -10,3 +11,6 @@ swapper-ball:
 
 invisibility-cloak:
   price: 20
+
+fireball-launcher:
+  price: 27

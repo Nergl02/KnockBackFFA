@@ -52,6 +52,7 @@ public class ShopBuyListener implements Listener {
 			String levitationBootsName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("levitation-boots.display-name")));
 			String swapperBallName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("swapper-ball.display-name")));
 			String invisibilityCloakName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("invisibility-cloak.display-name")));
+			String fireBallLauncherName= ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("fireball-launcher.display-name")));
 
 			if (itemName.equals(levitationBootsName)) {
 				shopManager.purchaseItem(player, clickedItem, "levitation-boots");
@@ -59,6 +60,8 @@ public class ShopBuyListener implements Listener {
 				shopManager.purchaseItem(player, clickedItem, "swapper-ball");
 			} else if (itemName.equals(invisibilityCloakName)) {
 				shopManager.purchaseItem(player, clickedItem, "invisibility-cloak");
+			} else if (itemName.equals(fireBallLauncherName)) {
+				shopManager.purchaseItem(player, clickedItem, "fireball-launcher");
 			} else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
 						plugin.getMessages().getConfig().getString("unknown-item")));

@@ -75,3 +75,13 @@ levitation-boots:
     # Duration in seconds.
     duration: 2
   hide-enchantment: true
+
+fireball-launcher:
+  display-name: '&6Fireball Launcher'
+  lore:
+    - '&7Forged in the depths of the Nether.'
+    - '&7Each blast ignites the battlefield,'
+    - '&7leaving only ashes behind.'
+  power: 5.0
+  explosion-radius: 4
+  hide-enchantment: true

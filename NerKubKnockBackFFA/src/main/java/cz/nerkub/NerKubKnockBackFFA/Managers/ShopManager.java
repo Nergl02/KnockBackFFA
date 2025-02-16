@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.Managers;
 
+import cz.nerkub.NerKubKnockBackFFA.Items.FireBallLauncherItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.InvisibilityCloakItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LevitationBootsItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.SwapperBallItem;
@@ -24,16 +25,18 @@ public class ShopManager {
 	private final LevitationBootsItem levitationBootsItem;
 	private final SwapperBallItem swapperBallItem; // Přidání itemu pro SwapperBall
 	private final InvisibilityCloakItem invisibilityCloakItem;
+	private final FireBallLauncherItem fireBallLauncherItem;
 
-	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem) {
+	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem) {
 		this.plugin = plugin;
 		this.levitationBootsItem = levitationBootsItem;
 		this.swapperBallItem = swapperBallItem; // Inicializace
 		this.invisibilityCloakItem = invisibilityCloakItem;
+		this.fireBallLauncherItem = fireBallLauncherItem;
 	}
 
 	public void openShop(Player player) {
-		Inventory shopInventory = Bukkit.createInventory(null, 9, ChatColor.translateAlternateColorCodes('&', plugin.getShop().getConfig().getString("title")));
+		Inventory shopInventory = Bukkit.createInventory(null, plugin.getShop().getConfig().getInt("size", 27), ChatColor.translateAlternateColorCodes('&', plugin.getShop().getConfig().getString("title")));
 
 		addItemsToShop(shopInventory);
 		player.openInventory(shopInventory); // Otevření inventáře pro hráče
@@ -53,6 +56,11 @@ public class ShopManager {
 		ItemStack invisibilityCloak = invisibilityCloakItem.createInvisibilityCloakItem();
 		addItemWithPriceToLore(invisibilityCloak, "invisibility-cloak");
 		shopInventory.addItem(invisibilityCloak);
+
+		// Přidání Fireball Launcher
+		ItemStack fireBallLauncher = fireBallLauncherItem.createFireBallLauncherItem();
+		addItemWithPriceToLore(fireBallLauncher, "fireball-launcher");
+		shopInventory.addItem(fireBallLauncher);
 	}
 
 	private void addItemWithPriceToLore(ItemStack item, String itemKey) {

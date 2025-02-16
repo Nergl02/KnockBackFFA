@@ -47,9 +47,4 @@ public class SwapperBallItem {
 		return swapperBallItem;
 	}
 
-	public String getDisplayName() {
-		// Získání a překlad názvu předmětu přímo z konfigurace
-		return ChatColor.translateAlternateColorCodes('&',
-				plugin.getItems().getConfig().getString("swapper-ball.display-name"));
-	}
 }

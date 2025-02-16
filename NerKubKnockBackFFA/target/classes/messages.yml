@@ -73,3 +73,6 @@ unknown-item: '&cUnknown item.'
 
 no-arenas: '&cNo Arenas were found!'
 tp-arena: '&aYou have been teleported to the &e%arena% &aarena.'
+
+doublejump:
+  cooldown: '&cYou must wait for &e%timeleft% &cseconds.'
