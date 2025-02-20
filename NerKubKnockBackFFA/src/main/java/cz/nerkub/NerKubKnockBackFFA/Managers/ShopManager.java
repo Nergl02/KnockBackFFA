@@ -1,9 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.Managers;
 
-import cz.nerkub.NerKubKnockBackFFA.Items.FireBallLauncherItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.InvisibilityCloakItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.LevitationBootsItem;
-import cz.nerkub.NerKubKnockBackFFA.Items.SwapperBallItem;
+import cz.nerkub.NerKubKnockBackFFA.Items.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,15 +24,17 @@ public class ShopManager {
 	private final SwapperBallItem swapperBallItem; // Přidání itemu pro SwapperBall
 	private final InvisibilityCloakItem invisibilityCloakItem;
 	private final FireBallLauncherItem fireBallLauncherItem;
+	private final ExplodingChickItem explodingChickItem;
 
 	private final PlayerStatsManager playerStatsManager;
 
-	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem, PlayerStatsManager playerStatsManager) {
+	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem, ExplodingChickItem explodingChickItem, PlayerStatsManager playerStatsManager) {
 		this.plugin = plugin;
 		this.levitationBootsItem = levitationBootsItem;
 		this.swapperBallItem = swapperBallItem; // Inicializace
 		this.invisibilityCloakItem = invisibilityCloakItem;
 		this.fireBallLauncherItem = fireBallLauncherItem;
+		this.explodingChickItem = explodingChickItem;
 		this.playerStatsManager = playerStatsManager;
 	}
 
@@ -103,6 +102,10 @@ public class ShopManager {
 		ItemStack fireBallLauncher = fireBallLauncherItem.createFireBallLauncherItem();
 		addItemWithPriceToLore(fireBallLauncher, "fireball-launcher");
 		shopInventory.addItem(fireBallLauncher);
+
+		ItemStack explodingChick = explodingChickItem.createExplodingChickItem();
+		addItemWithPriceToLore(explodingChick, "exploding-chick");
+		shopInventory.addItem(explodingChick);
 	}
 
 	private void addItemWithPriceToLore(ItemStack item, String itemKey) {

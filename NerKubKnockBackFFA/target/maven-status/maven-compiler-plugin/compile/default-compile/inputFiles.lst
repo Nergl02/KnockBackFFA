@@ -5,6 +5,7 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\HashMaps\KillStreakMap.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Items\BuildBlockItem.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Items\ExplodingChickItem.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Items\FireBallLauncherItem.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Items\InvisibilityCloakItem.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Items\KnockBackStickItem.java
@@ -17,6 +18,7 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\DoubleJumpListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\DropItemListener.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\ExplodingChickListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\FallDamageListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\FireBallLauncherListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\InvisibilityCloakListener.java

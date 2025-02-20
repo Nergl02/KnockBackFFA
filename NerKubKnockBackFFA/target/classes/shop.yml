@@ -1,7 +1,7 @@
 # Change the title of the shop inventory
 title: '&8&lShop'
 size: 27
-filler: GRAY_STAINED_GLASS_PAIN
+filler: GRAY_STAINED_GLASS_PANE
 
 levitation-boots:
   # The price of specific item.
@@ -15,3 +15,6 @@ invisibility-cloak:
 
 fireball-launcher:
   price: 27
+
+exploding-chick:
+  price: 25

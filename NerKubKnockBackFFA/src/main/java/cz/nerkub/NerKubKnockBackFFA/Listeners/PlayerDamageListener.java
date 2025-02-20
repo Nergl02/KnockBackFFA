@@ -28,34 +28,29 @@ public class PlayerDamageListener implements Listener {
 
 	@EventHandler
 	public void onPlayerDamage(EntityDamageByEntityEvent event) {
-		// Zkontroluj, jestli útočník je také hráč
+		// Ověř, zda poškozený je hráč
+		if (!(event.getEntity() instanceof Player)) return;
+		Player victim = (Player) event.getEntity();
+
+		// 🔹 Útok hráčem
 		if (event.getDamager() instanceof Player) {
-			Player victim = (Player) event.getEntity();
 			Player damager = (Player) event.getDamager();
-			// Uložit útočníka do mapy
 			damagerMap.putDamager(victim.getUniqueId(), damager.getUniqueId());
 		}
-	}
 
-
-	@EventHandler
-	public void onPlayerDamageByArrow(EntityDamageByEntityEvent event) {
-		if (event.getEntity() instanceof Player) {
-			Player player = (Player) event.getEntity();
-			Entity damager = event.getDamager();
-
-			if (damager instanceof Arrow) {
-				Arrow arrow = (Arrow) damager;
-				if (arrow.getShooter() instanceof Player) {
-					Player shooter = (Player) arrow.getShooter();
-					event.setDamage(0); // Nastaví poškození na nulu
-					damagerMap.putDamager(player.getUniqueId(), shooter.getUniqueId()); // Přidá útočníka do mapy
-				}
+		// 🔹 Útok šípem
+		if (event.getDamager() instanceof Arrow) {
+			Arrow arrow = (Arrow) event.getDamager();
+			if (arrow.getShooter() instanceof Player) {
+				Player shooter = (Player) arrow.getShooter();
+				event.setDamage(0); // Vypnutí poškození
+				damagerMap.putDamager(victim.getUniqueId(), shooter.getUniqueId());
 			}
-			if (damager instanceof EnderPearl) {
-				EnderPearl enderPearl = (EnderPearl) damager;
-				event.setDamage(0);
-			}
+		}
+
+		// 🔹 Útok EnderPearlou
+		if (event.getDamager() instanceof EnderPearl) {
+			event.setDamage(0); // EnderPearla neubližuje
 		}
 	}
 

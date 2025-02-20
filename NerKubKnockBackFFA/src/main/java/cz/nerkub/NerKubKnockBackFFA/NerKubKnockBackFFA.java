@@ -54,7 +54,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
 	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
 	private final FireBallLauncherItem fireBallLauncherItem = new FireBallLauncherItem(this);
-	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem, playerStatsManager);
+	private final ExplodingChickItem explodingChickItem = new ExplodingChickItem(this);
+	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem, explodingChickItem, playerStatsManager);
 	private InventoryManager inventoryManager = new InventoryManager();
 	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
 	private final PlayerMenuManager playerMenuManager = new PlayerMenuManager(this);
@@ -129,7 +130,9 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new ArmorInteractListener(this), this);
 		getServer().getPluginManager().registerEvents(new MaxItemInInvListener(this), this);
 		getServer().getPluginManager().registerEvents(new FireBallLauncherListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(new ExplodingChickListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(doubleJumpListener, this);
+
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager,
 				playerMenuManager, doubleJumpListener, killsMap, damagerMap));

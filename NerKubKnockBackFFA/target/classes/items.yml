@@ -85,3 +85,15 @@ fireball-launcher:
   power: 5.0
   explosion-radius: 4
   hide-enchantment: true
+
+exploding-chick:
+  display-name: '&eExploding Chick'
+  lore:
+    - '&7Throw to summon an explosive'
+    - '&7chick! Explosion knocks'
+    - '&7players away!'
+  power: 3
+  explosion-radius: 4
+  explosion-delay: 5 # The time after will chick explode, in seconds
+  hide-enchantment: true
+  exploding-info: '&cExploding in '

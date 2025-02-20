@@ -23,10 +23,12 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\SwapperBallListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\InvisibilityCloakListener.class
 cz\nerkub\NerKubKnockBackFFA\Expansions\KnockBackPlaceholderExpansion.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\DoubleJumpListener.class
+cz\nerkub\NerKubKnockBackFFA\Listeners\ExplodingChickListener$1.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ShopSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStatsManager.class
+cz\nerkub\NerKubKnockBackFFA\Items\ExplodingChickItem.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$CustomChart.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\ArmorInteractListener.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SimplePie.class
@@ -39,6 +41,7 @@ cz\nerkub\NerKubKnockBackFFA\Items\PunchBowItem.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\InvisibilityCloakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SingleLineChart.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\KillStreakMap.class
+cz\nerkub\NerKubKnockBackFFA\Listeners\ExplodingChickListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SimpleBarChart.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
