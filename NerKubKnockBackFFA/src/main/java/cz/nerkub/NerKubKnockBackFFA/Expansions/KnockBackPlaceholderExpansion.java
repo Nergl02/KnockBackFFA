@@ -3,6 +3,9 @@ package cz.nerkub.NerKubKnockBackFFA.Expansions;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
+import cz.nerkub.NerKubKnockBackFFA.Managers.DatabaseManager;
+import cz.nerkub.NerKubKnockBackFFA.Managers.PlayerStats;
+import cz.nerkub.NerKubKnockBackFFA.Managers.PlayerStatsManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -13,16 +16,12 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 
 	private final NerKubKnockBackFFA plugin;
 	private final KillStreakMap killStreakMap;
-	private final KillsMap killsMap;
-	private final DeathsMap deathsMap;
-	private final RankManager rankManager;
+	private final DatabaseManager databaseManager;
 
-	public KnockBackPlaceholderExpansion(NerKubKnockBackFFA plugin, KillStreakMap killStreakMap, KillsMap killsMap, DeathsMap deathsMap, RankManager rankManager) {
+	public KnockBackPlaceholderExpansion(NerKubKnockBackFFA plugin, KillStreakMap killStreakMap, DatabaseManager databaseManager) {
 		this.plugin = plugin;
 		this.killStreakMap = killStreakMap;
-		this.killsMap = killsMap;
-		this.deathsMap = deathsMap;
-		this.rankManager = rankManager;
+		this.databaseManager = databaseManager;
 	}
 
 	@Override
@@ -53,71 +52,53 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 	@Override
 	public String onPlaceholderRequest(Player player, String params) {
 		// Kontrola, zda je hráč null
-		if (player == null) {
-			return ""; // Vrátí prázdný řetězec, pokud je hráč null
+		if (player == null || player.getName() == null) {
+			return "N/A";
 		}
 
-		if (params.equals("currentarena")) {
-			return plugin.getArenaManager().getCurrentArena() != null
-					? plugin.getArenaManager().getCurrentArena()
-					: "N/A"; // Může vrátit "N/A" nebo jinou výchozí hodnotu
+		// 📌 Získání statistik hráče z MySQL
+		PlayerStats stats = plugin.getPlayerStatsManager().getStats(player.getUniqueId());
+		if (stats == null) {
+			return "0"; // Pokud hráč v databázi neexistuje, vrátí 0
 		}
 
-		if (params.equals("nextarenain")) {
-			return plugin.formatTime(plugin.getTimeRemaining());
+		// 📌 Implementace jednotlivých placeholderů
+		switch (params.toLowerCase()) {
+			case "currentarena":
+				return plugin.getArenaManager().getCurrentArena() != null
+						? plugin.getArenaManager().getCurrentArena()
+						: "N/A";
+
+			case "nextarenain":
+				return plugin.formatTime(plugin.getTimeRemaining());
+
+			case "killstreak":
+				return String.valueOf(stats.getMaxKillstreak());
+
+			case "kills":
+				return String.valueOf(stats.getKills());
+
+			case "deaths":
+				return String.valueOf(stats.getDeaths());
+
+			case "kd":
+				return stats.getDeaths() > 0 ? String.format("%.2f", (double) stats.getKills() / stats.getDeaths()) : "∞";
+
+			case "rank":
+				return stats.getRank();
+
+			case "elo":
+				return String.valueOf(stats.getElo());
+
+			case "maxkillstreak":
+				return String.valueOf(stats.getMaxKillstreak());
+
+			case "coins":
+				return String.valueOf(stats.getCoins());
+
+			default:
+				return null; // Pokud placeholder neexistuje, vrátí null
 		}
-
-		if (params.equals("killstreak")) {
-			Integer killStreak = killStreakMap.getInt(player.getUniqueId());
-			return killStreak != null ? killStreak.toString() : "0"; // Ošetření, pokud je killstreak null
-		}
-
-		if (params.equals("kills")) {
-			// Načti kills z databáze
-			Integer kills = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".kills");
-			return kills != null ? kills.toString() : "0"; // Pokud je null, vrať "0"
-		}
-
-		if (params.equals("deaths")) {
-			// Načti deaths z databáze
-			Integer deaths = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".deaths");
-			return deaths != null ? deaths.toString() : "0"; // Pokud je null, vrať "0"
-		}
-
-		if (params.equals("kd")) {
-			// Načti kills a deaths
-			Integer kills = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".kills");
-			Integer deaths = plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".deaths");
-
-			// Ověř, zda jsou kills a deaths null
-			if (kills == null) {
-				kills = 0; // Pokud kills je null, nastav na 0
-			}
-			if (deaths == null || deaths == 0) {
-				return kills > 0 ? "∞" : "0"; // Pokud jsou úmrtí 0 a zabití > 0, vrať "∞"; jinak "0"
-			}
-
-			double kdRatio = (double) kills / deaths; // Vypočti KD poměr
-			return String.format("%.2f", kdRatio); // Formátování na dvě desetinná místa
-		}
-
-		if (params.equals("rank")) {
-			return plugin.getPlayers().getConfig().getString(player.getDisplayName() + ".rank");
-		}
-
-		if (params.equals("elo")) {
-			return plugin.getPlayers().getConfig().getString(player.getDisplayName() + ".elo");
-		}
-
-		if (params.equals("maxkillstreak")) {
-			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".max-kill-streak"));
-		}
-
-		if (params.equals("coins")) {
-			return String.valueOf(plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".coins"));
-		}
-
-		return null; // Vrátí null, pokud placeholder neexistuje
 	}
 
 }

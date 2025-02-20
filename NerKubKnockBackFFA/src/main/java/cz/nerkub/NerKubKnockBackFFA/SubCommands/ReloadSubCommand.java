@@ -1,6 +1,7 @@
 package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 
 import cz.nerkub.NerKubKnockBackFFA.Listeners.DoubleJumpListener;
+import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.ScoreBoardManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.SubCommandManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
@@ -15,11 +16,13 @@ public class ReloadSubCommand extends SubCommandManager {
 	private final NerKubKnockBackFFA plugin;
 	private final ScoreBoardManager scoreBoardManager;
 	private DoubleJumpListener doubleJumpListener;
+	private final RankManager rankManager;
 
-	public ReloadSubCommand(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, DoubleJumpListener doubleJumpListener) {
+	public ReloadSubCommand(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, DoubleJumpListener doubleJumpListener, RankManager rankManager) {
 		this.plugin = plugin;
 		this.scoreBoardManager = scoreBoardManager;
 		this.doubleJumpListener = doubleJumpListener;
+		this.rankManager = rankManager;
 	}
 
 	@Override
@@ -48,10 +51,11 @@ public class ReloadSubCommand extends SubCommandManager {
 
 		plugin.getMessages().reloadConfig();
 		plugin.getItems().reloadConfig();
-		plugin.getPlayers().reloadConfig();
 		plugin.getArenas().reloadConfig();
 		plugin.reloadConfig();
 		plugin.getShop().reloadConfig();
+		plugin.getRanks().reloadConfig();
+		rankManager.loadRanks();
 		scoreBoardManager.reloadScoreboard();
 
 		// ✅ Odregistrování starého listeneru před registrací nového

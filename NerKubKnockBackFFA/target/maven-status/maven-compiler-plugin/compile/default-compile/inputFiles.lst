@@ -30,8 +30,12 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\SwapperBallListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ArenaManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\InventoryManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerMenuManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStats.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStatsManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\Rank.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\RankManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ScoreboardUpdater.java

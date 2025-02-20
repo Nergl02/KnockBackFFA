@@ -26,6 +26,7 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\DoubleJumpListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ShopSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerMoveListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStatsManager.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$CustomChart.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\ArmorInteractListener.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SimplePie.class
@@ -47,16 +48,19 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\DropItemListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\SwapperBallItem.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\PlayerMenuSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStats.class
 cz\nerkub\NerKubKnockBackFFA\Items\InvisibilityCloakItem.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DeathsMap.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
+cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$AdvancedPie.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\Metrics.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaTeleportCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\LevitationBootsListener.class
+cz\nerkub\NerKubKnockBackFFA\Managers\Rank.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaListCommand.class
 cz\nerkub\NerKubKnockBackFFA\Items\LeatherTunicItem.class

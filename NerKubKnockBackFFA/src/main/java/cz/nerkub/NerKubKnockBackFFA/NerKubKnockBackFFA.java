@@ -17,6 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -30,12 +32,15 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private Random random;
 	private int timeRemaining;
 
+	private DatabaseManager databaseManager;
+
 	private CustomConfig messages;
 	private CustomConfig arenas;
 	private CustomConfig items;
-	private CustomConfig players;
 	private CustomConfig shop;
+	private CustomConfig ranks;
 
+	private PlayerStatsManager playerStatsManager;
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
 	private final KillStreakMap killStreakMap = new KillStreakMap();
 	private final DeathsMap deathsMap = new DeathsMap();
@@ -44,12 +49,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final PunchBowItem punchBowItem = new PunchBowItem(this);
 	private final LeatherTunicItem leatherTunicItem = new LeatherTunicItem(this);
 	private final BuildBlockItem buildBlockItem = new BuildBlockItem(this);
-	private final RankManager rankManager = new RankManager(this);
+	private RankManager rankManager;  // Bez "final"
 	private final LevitationBootsItem levitationBootsItem = new LevitationBootsItem(this);
 	private final SwapperBallItem swapperBallItem = new SwapperBallItem(this);
 	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
 	private final FireBallLauncherItem fireBallLauncherItem = new FireBallLauncherItem(this);
-	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem);
+	private final ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem, playerStatsManager);
 	private InventoryManager inventoryManager = new InventoryManager();
 	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
 	private final PlayerMenuManager playerMenuManager = new PlayerMenuManager(this);
@@ -63,16 +68,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	public void onEnable() {
 		// Plugin startup logic
 
-		plugin = this;
-		random = new Random();
-		arenaManager = new ArenaManager(this, scoreboardUpdater, random, inventoryManager);
-		scoreBoardManager = new ScoreBoardManager(this);
-		timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Převedeno na sekundy
-		doubleJumpListener = new DoubleJumpListener(this);
-
 		saveDefaultConfig();
 		reloadConfig();
-
 		// Custom ConfigFiles
 		messages = new CustomConfig("messages", "messages.yml", this); // Directory can be "" to create file in the main plugin folder
 		messages.saveConfig();
@@ -80,10 +77,30 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		arenas.saveConfig();
 		items = new CustomConfig("items", "items.yml", this);
 		items.saveConfig();
-		players = new CustomConfig("players", "players.yml", this);
-		players.saveConfig();
 		shop = new CustomConfig("shop", "shop.yml", this);
 		shop.saveConfig();
+		ranks = new CustomConfig("ranks", "ranks.yml", this);
+		ranks.saveConfig();
+
+		plugin = this;
+		random = new Random();
+		arenaManager = new ArenaManager(this, scoreboardUpdater, random, inventoryManager);
+		scoreBoardManager = new ScoreBoardManager(this);
+		timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Převedeno na sekundy
+		doubleJumpListener = new DoubleJumpListener(this);
+		this.databaseManager = new DatabaseManager(this);
+		this.playerStatsManager = new PlayerStatsManager(databaseManager);
+		this.rankManager = new RankManager(this);
+
+		// Otestuj připojení
+		try (Connection conn = databaseManager.getConnection()) {
+			if (conn != null && !conn.isClosed()) {
+				getLogger().info("✅ Databáze je připravena!");
+			}
+		} catch (SQLException e) {
+			getLogger().severe("❌ Chyba při připojování k databázi!");
+			e.printStackTrace();
+		}
 
 
 		Bukkit.getConsoleSender().sendMessage("");
@@ -98,9 +115,9 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockBreakListener(this, arenaManager), this);
 		getServer().getPluginManager().registerEvents(new FallDamageListener(this), this);
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), damagerMap, killStreakMap, killsMap, deathsMap, buildBlockItem, arenaManager, rankManager,
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), databaseManager, damagerMap, killStreakMap, deathsMap, buildBlockItem, arenaManager, rankManager,
 				knockBackStickItem, punchBowItem, leatherTunicItem, maxItemInInvListener), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, damagerMap,
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, databaseManager, damagerMap,
 				killStreakMap, killsMap, rankManager, inventoryManager), this);
 		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(this, arenaManager), this);
@@ -134,7 +151,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		}.runTaskTimer(this, 0, 20L); // Každou sekundu (20 ticků)
 
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) { //
-			new KnockBackPlaceholderExpansion(this, killStreakMap, killsMap, deathsMap, rankManager).register(); //
+			new KnockBackPlaceholderExpansion(this, killStreakMap, databaseManager).register(); //
 		}
 
 		// Zkontrolujte, zda je nějaká aréna nastavena
@@ -180,13 +197,18 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			inventoryManager.saveLocation(player);
 		}
 
-		plugin.getPlayers().saveConfig();
 		plugin.getArenas().saveConfig();
 		plugin.getMessages().saveConfig();
 		plugin.saveConfig();
 		plugin.getItems().saveConfig();
 		plugin.getShop().saveConfig();
+		plugin.getRanks().saveConfig();
 
+
+
+		if (databaseManager != null) {
+			databaseManager.close();
+		}
 
 	}
 
@@ -207,12 +229,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return items;
 	}
 
-	public CustomConfig getPlayers() {
-		return players;
-	}
-
 	public CustomConfig getShop() {
 		return shop;
+	}
+
+	public CustomConfig getRanks() {
+		return ranks;
 	}
 
 	public ArenaManager getArenaManager() {
@@ -225,6 +247,14 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	public int getTimeRemaining() {
 		return timeRemaining;
+	}
+
+	public DatabaseManager getDatabaseManager() {
+		return databaseManager;
+	}
+
+	public PlayerStatsManager getPlayerStatsManager() {
+		return playerStatsManager;
 	}
 
 

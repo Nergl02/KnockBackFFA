@@ -1,6 +1,13 @@
 # If set to true, when a player joins the server, they will spawn at the arena spawn position.
 bungee-mode: true
 
+database:
+  host: "localhost"
+  port: 3306
+  name: "my_database"
+  username: "username"
+  password: "123456789"
+
 # Time (in minutes) after which players will be teleported to the new arena
 arena-time: 15
 
@@ -70,49 +77,6 @@ coins:
   kill-min: 3
   kill-max: 10
   kill-streak: 5
-
-# You can only edit the text inside '' to change the display name or the minimum and maximum Elo values.
-ranks:
-  novice:
-    display: 'Novice'
-    min: 100
-    max: 399
-  apprentice:
-    display: 'Apprentice'
-    min: 400
-    max: 799
-  adept:
-    display: 'Adept'
-    min: 800
-    max: 1199
-  warrior:
-    display: 'Warrior'
-    min: 1200
-    max: 1599
-  champion:
-    display: 'Champion'
-    min: 1600
-    max: 1999
-  gladiator:
-    display: 'Gladiator'
-    min: 2000
-    max: 2399
-  hero:
-    display: 'Hero'
-    min: 2400
-    max: 2799
-  master:
-    display: 'Master'
-    min: 2800
-    max: 3199
-  legend:
-    display: 'Legend'
-    min: 3200
-    max: 3599
-  mythic:
-    display: 'Mythic'
-    min: 3600
-    max: 9999
 
 # This is the radius around the arena spawn where players are not allowed to attack others and build blocks
 safe-zone-radius: 15

@@ -53,7 +53,7 @@ public class CommandManager implements CommandExecutor {
 		this.killsMap = killsMap;
 		this.damagerMap = damagerMap;
 		subCommandManagers.add(new ShopSubCommand(plugin, shopManager));
-		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener));
+		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener, rankManager));
 		subCommandManagers.add(new SetArenaSpawnCommand(plugin));
 		subCommandManagers.add(new RemoveArenaCommand(plugin));
 		subCommandManagers.add(new ArenaJoinCommand(plugin, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, scoreBoardManager, rankManager, inventoryManager, killsMap));

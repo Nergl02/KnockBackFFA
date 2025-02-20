@@ -100,20 +100,6 @@ public class ArenaJoinCommand extends SubCommandManager {
 				kills = 0; // Pokud je null nebo 0, nastav na 0
 			}
 
-			// Nastavit hodnoty do konfigurace při prvním připojení
-			if (!plugin.getPlayers().getConfig().contains(player.getDisplayName())) {
-				// Pokud neexistují, nastav nové hodnoty
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".rank", "Unranked");
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".coins", 0);
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".elo", 0);
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".kills", 0); // Nastav zabití na 0
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".deaths", 0);
-				plugin.getPlayers().getConfig().set(player.getDisplayName() + ".max-kill-streak", 0);
-
-				// Ulož nové informace do players.yml
-				plugin.getPlayers().saveConfig();
-			}
-
 			rankManager.savePlayerRank(player);
 			arenaManager.teleportPlayerToCurrentArena(player);
 

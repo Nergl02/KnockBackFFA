@@ -82,6 +82,6 @@ fireball-launcher:
     - '&7Forged in the depths of the Nether.'
     - '&7Each blast ignites the battlefield,'
     - '&7leaving only ashes behind.'
-  power: 4
-  explosion-radius: 5
+  power: 5.0
+  explosion-radius: 4
   hide-enchantment: true

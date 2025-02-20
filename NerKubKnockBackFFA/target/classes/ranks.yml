@@ -1,0 +1,59 @@
+# ⚔️ Rank Configuration for KnockBackFFA
+# Each rank includes:
+# - display: How the rank appears in-game.
+# - min: Minimum ELO required to achieve this rank.
+# - max: Maximum ELO for this rank.
+# Players automatically receive a rank based on their current ELO.
+# Feel free to create as many ranks as you'd like!
+
+
+# 🌑 Default Rank (for players below the lowest defined ELO)
+# If a player has less than the minimum ELO, they'll be considered "Unranked."
+default-rank:
+  display: "Unranked"
+
+ranks:
+  novice:                 # This is the unique identifier for the rank.
+    display: "Novice"     # Rank display name, support color codes using '&'
+    min: 100              # Minimum ELO required for this rank.
+    max: 399              # Maximum ELO for this rank.
+  apprentice:
+    display: "Apprentice"
+    min: 400
+    max: 799
+  adept:
+    display: "Adept"
+    min: 800
+    max: 1199
+  warrior:
+    display: "Warrior"
+    min: 1200
+    max: 1599
+  champion:
+    display: "Champion"
+    min: 1600
+    max: 1999
+  gladiator:
+    display: "Gladiator"
+    min: 2000
+    max: 2399
+  hero:
+    display: "Hero"
+    min: 2400
+    max: 2799
+  master:
+    display: "Master"
+    min: 2800
+    max: 3199
+  legend:
+    display: "Legend"
+    min: 3200
+    max: 3599
+  mythic:
+    display: "Mythic"
+    min: 3600
+    max: 9999
+  #godlike:
+  #  display: 'Godlike'
+  #  min: 3000
+  #  max: 9999

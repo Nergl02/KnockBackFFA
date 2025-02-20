@@ -27,12 +27,15 @@ public class ShopManager {
 	private final InvisibilityCloakItem invisibilityCloakItem;
 	private final FireBallLauncherItem fireBallLauncherItem;
 
-	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem) {
+	private final PlayerStatsManager playerStatsManager;
+
+	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem, PlayerStatsManager playerStatsManager) {
 		this.plugin = plugin;
 		this.levitationBootsItem = levitationBootsItem;
 		this.swapperBallItem = swapperBallItem; // Inicializace
 		this.invisibilityCloakItem = invisibilityCloakItem;
 		this.fireBallLauncherItem = fireBallLauncherItem;
+		this.playerStatsManager = playerStatsManager;
 	}
 
 	public void openShop(Player player) {
@@ -82,19 +85,17 @@ public class ShopManager {
 	}
 
 	public void purchaseItem(Player player, ItemStack item, String itemKey) {
-		FileConfiguration playersConfig = plugin.getPlayers().getConfig(); // Zde získáváte config s hráči
 		int price = plugin.getShop().getConfig().getInt(itemKey + ".price");
 
 		String prefix = plugin.getMessages().getConfig().getString("prefix");
 
 		// Získání počtu coinů hráče
-		int playerCoins = playersConfig.getInt(player.getDisplayName() + ".coins");
+		int playerCoins = plugin.getPlayerStatsManager().getStats(player.getUniqueId()).getCoins();
 
 		// Kontrola, zda má hráč dostatek coinů
 		if (playerCoins >= price) {
 			// Odečti coiny
-			playersConfig.set(player.getDisplayName() + ".coins", playerCoins - price);
-			plugin.getPlayers().saveConfig(); // Uložení změn
+			plugin.getPlayerStatsManager().getStats(player.getUniqueId()).setCoins(playerCoins - price);
 
 			// Přidání itemu do inventáře hráče
 			player.getInventory().addItem(item);

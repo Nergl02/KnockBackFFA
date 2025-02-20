@@ -4,81 +4,87 @@ import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
 
 public class RankManager {
 
 	private final NerKubKnockBackFFA plugin;
+	private final Map<String, Rank> ranks = new LinkedHashMap<>();
 
 	public RankManager(NerKubKnockBackFFA plugin) {
 		this.plugin = plugin;
+		loadRanks();
+	}
+
+	public void loadRanks() {
+		ranks.clear();
+		ConfigurationSection section = plugin.getRanks().getConfig().getConfigurationSection("ranks");
+
+		if (section != null) {
+			for (String key : section.getKeys(false)) {
+				String display = section.getString(key + ".display", key);
+				int min = section.getInt(key + ".min", 0);
+				int max = section.getInt(key + ".max", Integer.MAX_VALUE);
+				ranks.put(key.toLowerCase(), new Rank(key, display, min, max));
+			}
+		}
+
 	}
 
 	public int getPlayerElo(Player player) {
-		return plugin.getPlayers().getConfig().getInt(player.getDisplayName() + ".elo", 0);
+		PlayerStats stats = plugin.getPlayerStatsManager().getStats(player.getUniqueId());
+		return (stats != null) ? stats.getElo() : 0;
 	}
 
+	// Určení ranku podle ELO
 	public String getRankFromElo(Player player) {
 		int elo = getPlayerElo(player);
 
-		// Debug output
-		Bukkit.getLogger().info("ELO for " + player.getDisplayName() + ": " + elo);
-
-		// Pokud je ELO menší než 100, vracíme "Unranked"
-		if (elo < 100) {
-			return "Unranked";
-		}
-
-		// Procházení všech ranků v konfiguračním souboru
-		for (String rankKey : plugin.getConfig().getConfigurationSection("ranks").getKeys(false)) {
-			int min = plugin.getConfig().getInt("ranks." + rankKey + ".min");
-			int max = plugin.getConfig().getInt("ranks." + rankKey + ".max");
-
-			// Debug output
-			Bukkit.getLogger().info("Checking rank: " + rankKey + " with range: " + min + " - " + max);
-
-			if (elo >= min && elo <= max) {
-				return plugin.getConfig().getString("ranks." + rankKey + ".display");
+		for (Rank rank : ranks.values()) {
+			if (elo >= rank.getMin() && elo <= rank.getMax()) {
+				return rank.getDisplay();
 			}
 		}
 
-		return "no ranks"; // Pokud ELO neodpovídá žádnému ranku
+		return plugin.getRanks().getConfig().getString("default-rank.display"); // Pokud hráč nespadá do žádného ranku
 	}
 
-	public String savePlayerRank(Player player) {
-		String prefix = plugin.getMessages().getConfig().getString("prefix");
-		String oldRank = plugin.getPlayers().getConfig().getString(player.getDisplayName() + ".rank", "Unranked");
+
+	public void savePlayerRank(Player player) {
+		PlayerStats stats = plugin.getPlayerStatsManager().getStats(player.getUniqueId());
+		if (stats == null) return;
+
+		String oldRank = stats.getRank() != null ? stats.getRank() : plugin.getRanks().getConfig().getString("default-rank.display");
 		String newRank = getRankFromElo(player);
 
-		// Uložení nového ranku do configu
-		plugin.getPlayers().getConfig().set(player.getDisplayName() + ".rank", newRank);
-		plugin.getPlayers().saveConfig();
+		if (!oldRank.equalsIgnoreCase(newRank)) {
+			stats.setRank(newRank);
+			plugin.getPlayerStatsManager().saveStats(player.getUniqueId());
 
-		// Kontrola, zda došlo k povýšení nebo ponížení
-		if (!oldRank.equals(newRank)) {
+			// Oznámení o změně ranku
+			String prefix = plugin.getMessages().getConfig().getString("prefix");
+
 			if (isRankHigher(newRank, oldRank)) {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("rank.promoted").replace("%rank%", newRank)));
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("rank.promoted")
+								.replace("%rank%", newRank)));
 				player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
 			} else {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + plugin.getMessages().getConfig().getString("rank.demoted").replace("%rank%", newRank)));
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("rank.demoted")
+								.replace("%rank%", newRank)));
 				player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
 			}
 		}
-
-		return newRank;
 	}
 
-	// Metoda pro kontrolu, zda je nový rank vyšší než starý
 	private boolean isRankHigher(String newRank, String oldRank) {
-		// Vytvoř seznam ranků seřazených podle úrovně
-		List<String> ranksList = Arrays.asList("Unranked", "novice", "apprentice", "adept", "warrior", "champion", "gladiator", "hero", "master", "legend", "mythic");
-
-		int newRankIndex = ranksList.indexOf(newRank.toLowerCase());
-		int oldRankIndex = ranksList.indexOf(oldRank.toLowerCase());
-
-		return newRankIndex > oldRankIndex; // Vrátí true, pokud je nový rank vyšší
+		int newIndex = new ArrayList<>(ranks.keySet()).indexOf(newRank.toLowerCase());
+		int oldIndex = new ArrayList<>(ranks.keySet()).indexOf(oldRank.toLowerCase());
+		return newIndex > oldIndex;
 	}
 }

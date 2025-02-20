@@ -16,10 +16,6 @@ public class KillsMap {
 		this.plugin = plugin;
 	}
 
-	public Integer putInt(UUID player) {
-		return killsMap.put(player, plugin.getPlayers().getConfig().getInt(player + ".kills") + 1);
-	}
-
 	public Integer getInt(UUID player) {
 		return killsMap.get(player);
 	}
