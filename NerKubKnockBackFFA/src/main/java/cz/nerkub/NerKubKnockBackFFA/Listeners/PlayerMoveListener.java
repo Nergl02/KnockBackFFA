@@ -3,7 +3,6 @@ package cz.nerkub.NerKubKnockBackFFA.Listeners;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DeathsMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
-import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
 import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
@@ -103,7 +102,7 @@ public class PlayerMoveListener implements Listener {
 
 	private void handleDeathWithoutDamager(Player player, PlayerStats stats) {
 		UUID playerUUID = player.getUniqueId();
-		killStreakMap.removeInt(playerUUID);
+		killStreakMap.resetKillStreak(playerUUID);
 		deathsMap.putInt(playerUUID);
 		stats.setDeaths(stats.getDeaths() + 1);
 
@@ -153,6 +152,36 @@ public class PlayerMoveListener implements Listener {
 		int coinGained = random.nextInt(coinMaxKill - coinMinKill + 1) + coinMinKill;
 		damagerStats.setCoins(damagerStats.getCoins() + coinGained);
 
+		// 🔫 Zvýšení killstreaku pro damagera
+		int currentKillStreak = killStreakMap.putInt(damagerUUID); // Zvýšení o 1
+
+		// 📈 Aktualizace maximálního killstreaku
+		if (currentKillStreak > damagerStats.getMaxKillstreak()) {
+			damagerStats.setMaxKillstreak(currentKillStreak);
+			plugin.getPlayerStatsManager().saveStats(damagerUUID);
+		}
+
+		// 🔹 Odměna za každých 5 killů
+		if (currentKillStreak % 5 == 0 && currentKillStreak > 0) {
+			int reward = currentKillStreak * plugin.getConfig().getInt("coins.kill-streak", 5);
+			damagerStats.setCoins(damagerStats.getCoins() + reward);
+
+			Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
+					plugin.getMessages().getConfig().getString("kill-streak")
+							.replace("%player%", damager.getDisplayName())
+							.replace("%killstreak%", String.valueOf(currentKillStreak))
+			));
+
+			damager.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					plugin.getMessages().getConfig().getString("coins.coins-kill-streak-gained")
+							.replace("%coins%", String.valueOf(reward))
+							.replace("%killstreak%", String.valueOf(currentKillStreak))
+			));
+		}
+		killStreakMap.resetKillStreak(playerUUID);
+		plugin.getPlayerStatsManager().saveStats(damagerUUID);
+		plugin.getPlayerStatsManager().saveStats(playerUUID);
+
 		Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&',
 				plugin.getMessages().getConfig().getString("prefix") +
 						plugin.getMessages().getConfig().getString("kill-messages." + randomKey)
@@ -162,14 +191,24 @@ public class PlayerMoveListener implements Listener {
 		plugin.getPlayerStatsManager().saveStats(damagerUUID);
 		plugin.getPlayerStatsManager().saveStats(playerUUID);
 
+		maxItemInInvListener.checkPlayerInventory(damager);
+
 		damager.playSound(damager.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
 		damager.getInventory().addItem(new ItemStack(Material.ENDER_PEARL));
 		damager.getInventory().addItem(new ItemStack(Material.ARROW));
 		damager.getInventory().addItem(buildBlockItem.createBuildBlockItem(4));
 
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("elo.elo-lost")
+				.replace("%elo%", String.valueOf(eloLoss))));
+		damager.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("coins.coins-gained")
+				.replace("%coins%", String.valueOf(coinGained))));
+		damager.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("elo.elo-gained")
+				.replace("%elo%", String.valueOf(eloGain))));
+
 		resetPlayer(player);
 		damagerMap.removeDamager(playerUUID);
 	}
+
 
 }
 

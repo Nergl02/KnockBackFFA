@@ -27,6 +27,7 @@ public class RankManager {
 		if (section != null) {
 			for (String key : section.getKeys(false)) {
 				String display = section.getString(key + ".display", key);
+				display = ChatColor.translateAlternateColorCodes('&', display);
 				int min = section.getInt(key + ".min", 0);
 				int max = section.getInt(key + ".max", Integer.MAX_VALUE);
 				ranks.put(key.toLowerCase(), new Rank(key, display, min, max));

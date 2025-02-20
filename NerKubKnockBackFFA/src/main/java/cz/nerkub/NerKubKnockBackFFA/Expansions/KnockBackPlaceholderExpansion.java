@@ -9,6 +9,7 @@ import cz.nerkub.NerKubKnockBackFFA.Managers.PlayerStatsManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,7 +74,7 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 				return plugin.formatTime(plugin.getTimeRemaining());
 
 			case "killstreak":
-				return String.valueOf(stats.getMaxKillstreak());
+				return String.valueOf(killStreakMap.getInt(player.getUniqueId()));
 
 			case "kills":
 				return String.valueOf(stats.getKills());
@@ -85,7 +86,7 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 				return stats.getDeaths() > 0 ? String.format("%.2f", (double) stats.getKills() / stats.getDeaths()) : "∞";
 
 			case "rank":
-				return stats.getRank();
+				return ChatColor.translateAlternateColorCodes('&', stats.getRank());
 
 			case "elo":
 				return String.valueOf(stats.getElo());

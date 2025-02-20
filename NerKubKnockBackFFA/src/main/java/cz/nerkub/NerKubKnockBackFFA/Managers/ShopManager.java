@@ -7,6 +7,7 @@ import cz.nerkub.NerKubKnockBackFFA.Items.SwapperBallItem;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
@@ -41,9 +42,47 @@ public class ShopManager {
 	public void openShop(Player player) {
 		Inventory shopInventory = Bukkit.createInventory(null, plugin.getShop().getConfig().getInt("size", 27), ChatColor.translateAlternateColorCodes('&', plugin.getShop().getConfig().getString("title")));
 
+		addBorder(shopInventory);
 		addItemsToShop(shopInventory);
 		player.openInventory(shopInventory); // Otevření inventáře pro hráče
 	}
+
+	private void addBorder(Inventory inventory) {
+		// Načtení materiálu z configu
+		String materialName = plugin.getShop().getConfig().getString("filler", "GRAY_STAINED_GLASS_PANE");
+		Material material;
+
+		// Ověření, zda materiál existuje
+		try {
+			material = Material.valueOf(materialName.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			Bukkit.getLogger().warning("⚠️ Invalid material in shop.yml: " + materialName + ". Using default GRAY_STAINED_GLASS_PANE.");
+			material = Material.GRAY_STAINED_GLASS_PANE; // Výchozí materiál, pokud je neplatný
+		}
+
+		// Vytvoření itemu
+		ItemStack filler = new ItemStack(material);
+		ItemMeta meta = filler.getItemMeta();
+		if (meta != null) {
+			meta.setDisplayName(ChatColor.GRAY + " ");
+			filler.setItemMeta(meta);
+		}
+
+		int size = inventory.getSize();
+
+		// Přidání do horní a spodní řady
+		for (int i = 0; i < 9; i++) {
+			inventory.setItem(i, filler); // Horní řada
+			inventory.setItem(size - 9 + i, filler); // Spodní řada
+		}
+
+		// Přidání do levého a pravého sloupce
+		for (int i = 0; i < size; i += 9) {
+			inventory.setItem(i, filler); // Levý sloupec
+			inventory.setItem(i + 8, filler); // Pravý sloupec
+		}
+	}
+
 
 	public void addItemsToShop(Inventory shopInventory) {
 		// Přidání Levitation Boots

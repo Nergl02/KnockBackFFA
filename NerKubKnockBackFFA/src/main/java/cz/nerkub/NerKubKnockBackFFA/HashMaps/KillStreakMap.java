@@ -6,18 +6,21 @@ import java.util.UUID;
 
 public class KillStreakMap {
 
-	public final Map<UUID, Integer> killstreakMap = new HashMap<>();
+	private final Map<UUID, Integer> killstreakMap = new HashMap<>();
 
-	public Integer putInt(UUID player) {
-		return killstreakMap.put(player, killstreakMap.getOrDefault(player, 0) + 1);
+	public int putInt(UUID player) {
+		int newKillStreak = killstreakMap.getOrDefault(player, 0) + 1; // Zvýšení o 1
+		killstreakMap.put(player, newKillStreak);  // Uložení nové hodnoty
+		return newKillStreak;                      // Vrátí novou hodnotu
 	}
 
-	public Integer getInt(UUID player) {
-		return killstreakMap.get(player);
+	public int getInt(UUID player) {
+		return killstreakMap.getOrDefault(player, 0);
 	}
 
-	public Integer removeInt(UUID player) {
-		return killstreakMap.remove(player);
+	public void resetKillStreak(UUID player) {
+		killstreakMap.put(player, 0); // Reset na 0
 	}
-
 }
+
+

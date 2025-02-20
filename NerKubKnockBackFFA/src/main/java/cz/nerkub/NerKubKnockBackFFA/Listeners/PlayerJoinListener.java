@@ -110,7 +110,7 @@ public class PlayerJoinListener implements Listener {
 		Player player = event.getPlayer();
 
 		// Odstraní kill streak a damagera
-		killStreakMap.removeInt(player.getUniqueId());
+		killStreakMap.resetKillStreak(player.getUniqueId());
 		damagerMap.removeDamager(player.getUniqueId());
 
 		// Nastaví quit message na null (nebudete mít žádnou zprávu při odchodu)

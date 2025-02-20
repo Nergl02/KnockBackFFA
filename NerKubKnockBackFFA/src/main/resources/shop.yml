@@ -1,6 +1,7 @@
 # Change the title of the shop inventory
 title: '&8&lShop'
 size: 27
+filler: GRAY_STAINED_GLASS_PAIN
 
 levitation-boots:
   # The price of specific item.
