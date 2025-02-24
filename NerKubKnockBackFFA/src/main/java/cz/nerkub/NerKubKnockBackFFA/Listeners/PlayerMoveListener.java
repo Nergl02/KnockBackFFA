@@ -87,7 +87,7 @@ public class PlayerMoveListener implements Listener {
 
 	// 📌 Pomocná metoda pro reset hráče po smrti
 	private void resetPlayer(Player player) {
-		arenaManager.teleportPlayerToCurrentArena(player);
+		arenaManager.joinCurrentArena(player);
 		player.getInventory().clear();
 
 		player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());

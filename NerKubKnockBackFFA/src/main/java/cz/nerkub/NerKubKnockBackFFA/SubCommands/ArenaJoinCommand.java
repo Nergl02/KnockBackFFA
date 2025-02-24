@@ -67,7 +67,7 @@ public class ArenaJoinCommand extends SubCommandManager {
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix")
 				+ plugin.getMessages().getConfig().getString("arena-join")));
 
-		String currentArena = plugin.getArenaManager().getCurrentArena();
+		String currentArena = plugin.getArenaManager().getCurrentArenaName();
 
 		inventoryManager.saveInventory(player);
 		inventoryManager.saveLocation(player);
@@ -101,7 +101,7 @@ public class ArenaJoinCommand extends SubCommandManager {
 			}
 
 			rankManager.savePlayerRank(player);
-			arenaManager.teleportPlayerToCurrentArena(player);
+			arenaManager.joinCurrentArena(player);
 
 			scoreBoardManager.startScoreboardUpdater(player);
 			scoreBoardManager.updateScoreboard(player);

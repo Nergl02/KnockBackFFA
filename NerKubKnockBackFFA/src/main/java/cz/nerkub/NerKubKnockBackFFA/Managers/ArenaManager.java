@@ -4,223 +4,505 @@ import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import cz.nerkub.NerKubKnockBackFFA.Arena;
 
-import java.lang.foreign.Arena;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
-public class ArenaManager {
+public class ArenaManager implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
-	private final ScoreboardUpdater scoreboardUpdater;
-	private final Random random;
-	private int timeRemaining;
+
 	private final InventoryManager inventoryManager;
 
 	private String currentArena;
-	private String lastArena;
 
-	public ArenaManager(NerKubKnockBackFFA plugin, ScoreboardUpdater scoreboardUpdater, Random random, InventoryManager inventoryManager) {
+	private final Map<UUID, Location> firstPoint = new HashMap<>();
+	private final Map<UUID, Location> secondPoint = new HashMap<>();
+	private final Map<String, Arena> arenas = new HashMap<>();
+	private final Set<UUID> playersInArena = new HashSet<>();
+
+	public ArenaManager(NerKubKnockBackFFA plugin, InventoryManager inventoryManager) {
 		this.plugin = plugin;
-		this.scoreboardUpdater = scoreboardUpdater;
-		this.random = random;
+
 		this.inventoryManager = inventoryManager;
-	}
-
-	public void setCurrentArena(String arenaName) {
-		currentArena = arenaName; // Nastav aktuální arénu
-		Bukkit.getLogger().info("Aktuální aréna byla nastavena na: " + currentArena);
-
-		// Získej lokaci arény ze souboru s konfigurací
-		Location arenaSpawn = getArenaSpawn(arenaName);
-
-		if (arenaSpawn == null) {
-			Bukkit.getLogger().warning("Arena spawn location is null for arena: " + arenaName);
-			return; // Pokud je spawn null, ukonči metodu
-		}
-
-		// Vytvoř bezpečnostní zónu na základě arény
-		createSafeZone(arenaSpawn);
-	}
-
-	public String getCurrentArena() {
-		return currentArena;
-	}
-
-	public int getTimeRemaining() {
-		return timeRemaining;
-	}
-
-	// Teleport hráče do aktuální arény
-	public void teleportPlayerToCurrentArena(Player player) {
-		// Zkontroluj, zda je nastavena aktuální aréna
-		if (currentArena == null) {
-			Bukkit.getLogger().warning("Žádná aktivní aréna není nastavena pro hráče: " + player.getName());
-			return; // Pokud není nastavena aréna, ukonči metodu
-		}
-
-		// Získej lokaci spawnu pro aktuální arénu
-		World world = Bukkit.getWorld(plugin.getArenas().getConfig().getString(currentArena + ".spawn.world"));
-		double x = plugin.getArenas().getConfig().getDouble(currentArena + ".spawn.x");
-		double y = plugin.getArenas().getConfig().getDouble(currentArena + ".spawn.y");
-		double z = plugin.getArenas().getConfig().getDouble(currentArena + ".spawn.z");
-
-		// Zkontroluj, zda svět existuje
-		if (world == null) {
-			Bukkit.getLogger().warning("Svět pro arénu " + currentArena + " nebyl nalezen pro hráče: " + player.getName() + "!");
-			return; // Pokud svět neexistuje, ukonči metodu
-		}
-
-		// Vytvoř lokaci pro teleportaci
-		Location spawnLocation = new Location(world, x, y, z);
-		player.teleport(spawnLocation); // Teleportuj hráče
-		Bukkit.getLogger().info("Hráč " + player.getName() + " byl teleportován do arény: " + currentArena + " na pozici: " + spawnLocation.toString());
-
-		// Vytvoř bezpečnostní zónu pod hráčem
-		createSafeZone(spawnLocation);
-	}
-
-	private void createSafeZone(Location location) {
-		if (location == null) {
-			Bukkit.getLogger().warning("Location is null! Cannot create safe zone.");
-			return; // Ukonči metodu, pokud je location null
-		}
-
-		// Definuj vzdálenost pro bezpečnostní zónu
-		int safeZoneRadius = plugin.getConfig().getInt("safe-zone-radius"); // Můžeš změnit podle potřeby
-
-		// Vytvoř bezpečnostní zónu
-		for (int x = -safeZoneRadius; x <= safeZoneRadius; x++) {
-			for (int z = -safeZoneRadius; z <= safeZoneRadius; z++) {
-				Location safeZoneLocation = location.clone().add(x, 0, z);
-			}
-		}
-	}
-
-	public void teleportPlayersToRandomArena() {
-		Set<String> arenas = plugin.getArenas().getConfig().getKeys(false);
-		if (arenas.isEmpty()) {
-			Bukkit.getLogger().warning("There are no arenas in arena.yml!");
-			return;
-		}
-
-		List<String> arenaList = new ArrayList<>(arenas);
-		String randomArena;
-
-		if (arenaList.size() == 1) {
-			// Pokud je pouze jedna aréna, nastav ji jako aktuální arénu
-			randomArena = arenaList.get(0);
-			setCurrentArena(randomArena);
-			lastArena = randomArena; // Aktualizuj lastArena
-		} else {
-			// Vybírej náhodně, pokud je více než jedna aréna
-			do {
-				randomArena = arenaList.get(random.nextInt(arenaList.size()));
-			} while (randomArena.equals(lastArena)); // Zajistí, že se nevybere stejná aréna jako poslední
-
-			setCurrentArena(randomArena); // Nastav aktuální arénu
-			lastArena = randomArena; // Aktualizuj lastArena
-		}
-
-
-		// Načti pozici spawnu z arenas.yml
-		World world = Bukkit.getWorld(plugin.getArenas().getConfig().getString(randomArena + ".spawn.world"));
-		double x = plugin.getArenas().getConfig().getDouble(randomArena + ".spawn.x");
-		double y = plugin.getArenas().getConfig().getDouble(randomArena + ".spawn.y");
-		double z = plugin.getArenas().getConfig().getDouble(randomArena + ".spawn.z");
-
-		if (world == null) {
-			Bukkit.getLogger().warning("Svět pro arénu " + randomArena + " nebyl nalezen!");
-			return;
-		}
-
-		Location spawnLocation = new Location(world, x, y, z);
-
-		// Teleportuj všechny hráče do vybrané arény
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.teleport(spawnLocation);
-			plugin.getScoreBoardManager().startScoreboardUpdater(player);
-		}
-	}
-
-	public Location getArenaSpawn(String arenaName) {
-
-		if (arenaName == null || arenaName.isEmpty()) {
-			Bukkit.getLogger().warning("Název arény je null nebo prázdný!");
-			return null; // nebo to ošetři jinak
-		}
-		// Získej konfiguraci arény
-		String worldName = plugin.getArenas().getConfig().getString(arenaName + ".spawn.world");
-		double x = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.x");
-		double y = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.y");
-		double z = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.z");
-
-		// Získej svět
-		World world = Bukkit.getWorld(worldName);
-		if (world == null) {
-			Bukkit.getLogger().warning("Svět pro arénu " + arenaName + " nebyl nalezen!");
-			return null; // nebo můžeš vrátit výchozí hodnotu
-		}
-
-		// Vrať lokaci spawnu
-		return new Location(world, x, y, z);
-	}
-
-	public void loadArenas() {
-		// Předpoklad: arenas.yml je načten
-		for (String arenaName : plugin.getArenas().getConfig().getKeys(false)) {
-			Bukkit.getLogger().info("Načítání arény: " + arenaName);
-			// Další kód pro načítání arény...
-		}
-	}
-
-	public String getArenaOfPlayer(Player player) {
-		// Pokud je hráč v aktuální aréně, vrátí její název
-		if (currentArena != null && player.getWorld().getName().equals(getArenaWorldName(currentArena))) {
-			return currentArena;
-		}
-		return null; // Pokud hráč není v žádné aréně, vrátí null
-	}
-
-	private String getArenaWorldName(String arenaName) {
-		return plugin.getArenas().getConfig().getString(arenaName + ".spawn.world");
-	}
-
-	public void removePlayerFromArena(Player player) {
-
-		if (!plugin.getConfig().getBoolean("bungee-mode")) {
-			// Zkontroluj, jestli je hráč v aktuální aréně
-			if (currentArena != null && player.getWorld().getName().equals(getArenaWorldName(currentArena))) {
-				// Proveď jakoukoli čistící logiku, například teleportuj hráče mimo arénu
-				inventoryManager.restoreLocation(player); // Teleportuj hráče ven z arény
-				Bukkit.getLogger().info("Hráč " + player.getName() + " byl odstraněn z arény: " + currentArena);
-			}
-		}
-
-	}
-
-	public boolean isPlayerInArena(Player player) {
-		String arena = plugin.getArenaManager().getArenaOfPlayer(player);
-		if (arena == null) {
-			return false;
-		}
-		return true;
+		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 
 	public void leaveArena(Player player) {
-		// Obnovíš inventář a pozici hráče
-		inventoryManager.restoreInventory(player);
-		inventoryManager.restoreLocation(player);
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		String arenaName = getPlayerArena(player);
 
-		// Oznámíš hráči, že opustil arénu (můžeš přidat vlastní zprávu)
-		player.sendMessage(ChatColor.GREEN + "Opustil jsi arénu.");
+		if (!arenaName.equals("Žádná aréna")) {
+			playersInArena.add(player.getUniqueId());
+			Bukkit.getLogger().info("🔄 [DEBUG] Player added to arena list for reload: " + player.getName());
 
-		// Provádíš další potřebné operace pro opuštění arény (např. odstranění z arény)
-		plugin.getArenaManager().removePlayerFromArena(player);
+			// Debug hráčova stavu
+			if (player.isOnline()) {
+				Bukkit.getLogger().info("[DEBUG] Player is online: " + player.getName());
+				plugin.getDatabaseManager().addPlayerToArena(player.getUniqueId(), arenaName);
+			} else {
+				Bukkit.getLogger().warning("[DEBUG] Player is offline: " + player.getName());
+			}
+
+			inventoryManager.restoreInventory(player);
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.player-removed").replace("%arena%", arenaName)));
+		} else {
+			Bukkit.getLogger().warning("⚠️ [DEBUG] Player tried to leave an arena, but none was found.");
+		}
+	}
+
+	public void addPlayerToArena(Player player) {
+		String currentArena = getCurrentArenaName();
+		if (currentArena != null && !currentArena.equals("Žádná aréna")) {
+			plugin.getDatabaseManager().addPlayerToArena(player.getUniqueId(), currentArena);
+			playersInArena.add(player.getUniqueId());
+			Bukkit.getLogger().info("[DEBUG] Player added to arena: " + player.getName() + " in arena: " + currentArena);
+		} else {
+			Bukkit.getLogger().warning("[DEBUG] Cannot add player to arena, no arena is active.");
+		}
+	}
+
+
+	public void removePlayerFromArena(Player player) {
+		playersInArena.remove(player.getUniqueId());
+		plugin.getDatabaseManager().removePlayerFromArena(player.getUniqueId());
+		Bukkit.getLogger().info("[DEBUG] Player " + player.getName() + " removed from arena.");
+	}
+
+
+	public Set<UUID> getPlayersInArena() {
+		return playersInArena;
+	}
+
+
+	public void setCurrentArena(String arenaName) {
+		if (plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			this.currentArena = arenaName;
+			plugin.getDatabaseManager().setCurrentArenaInDatabase(arenaName);
+		} else {
+		}
+	}
+
+
+	public Map<String, Arena> getArenas() {
+		return arenas;
+	}
+
+	public void giveTool(Player player) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		ItemStack tool = new ItemStack(Material.GOLDEN_HOE);
+		ItemMeta meta = tool.getItemMeta();
+		if (meta != null) {
+			meta.setDisplayName(ChatColor.GOLD + "Arena Setup Tool");
+			meta.setLore(Arrays.asList(ChatColor.YELLOW + "Left Click: Set first point", ChatColor.YELLOW + "Right Click: Set second point"));
+			tool.setItemMeta(meta);
+		}
+		player.getInventory().addItem(tool);
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+				plugin.getMessages().getConfig().getString("arena.tool")));
+	}
+
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		Player player = event.getPlayer();
+		ItemStack item = event.getItem();
+
+		if (item != null && item.getType() == Material.GOLDEN_HOE && item.getItemMeta() != null && item.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Arena Setup Tool")) {
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				firstPoint.put(player.getUniqueId(), event.getClickedBlock().getLocation());
+				String location = formatLocation(event.getClickedBlock().getLocation());
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("arena.first-point-set").replace("%location%", location)));
+				event.setCancelled(true);
+			}
+
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				secondPoint.put(player.getUniqueId(), event.getClickedBlock().getLocation());
+				String location = formatLocation(event.getClickedBlock().getLocation());
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						prefix + plugin.getMessages().getConfig().getString("arena.second-point-set").replace("%location%", location)));
+				event.setCancelled(true);
+			}
+		}
+	}
+
+
+	public void createArena(Player player, String arenaName) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+
+		if (plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					prefix + plugin.getMessages().getConfig().getString("arena.already-exists")
+							.replace("%arena%", arenaName)));
+			return;
+		}
+
+		UUID uuid = player.getUniqueId();
+		if (!firstPoint.containsKey(uuid) || !secondPoint.containsKey(uuid)) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					prefix + plugin.getMessages().getConfig().getString("arena.points-not-set")));
+			return;
+		}
+
+		Location pos1 = firstPoint.get(uuid);
+		Location pos2 = secondPoint.get(uuid);
+
+		Location min = new Location(pos1.getWorld(),
+				Math.min(pos1.getX(), pos2.getX()),
+				Math.min(pos1.getY(), pos2.getY()),
+				Math.min(pos1.getZ(), pos2.getZ()));
+
+		Location max = new Location(pos1.getWorld(),
+				Math.max(pos1.getX(), pos2.getX()),
+				Math.max(pos1.getY(), pos2.getY()),
+				Math.max(pos1.getZ(), pos2.getZ()));
+
+		Location spawn = player.getLocation();
+
+		Arena arena = new Arena(arenaName, spawn, min, max);
+		plugin.getDatabaseManager().saveArenaToDatabase(arenaName, spawn, min, max);
+		arenas.put(arenaName, arena);
+
+		firstPoint.remove(uuid);
+		secondPoint.remove(uuid);
+
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+				plugin.getMessages().getConfig().getString("arena.create").replace("%arena%", arenaName)));
+	}
+
+
+
+
+	public boolean removeArena(Player player, String arenaName) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		if (!plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.invalid-arena").replace("%arena%", arenaName)));
+			return false;
+		}
+
+		if (plugin.getDatabaseManager().removeArenaFromDatabase(arenaName)) {
+			arenas.remove(arenaName);
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.remove").replace("%arena%", arenaName)));
+			return true;
+		} else {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.remove-fail").replace("%arena%", arenaName)));
+			return false;
+		}
+	}
+
+	public void loadCurrentArena() {
+		String activeArena = plugin.getDatabaseManager().getCurrentArena();
+		if (activeArena != null) {
+			this.currentArena = activeArena;
+			Bukkit.getLogger().info("[DEBUG] Loaded current arena: " + currentArena);
+		} else {
+			Bukkit.getLogger().warning("[DEBUG] No current arena set.");
+		}
+	}
+
+
+
+	public void loadArenas() {
+		Map<String, Arena> loadedArenas = plugin.getDatabaseManager().loadArenasFromDatabase();
+
+		if (loadedArenas.isEmpty()) {
+			Bukkit.getLogger().warning("[DEBUG] Nebyly nalezeny žádné arény v databázi.");
+			return;
+		}
+
+		arenas.clear();
+
+		for (Arena arena : loadedArenas.values()) {
+			arenas.put(arena.getName(), arena);
+		}
+	}
+
+
+	public void setArenaSpawn(Player player, String arenaName, Location spawn) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+
+		// Ověření, zda aréna existuje v databázi
+		if (!plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					prefix + plugin.getMessages().getConfig().getString("arena.not-exist").replace("%arena%", arenaName)));
+			return;
+		}
+
+		// Aktualizace spawnu
+		try {
+			plugin.getDatabaseManager().updateArenaSpawn(arenaName, spawn);
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					prefix + plugin.getMessages().getConfig().getString("arena.spawn-set").replace("%arena%", arenaName)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+	public void setArenaBounds(String arenaName, Location min, Location max) {
+		if (!plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			return;
+		}
+
+		String sql = "UPDATE arenas SET min_x = ?, min_y = ?, min_z = ?, max_x = ?, max_y = ?, max_z = ? WHERE arena_name = ?;";
+
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			// Nastavení hodnot pro hranice
+			stmt.setDouble(1, min.getX());
+			stmt.setDouble(2, min.getY());
+			stmt.setDouble(3, min.getZ());
+			stmt.setDouble(4, max.getX());
+			stmt.setDouble(5, max.getY());
+			stmt.setDouble(6, max.getZ());
+			stmt.setString(7, arenaName);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	public String getCurrentArenaName() {
+		String dbArena = plugin.getDatabaseManager().getCurrentArena();
+		return dbArena != null ? dbArena : "Žádná aréna není nastavena";
+	}
+
+
+	public void switchToNextArena() {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		List<String> arenaList = new ArrayList<>(arenas.keySet());
+
+		if (arenaList.isEmpty()) {
+			Bukkit.getLogger().warning("[DEBUG] Žádné arény nejsou dostupné pro přepnutí.");
+			return;
+		}
+
+		int currentIndex = currentArena != null ? arenaList.indexOf(currentArena) : -1;
+		int nextIndex = (currentIndex + 1) % arenaList.size();
+		String nextArena = arenaList.get(nextIndex);
+
+		if (nextArena != null && !nextArena.equals(currentArena)) {
+			Bukkit.getLogger().info("🔄 [DEBUG] Switching from arena '" + currentArena + "' to arena '" + nextArena + "'.");
+			setCurrentArena(nextArena);
+			plugin.getDatabaseManager().setCurrentArenaInDatabase(nextArena);
+
+			Location spawn = getArenaSpawn(nextArena);
+			if (spawn != null) {
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					player.teleport(spawn);
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+							plugin.getMessages().getConfig().getString("arena.switch").replace("%arena%", nextArena)));
+				}
+			} else {
+				Bukkit.getLogger().warning("⚠️ [DEBUG] Spawn pro arénu '" + nextArena + "' nebyl nalezen.");
+			}
+		} else {
+			Bukkit.getLogger().warning("⚠️ [DEBUG] Aréna se nezměnila.");
+		}
+	}
+
+
+
+	public boolean isPlayerInArena(Player player) {
+		String arenaName = getPlayerArena(player);
+		return arenaName != null && !arenaName.equals("Žádná aréna");
+	}
+
+	public boolean doesArenaExist(String arenaName) {
+		String sql = "SELECT COUNT(*) FROM arenas WHERE arena_name = ?;";
+
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, arenaName);
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt(1) > 0; // Pokud je výsledek větší než 0, aréna existuje
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+
+	public void joinCurrentArena(Player player) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		if (currentArena == null || currentArena.equals("Žádná aréna")) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					plugin.getMessages().getConfig().getString("arena.no-set")));
+			return;
+		}
+
+		Location spawn = getArenaSpawn(currentArena);
+		if (spawn != null) {
+			player.teleport(spawn);
+		} else {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.no-spawn").replace("%arena%", currentArena)));
+		}
+	}
+
+
+	public Location getArenaSpawn(String arenaName) {
+		if (!plugin.getDatabaseManager().doesArenaExist(arenaName)) {
+			return null;
+		}
+
+		String sql = "SELECT world, spawn_x, spawn_y, spawn_z, spawn_yaw, spawn_pitch FROM arenas WHERE arena_name = ?;";
+
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, arenaName);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				String worldName = rs.getString("world");
+				World world = Bukkit.getWorld(worldName);
+
+				if (world == null) {
+					return null;
+				}
+
+				double x = rs.getDouble("spawn_x");
+				double y = rs.getDouble("spawn_y");
+				double z = rs.getDouble("spawn_z");
+				float yaw = rs.getFloat("spawn_yaw");
+				float pitch = rs.getFloat("spawn_pitch");
+
+				return new Location(world, x, y, z, yaw, pitch);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+
+	public void teleportPlayersToRandomArena() {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
+		List<String> arenaNames = new ArrayList<>(arenas.keySet()); // Použij seznam načtených arén z paměti
+
+		if (arenaNames.isEmpty()) {
+			return;
+		}
+
+		String randomArena = arenaNames.get(new Random().nextInt(arenaNames.size()));
+		setCurrentArena(randomArena);
+
+		Location spawn = getArenaSpawn(randomArena);
+		if (spawn != null) {
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				player.teleport(spawn);
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+						plugin.getMessages().getConfig().getString("arena.teleport").replace("%arena%", currentArena)));
+			}
+		}
+	}
+
+
+	public String getPlayerArena(Player player) {
+		if (player == null || player.getLocation() == null) {
+			return null;
+		}
+
+		Location playerLocation = player.getLocation();
+
+		for (Arena arena : arenas.values()) {
+			Location min = arena.getMinBounds();
+			Location max = arena.getMaxBounds();
+
+			if (min != null && max != null && isInsideBounds(playerLocation, min, max)) {
+				return arena.getName();
+			}
+		}
+
+		return "Žádná aréna";
+	}
+
+
+
+
+
+	private boolean isInsideBounds(Location loc, Location min, Location max) {
+		return loc.getX() >= min.getX() && loc.getX() <= max.getX()
+				&& loc.getY() >= min.getY()
+				&& loc.getZ() >= min.getZ() && loc.getZ() <= max.getZ();
+	}
+
+	private String formatLocation(Location loc) {
+		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+	}
+
+	public Location getArenaMinBounds(String arenaName) {
+		String sql = "SELECT min_x, min_y, min_z, world FROM arenas WHERE arena_name = ?;";
+
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, arenaName);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				World world = Bukkit.getWorld(rs.getString("world"));
+				if (world == null) return null;
+
+				return new Location(world, rs.getDouble("min_x"), rs.getDouble("min_y"), rs.getDouble("min_z"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Location getArenaMaxBounds(String arenaName) {
+		String sql = "SELECT max_x, max_y, max_z, world FROM arenas WHERE arena_name = ?;";
+
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, arenaName);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				World world = Bukkit.getWorld(rs.getString("world"));
+				if (world == null) return null;
+
+				return new Location(world, rs.getDouble("max_x"), rs.getDouble("max_y"), rs.getDouble("max_z"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

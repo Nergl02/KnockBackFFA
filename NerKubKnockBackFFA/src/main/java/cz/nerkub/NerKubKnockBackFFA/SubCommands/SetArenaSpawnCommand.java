@@ -6,6 +6,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class SetArenaSpawnCommand extends SubCommandManager {
 
 	private final NerKubKnockBackFFA plugin;
@@ -16,7 +20,7 @@ public class SetArenaSpawnCommand extends SubCommandManager {
 
 	@Override
 	public String getName() {
-		return "setspawn";
+		return "setarenaspawn";
 	}
 
 	@Override
@@ -26,39 +30,40 @@ public class SetArenaSpawnCommand extends SubCommandManager {
 
 	@Override
 	public String getSyntax() {
-		return "&d/knbffa setspawn &e<arenaName>";
+		return "&d/knbffa setarenaspawn &e<arenaName>";
 	}
 
 	@Override
 	public boolean perform(Player player, String[] args) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 
+		// Ověření oprávnění
 		if (!player.hasPermission("knbffa.admin")) {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
-					plugin.getMessages().getConfig().getString("no-permission")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					prefix + plugin.getMessages().getConfig().getString("no-permission")));
 			return false;
 		}
 
-		// Zkontrolujte, zda je argument pro název arény platný
+		// Kontrola argumentů
 		if (args.length < 2) {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					plugin.getMessages().getConfig().getString("prefix") +
-							plugin.getMessages().getConfig().getString("usages.setspawn-arena")));
-			return false; // Příkaz selhal, protože nebyl zadán správný název arény
+					prefix + plugin.getMessages().getConfig().getString("usages.setspawn-arena")));
+			return false;
 		}
 
-		Location spawn = player.getLocation();
-		String arenaName = args[1].toString();
+		String arenaName = args[1];
 
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.world", spawn.getWorld().getName());
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.x", spawn.getX());
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.y", spawn.getY());
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.z", spawn.getZ());
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.yaw", spawn.getYaw());
-		plugin.getArenas().getConfig().set(arenaName + ".spawn.pitch", spawn.getPitch());
+		// Ověření existence arény
+		if (!plugin.getArenaManager().doesArenaExist(arenaName)) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("arena.invalid-arena").replace("%arena%", arenaName)));
+			return false;
+		}
 
-		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("arena-created").replace("%arena%", args[1])));
-		plugin.getArenas().saveConfig();
+		// Nastavení spawnu pomocí ArenaManageru
+		plugin.getArenaManager().setArenaSpawn(player, arenaName, player.getLocation());
 
-		return false;
+		return true;
 	}
+
 }

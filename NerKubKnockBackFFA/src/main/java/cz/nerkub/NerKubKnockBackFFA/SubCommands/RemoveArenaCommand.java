@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.SubCommandManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
@@ -9,9 +10,11 @@ import org.bukkit.entity.Player;
 public class RemoveArenaCommand extends SubCommandManager {
 
 	private final NerKubKnockBackFFA plugin;
+	private final ArenaManager arenaManager;
 
-	public RemoveArenaCommand(NerKubKnockBackFFA plugin) {
+	public RemoveArenaCommand(NerKubKnockBackFFA plugin, ArenaManager arenaManager) {
 		this.plugin = plugin;
+		this.arenaManager = arenaManager;
 	}
 
 
@@ -32,39 +35,25 @@ public class RemoveArenaCommand extends SubCommandManager {
 
 	@Override
 	public boolean perform(Player player, String[] args) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 
 		if (!player.hasPermission("knbffa.admin")) {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
 					plugin.getMessages().getConfig().getString("no-permission")));
-			return false;
+			return true;
 		}
 
-		// Zkontrolujte, zda je argument pro název arény platný
-		if (args.length < 2) {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					plugin.getMessages().getConfig().getString("prefix") +
-							plugin.getMessages().getConfig().getString("usages.remove-arena")));
-			return false; // Příkaz selhal, protože nebyl zadán správný název arény
+		if (args.length != 2 || !args[0].equalsIgnoreCase("removearena")) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("usage.remove-arena").replace("%arena%", args[1])));
+			return true;
 		}
 
 		String arenaName = args[1];
 
-		if (plugin.getArenas().getConfig().contains(arenaName)) {
-			// Nastavte hodnotu na null, čímž arénu odstraníte z configu
-			plugin.getArenas().getConfig().set(arenaName, null);
+		arenaManager.removeArena(player, arenaName);
 
-			// Uložte změny do souboru arenas.yml
-			plugin.getArenas().saveConfig();
-
-			// Výstup pro potvrzení odstranění
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix")
-					+ plugin.getMessages().getConfig().getString("arena-removed").replace("%arena%", arenaName)));
-			return true;
-		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix")
-					+ plugin.getMessages().getConfig().getString("invalid-arena").replace("%arena%", arenaName)));
-			return false;
-		}
+		return true;
 
 	}
 }

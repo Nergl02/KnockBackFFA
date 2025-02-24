@@ -3,6 +3,7 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\ShopBuyListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\InventoryManager.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.class
 cz\nerkub\NerKubKnockBackFFA\Managers\RankManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\BossBarManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\SafeZoneListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$1.class
@@ -14,6 +15,7 @@ cz\nerkub\NerKubKnockBackFFA\Items\BuildBlockItem.class
 cz\nerkub\NerKubKnockBackFFA\CustomFiles\CustomConfig.class
 cz\nerkub\NerKubKnockBackFFA\Items\LevitationBootsItem.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreboardUpdater.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaToolCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\FallDamageListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ShopManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerDamageListener.class
@@ -44,6 +46,7 @@ cz\nerkub\NerKubKnockBackFFA\HashMaps\KillStreakMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\ExplodingChickListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\ScoreBoardManager.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SimpleBarChart.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\CreateArenaCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\MaxItemInInvListener.class
@@ -58,11 +61,14 @@ cz\nerkub\NerKubKnockBackFFA\HashMaps\DeathsMap.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.class
+cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$2.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$AdvancedPie.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\Metrics.class
+cz\nerkub\NerKubKnockBackFFA\TabCompleters\KnbffaTabCompleter.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaTeleportCommand.class
+cz\nerkub\NerKubKnockBackFFA\Arena.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\LevitationBootsListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\Rank.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaListCommand.class

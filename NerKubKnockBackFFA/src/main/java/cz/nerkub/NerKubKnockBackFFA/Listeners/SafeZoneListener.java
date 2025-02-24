@@ -27,7 +27,7 @@ public class SafeZoneListener implements Listener {
 	@EventHandler
 	public void onPlayerDamage(EntityDamageByEntityEvent event) {
 		String prefix = plugin.getMessages().getConfig().getString("prefix");
-		String currentArena = arenaManager.getCurrentArena();
+		String currentArena = arenaManager.getCurrentArenaName();
 		Location arenaSpawn = arenaManager.getArenaSpawn(currentArena);
 
 		if (currentArena == null) {
@@ -96,7 +96,7 @@ public class SafeZoneListener implements Listener {
 		Location blockLocation = event.getBlock().getLocation();
 
 		// Získej aktuální arénu a pozici
-		String currentArena = arenaManager.getCurrentArena();
+		String currentArena = arenaManager.getCurrentArenaName();
 		Location arenaSpawn = arenaManager.getArenaSpawn(currentArena);
 
 		if (player.getGameMode() != GameMode.CREATIVE) {

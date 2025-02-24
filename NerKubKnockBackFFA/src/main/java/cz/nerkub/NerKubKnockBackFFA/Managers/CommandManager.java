@@ -55,12 +55,14 @@ public class CommandManager implements CommandExecutor {
 		subCommandManagers.add(new ShopSubCommand(plugin, shopManager));
 		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener, rankManager));
 		subCommandManagers.add(new SetArenaSpawnCommand(plugin));
-		subCommandManagers.add(new RemoveArenaCommand(plugin));
+		subCommandManagers.add(new RemoveArenaCommand(plugin, arenaManager));
 		subCommandManagers.add(new ArenaJoinCommand(plugin, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, scoreBoardManager, rankManager, inventoryManager, killsMap));
 		subCommandManagers.add(new ArenaLeaveCommand(plugin, inventoryManager, arenaManager, scoreBoardManager, damagerMap));
 		subCommandManagers.add(new ArenaListCommand(plugin));
 		subCommandManagers.add(new ArenaTeleportCommand(plugin));
 		subCommandManagers.add(new PlayerMenuSubCommand(plugin, playerMenuManager));
+		subCommandManagers.add(new ArenaToolCommand(plugin, arenaManager));
+		subCommandManagers.add(new CreateArenaCommand(plugin, arenaManager));
 	}
 
 	@Override

@@ -97,3 +97,7 @@ exploding-chick:
   explosion-delay: 5 # The time after will chick explode, in seconds
   hide-enchantment: true
   exploding-info: '&cExploding in '
+
+speed-boost:
+  display-name: ''
+

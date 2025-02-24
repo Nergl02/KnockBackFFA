@@ -53,7 +53,7 @@ public class BlockBreakListener implements Listener {
 
 	public void changeBlockInStages(final Block block, final Material[] stages, final int stageIndex) {
 
-		String currentArena = arenaManager.getCurrentArena();
+		String currentArena = arenaManager.getCurrentArenaName();
 		Location arenaSpawn = arenaManager.getArenaSpawn(currentArena);
 
 		// Zkontroluj, zda je blok v bezpečnostní zóně

@@ -1,3 +1,4 @@
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Arena.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\CustomFiles\CustomConfig.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Expansions\KnockBackPlaceholderExpansion.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.java
@@ -31,6 +32,7 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\ShopBuyListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Listeners\SwapperBallListener.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\ArenaManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\BossBarManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\InventoryManager.java
@@ -49,8 +51,11 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaLeaveCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaListCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaTeleportCommand.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaToolCommand.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\CreateArenaCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\PlayerMenuSubCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\RemoveArenaCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\SubCommands\ShopSubCommand.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\TabCompleters\KnbffaTabCompleter.java

@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -55,8 +54,9 @@ public class PlayerJoinListener implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		Player player = event.getPlayer();
-		String currentArena = plugin.getArenaManager().getCurrentArena();
+		String currentArena = arenaManager.getCurrentArenaName();
 
 		databaseManager.insertPlayer(String.valueOf(player.getUniqueId()), player.getName());
 
@@ -96,17 +96,23 @@ public class PlayerJoinListener implements Listener {
 
 				rankManager.savePlayerRank(player);
 
-				arenaManager.teleportPlayerToCurrentArena(player);
+				if (!currentArena.equals("Žádná aréna")) {
+					arenaManager.joinCurrentArena(player);
+				}
 
 			}
 
 		}
 		player.setGameMode(GameMode.SURVIVAL);
+		event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+				plugin.getMessages().getConfig().getString("join-message").replace("%player%", player.getName().toString())));
 
+		plugin.getBossBarManager().updateBossBar();
 	}
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		Player player = event.getPlayer();
 
 		// Odstraní kill streak a damagera
@@ -124,5 +130,15 @@ public class PlayerJoinListener implements Listener {
 			inventoryManager.restoreInventory(player);
 			inventoryManager.restoreLocation(player);
 		}
+
+		if (plugin.getArenaManager().isPlayerInArena(player)) {
+			plugin.getDatabaseManager().removePlayerFromArena(player.getUniqueId());
+			plugin.getArenaManager().getPlayersInArena().remove(player.getUniqueId());
+		}
+
+		event.setQuitMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+				plugin.getMessages().getConfig().getString("leave-message").replace("%player%", player.getName().toString())));
+
+		plugin.getBossBarManager().removePlayer(player);
 	}
 }

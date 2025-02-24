@@ -9,6 +9,7 @@ import cz.nerkub.NerKubKnockBackFFA.Managers.PlayerStatsManager;
 import cz.nerkub.NerKubKnockBackFFA.Managers.RankManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -66,9 +67,8 @@ public class KnockBackPlaceholderExpansion extends PlaceholderExpansion {
 		// 📌 Implementace jednotlivých placeholderů
 		switch (params.toLowerCase()) {
 			case "currentarena":
-				return plugin.getArenaManager().getCurrentArena() != null
-						? plugin.getArenaManager().getCurrentArena()
-						: "N/A";
+				String arenaName = plugin.getArenaManager().getCurrentArenaName();
+				return (arenaName != null) ? arenaName : "N/A";
 
 			case "nextarenain":
 				return plugin.formatTime(plugin.getTimeRemaining());

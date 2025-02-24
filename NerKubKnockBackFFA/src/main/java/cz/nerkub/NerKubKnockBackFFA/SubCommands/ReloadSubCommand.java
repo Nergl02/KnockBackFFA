@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+
 
 public class ReloadSubCommand extends SubCommandManager {
 
@@ -51,7 +51,6 @@ public class ReloadSubCommand extends SubCommandManager {
 
 		plugin.getMessages().reloadConfig();
 		plugin.getItems().reloadConfig();
-		plugin.getArenas().reloadConfig();
 		plugin.reloadConfig();
 		plugin.getShop().reloadConfig();
 		plugin.getRanks().reloadConfig();

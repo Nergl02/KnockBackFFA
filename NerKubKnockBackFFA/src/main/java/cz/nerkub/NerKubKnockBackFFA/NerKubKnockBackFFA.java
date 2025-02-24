@@ -10,8 +10,10 @@ import cz.nerkub.NerKubKnockBackFFA.Items.*;
 import cz.nerkub.NerKubKnockBackFFA.Listeners.*;
 import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.ShopSubCommand;
+import cz.nerkub.NerKubKnockBackFFA.TabCompleters.KnbffaTabCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,10 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 
 public final class NerKubKnockBackFFA extends JavaPlugin {
@@ -35,7 +34,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private DatabaseManager databaseManager;
 
 	private CustomConfig messages;
-	private CustomConfig arenas;
 	private CustomConfig items;
 	private CustomConfig shop;
 	private CustomConfig ranks;
@@ -60,6 +58,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
 	private final PlayerMenuManager playerMenuManager = new PlayerMenuManager(this);
 	private DoubleJumpListener doubleJumpListener;
+	private BossBarManager bossBarManager;
 
 	private ScoreBoardManager scoreBoardManager;
 	private ScoreboardUpdater scoreboardUpdater;
@@ -74,8 +73,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		// Custom ConfigFiles
 		messages = new CustomConfig("messages", "messages.yml", this); // Directory can be "" to create file in the main plugin folder
 		messages.saveConfig();
-		arenas = new CustomConfig("arenas", "arenas.yml", this); // Directory can be "" to create file in the main plugin folder
-		arenas.saveConfig();
 		items = new CustomConfig("items", "items.yml", this);
 		items.saveConfig();
 		shop = new CustomConfig("shop", "shop.yml", this);
@@ -83,23 +80,25 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		ranks = new CustomConfig("ranks", "ranks.yml", this);
 		ranks.saveConfig();
 
+
 		plugin = this;
 		random = new Random();
-		arenaManager = new ArenaManager(this, scoreboardUpdater, random, inventoryManager);
+		arenaManager = new ArenaManager(this, inventoryManager);
 		scoreBoardManager = new ScoreBoardManager(this);
 		timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Převedeno na sekundy
 		doubleJumpListener = new DoubleJumpListener(this);
 		this.databaseManager = new DatabaseManager(this);
 		this.playerStatsManager = new PlayerStatsManager(databaseManager);
 		this.rankManager = new RankManager(this);
+		bossBarManager = new BossBarManager(this);
 
 		// Otestuj připojení
 		try (Connection conn = databaseManager.getConnection()) {
 			if (conn != null && !conn.isClosed()) {
-				getLogger().info("✅ Databáze je připravena!");
+				getLogger().info("✅ Database is ready!");
 			}
 		} catch (SQLException e) {
-			getLogger().severe("❌ Chyba při připojování k databázi!");
+			getLogger().severe("❌ Error while connecting to the database!");
 			e.printStackTrace();
 		}
 
@@ -136,50 +135,110 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryManager,
 				playerMenuManager, doubleJumpListener, killsMap, damagerMap));
+		getCommand("knbffa").setTabCompleter(new KnbffaTabCompleter());
+
+		arenaManager.loadArenas();
+		arenaManager.loadCurrentArena();
+
+		if (getConfig().getBoolean("boss-bar", true)) {
+			bossBarManager.updateBossBar();
+		}
+
+
+		// Načti aktuální aktivní arénu
+		String currentArena = plugin.getDatabaseManager().getCurrentArena();
+		if (currentArena != null) {
+			arenaManager.setCurrentArena(currentArena);
+			Bukkit.getLogger().info("✅ [DB DEBUG] Current arena at startup: " + currentArena);
+		} else {
+			Bukkit.getLogger().warning("⚠️ [DB DEBUG] No arena is currently set as active.");
+			// Pokud není aktivní žádná aréna, nastav první dostupnou
+			plugin.getDatabaseManager().setFirstArenaActive();
+
+			// Po nastavení znovu ověř aktivní arénu
+			String newCurrentArena = plugin.getDatabaseManager().getCurrentArena();
+			if (newCurrentArena != null) {
+				arenaManager.setCurrentArena(newCurrentArena);
+				Bukkit.getLogger().info("✅ [DB DEBUG] Automatically set arena: " + newCurrentArena);
+			} else {
+				Bukkit.getLogger().warning("⚠️ [DB DEBUG] Even after automatic setting, no arena is active.");
+			}
+		}
+
 
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-
 				if (timeRemaining <= 0) {
-					arenaManager.teleportPlayersToRandomArena();
-					timeRemaining = plugin.getConfig().getInt("arena-time") * 60; // Obnovení na nastavený interval
+					Bukkit.getLogger().info("[DEBUG] Time is over, switching to a new arena...");
+					arenaManager.switchToNextArena();
+
+					if (bossBarManager != null) {
+						Bukkit.getLogger().info("[DEBUG] Reseting BossBar.");
+						bossBarManager.resetBossBar();
+					}
+
+					timeRemaining = plugin.getConfig().getInt("arena-time") * 60;
 				} else {
-					timeRemaining--; // Snížení zbývajícího času každou sekundu
+					timeRemaining--;
+					if (bossBarManager != null) {
+						bossBarManager.setTimeRemaining(timeRemaining);
+					}
 				}
-
 			}
+		}.runTaskTimer(this, 0, 20L);
 
-		}.runTaskTimer(this, 0, 20L); // Každou sekundu (20 ticků)
 
-		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) { //
-			new KnockBackPlaceholderExpansion(this, killStreakMap, databaseManager).register(); //
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				Map<UUID, String> players = plugin.getDatabaseManager().getPlayersInArena();
+
+				for (Map.Entry<UUID, String> entry : players.entrySet()) {
+					UUID uuid = entry.getKey();
+					String arenaName = entry.getValue();
+
+					Player player = Bukkit.getPlayer(uuid);
+					if (player != null && player.isOnline()) {
+						Location spawn = plugin.getArenaManager().getArenaSpawn(arenaName);
+						if (spawn != null) {
+							player.teleport(spawn);
+							plugin.getArenaManager().addPlayerToArena(player);
+							Bukkit.getLogger().info("[DEBUG] Teleported " + player.getName() + " to arena '" + arenaName + "'.");
+						} else {
+							Bukkit.getLogger().warning("[DEBUG] Spawn not found for arena '" + arenaName + "'.");
+						}
+					}
+				}
+			}
+		}.runTaskLater(this, 40L);
+
+
+
+
+
+
+		// Registrace PlaceholderAPI, pokud je povolena
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			new KnockBackPlaceholderExpansion(this, killStreakMap, databaseManager).register();
+			Bukkit.getLogger().info("PlaceholderAPI úspěšně registrována.");
+		} else {
+			Bukkit.getLogger().warning("PlaceholderAPI není dostupná.");
 		}
 
-		// Zkontrolujte, zda je nějaká aréna nastavena
-		if (arenaManager.getCurrentArena() == null) {
+		// Zkontrolujte, zda je nastavena aréna, pokud ne, teleportuj hráče do náhodné
+		if (arenaManager.getCurrentArenaName().equals("Žádná aréna")) {
 			arenaManager.teleportPlayersToRandomArena();
+			Bukkit.getLogger().info("Žádná aréna nebyla nastavena, teleportuji hráče do náhodné arény.");
+		} else {
+			Bukkit.getLogger().info("Aktuální aréna: " + arenaManager.getCurrentArenaName());
 		}
-
-		loadCurrentArena();
 
 		Metrics metrics = new Metrics(this, 24813);
 
 	}
 
-	private void loadCurrentArena() {
-		Set<String> arenas = getArenas().getConfig().getKeys(false);
-		if (arenas.isEmpty()) {
-			getLogger().warning("Žádné arény nebyly nalezeny v arenas.yml!");
-			return; // Pokud nejsou arény, ukonči metodu
-		}
-
-		// Nastav náhodnou arénu, nebo můžeš použít konkrétní logiku pro výběr
-		String firstArena = arenas.iterator().next(); // Získej první arénu
-		arenaManager.setCurrentArena(firstArena); // Nastav aktuální arénu
-		getLogger().info("Aktuální aréna byla nastavena na: " + firstArena);
-	}
 
 	public String formatTime(int seconds) {
 		int minutes = seconds / 60;
@@ -191,26 +250,23 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	public void onDisable() {
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			// Zkontroluj, jestli je hráč v aréně
 			if (arenaManager.isPlayerInArena(player)) {
-				// Simuluj volání metody /knbffa leave
 				arenaManager.leaveArena(player);
 			}
-			inventoryManager.saveInventory(player);
-			inventoryManager.saveLocation(player);
 		}
 
-		plugin.getArenas().saveConfig();
 		plugin.getMessages().saveConfig();
 		plugin.saveConfig();
 		plugin.getItems().saveConfig();
 		plugin.getShop().saveConfig();
 		plugin.getRanks().saveConfig();
 
-
-
 		if (databaseManager != null) {
 			databaseManager.close();
+		}
+
+		if (bossBarManager != null) {
+			bossBarManager.removeBossBar();
 		}
 
 	}
@@ -224,10 +280,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return messages;
 	}
 
-	public CustomConfig getArenas() {
-		return arenas;
-	}
-
 	public CustomConfig getItems() {
 		return items;
 	}
@@ -239,6 +291,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	public CustomConfig getRanks() {
 		return ranks;
 	}
+
 
 	public ArenaManager getArenaManager() {
 		return arenaManager;
@@ -260,5 +313,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return playerStatsManager;
 	}
 
+	public BossBarManager getBossBarManager() {
+		return bossBarManager;
+	}
 
 }

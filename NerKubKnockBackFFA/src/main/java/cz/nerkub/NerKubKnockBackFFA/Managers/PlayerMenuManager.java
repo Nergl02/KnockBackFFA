@@ -16,7 +16,7 @@ public class PlayerMenuManager {
 	}
 
 	public void openMenu (Player player) {
-		Inventory menuInventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "&7Player's Menu"));
+		Inventory menuInventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "&8Player's Menu"));
 
 		player.openInventory(menuInventory);
 	}

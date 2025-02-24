@@ -29,6 +29,9 @@ max-ender-pearls: 5
 # The maximum number of Arrows a player can hold at one time.
 max-arrows: 3
 
+# If set to true, players will see bossbar
+boss-bar: true
+
 # default-amount - The amount of blocks the player will have when they die or join the server
 # on-kill-reward - The amount of blocks the player will receive when they kill someone
 build-blocks:

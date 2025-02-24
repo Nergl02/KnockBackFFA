@@ -9,11 +9,25 @@ leave-message: '&e%player% &chas left the game.'
 no-permission: '&cSorry, but you do not have permission to run this command.'
 
 # %arena% will return the name of the created arena.
-arena-created: '&aThe arena &e%arena% &ahas been added to arenas.yml.'
-arena-removed: '&aThe arena &e%arena% &ahas been successfully &cremoved&a.'
-invalid-arena: '&cThe arena &e%arena% &cdoes not exist!'
-arena-join: '&aYou have joined to the arena.'
-arena-leave: '&aYou have left the arena.'
+arena:
+  join: '&aYou have joined to the arena.'
+  leave: '&aYou have left the arena.'
+  create: '&aThe arena &e%arena% &ahas been successfully created.'
+  remove: '&aThe arena &e%arena% &ahas been successfully &cremoved&a.'
+  remove-fail: "&cFailed to remove the arena &e'%arena%' &cfrom the database."
+  teleport: '&aYou have been teleported to the arena: &e%arena%'
+  switch: '&aYou have been teleported to a new arena: &e%arena%&a.'
+  spawn-set: '&aTha spawn point for arena &e%arena% &awas successfully set.'
+  no-spawn: '&cThe spawn point for arena &e%arena% &cwas not found!'
+  no-set: '&cNo arena is currently set.'
+  invalid-arena: '&cThe arena &e%arena% &cdoes not exist!'
+  tool: '&aYou have received &6Arena Setup Tool&a.'
+  player-removed: '&cYou have been removed from the arena: &b%arena%&a.'
+  first-point-set: '&aFirst point set at: &e%location%&a.'
+  second-point-set: '&aSecond point set at: &e%location%&a.'
+  points-not-set: '&cYou must set both points before creating an arena!'
+  already-exists: "&cArena '&e%arena%' &calready exists!"
+  arena-no-found: '&cArena &e%arena% &cwas not found'
 
 player-leave-command-not-in-arena: '&cYou are not in the arena.'
 
@@ -64,15 +78,13 @@ shop:
   not-enough-coins: '&cYou do not have enough coins to purchase this item!'
 
 usages:
+  create-arena: '&cUsage: /knbffa createarena <arenaName>'
   remove-arena: '&cUsage: /knbffa removearena <arenaName>'
-  setspawn-arena: '&cUsage: /knbffa setspawn <arenaName>'
+  setspawn-arena: '&cUsage: /knbffa setarenaspawn <arenaName>'
   teleport-arena: '&cUsage: /knbffa teleport <arenaName>'
 
 shop-open: '&aThe shop is now open!'
 unknown-item: '&cUnknown item.'
-
-no-arenas: '&cNo Arenas were found!'
-tp-arena: '&aYou have been teleported to the &e%arena% &aarena.'
 
 doublejump:
   cooldown: '&cYou must wait for &e%timeleft% &cseconds.'

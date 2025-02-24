@@ -5,7 +5,13 @@ import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ArenaTeleportCommand extends SubCommandManager {
 
@@ -34,43 +40,63 @@ public class ArenaTeleportCommand extends SubCommandManager {
 	public boolean perform(Player player, String[] args) {
 
 		if (!player.hasPermission("knbffa.admin")) {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
-					plugin.getMessages().getConfig().getString("no-permission")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					plugin.getMessages().getConfig().getString("prefix") +
+							plugin.getMessages().getConfig().getString("no-permission")));
 			return false;
 		}
 
-		// Zkontrolujte, zda je argument pro název arény platný
 		if (args.length < 2) {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
 					plugin.getMessages().getConfig().getString("prefix") +
 							plugin.getMessages().getConfig().getString("usages.teleport-arena")));
-			return false; // Příkaz selhal, protože nebyl zadán správný název arény
+			return false;
 		}
 
 		String arenaName = args[1];
 
-		if (plugin.getArenas().getConfig().contains(arenaName)) {
-			String worldName = plugin.getArenas().getConfig().getString(arenaName + ".spawn.world");
-			Double x = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.x");
-			Double y = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.y");
-			Double z = plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.z");
-			Float yaw = (float) plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.yaw");
-			Float pitch = (float) plugin.getArenas().getConfig().getDouble(arenaName + ".spawn.pitch");
+		// Načtení informací z databáze
+		String sql = "SELECT world, spawn_x, spawn_y, spawn_z, spawn_yaw, spawn_pitch FROM arenas WHERE arena_name = ?;";
 
-			Location location = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
+		try (Connection conn = plugin.getDatabaseManager().getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-			player.teleport(location);
+			stmt.setString(1, arenaName);
+			try (ResultSet rs = stmt.executeQuery()) {
 
+				if (rs.next()) {
+					String worldName = rs.getString("world");
+					double x = rs.getDouble("spawn_x");
+					double y = rs.getDouble("spawn_y");
+					double z = rs.getDouble("spawn_z");
+					float yaw = rs.getFloat("spawn_yaw");
+					float pitch = rs.getFloat("spawn_pitch");
 
-			// Výstup pro potvrzení odstranění
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix")
-					+ plugin.getMessages().getConfig().getString("tp-arena").replace("%arena%", arenaName)));
-			return true;
-		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix")
-					+ plugin.getMessages().getConfig().getString("invalid-arena").replace("%arena%", arenaName)));
+					World world = Bukkit.getWorld(worldName);
+					if (world == null) {
+						player.sendMessage(ChatColor.RED + "❌ Svět '" + worldName + "' pro arénu '" + arenaName + "' nebyl nalezen.");
+						return false;
+					}
+
+					Location location = new Location(world, x, y, z, yaw, pitch);
+					player.teleport(location);
+
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+							plugin.getMessages().getConfig().getString("prefix") +
+									plugin.getMessages().getConfig().getString("tp-arena").replace("%arena%", arenaName)));
+					return true;
+				} else {
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+							plugin.getMessages().getConfig().getString("prefix") +
+									plugin.getMessages().getConfig().getString("invalid-arena").replace("%arena%", arenaName)));
+					return false;
+				}
+			}
+
+		} catch (SQLException e) {
+			player.sendMessage(ChatColor.RED + "❌ Chyba při načítání informací o aréně z databáze.");
+			e.printStackTrace();
 			return false;
 		}
-
 	}
 }
