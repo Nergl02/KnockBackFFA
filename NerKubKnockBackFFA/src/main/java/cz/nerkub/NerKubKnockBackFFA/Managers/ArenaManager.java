@@ -25,7 +25,7 @@ public class ArenaManager implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
 
-	private final InventoryManager inventoryManager;
+	private final InventoryRestoreManager inventoryRestoreManager;
 
 	private String currentArena;
 
@@ -34,10 +34,10 @@ public class ArenaManager implements Listener {
 	private final Map<String, Arena> arenas = new HashMap<>();
 	private final Set<UUID> playersInArena = new HashSet<>();
 
-	public ArenaManager(NerKubKnockBackFFA plugin, InventoryManager inventoryManager) {
+	public ArenaManager(NerKubKnockBackFFA plugin, InventoryRestoreManager inventoryRestoreManager) {
 		this.plugin = plugin;
 
-		this.inventoryManager = inventoryManager;
+		this.inventoryRestoreManager = inventoryRestoreManager;
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 
@@ -57,7 +57,7 @@ public class ArenaManager implements Listener {
 				Bukkit.getLogger().warning("[DEBUG] Player is offline: " + player.getName());
 			}
 
-			inventoryManager.restoreInventory(player);
+			inventoryRestoreManager.restoreInventory(player);
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
 					plugin.getMessages().getConfig().getString("arena.player-removed").replace("%arena%", arenaName)));
 		} else {
@@ -285,7 +285,7 @@ public class ArenaManager implements Listener {
 
 	public String getCurrentArenaName() {
 		String dbArena = plugin.getDatabaseManager().getCurrentArena();
-		return dbArena != null ? dbArena : "Žádná aréna není nastavena";
+		return dbArena != null ? dbArena : "No arena is set";
 	}
 
 

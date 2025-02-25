@@ -1,8 +1,10 @@
 cz\nerkub\NerKubKnockBackFFA\Listeners\FireBallLauncherListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\ShopBuyListener.class
-cz\nerkub\NerKubKnockBackFFA\Managers\InventoryManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\DefaultInventoryManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\InventoryMenuManager.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DamagerMap.class
 cz\nerkub\NerKubKnockBackFFA\Managers\RankManager.class
+cz\nerkub\NerKubKnockBackFFA\Managers\InventoryRestoreManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\BossBarManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\SafeZoneListener.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ReloadSubCommand.class

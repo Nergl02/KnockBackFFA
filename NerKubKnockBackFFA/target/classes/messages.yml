@@ -29,6 +29,12 @@ arena:
   already-exists: "&cArena '&e%arena%' &calready exists!"
   arena-no-found: '&cArena &e%arena% &cwas not found'
 
+inventory-editor-menu:
+  save-inventory: "&eYour inventory has been &asuccessfully saved&e!"
+  reset-inventory: "&eYour inventory has been &creset &eto the default layout."
+  inventory-opened: "&eOpening inventory editor."
+  error-invalid-inventory: "&cError: Invalid inventory data!"
+
 player-leave-command-not-in-arena: '&cYou are not in the arena.'
 
 bungee-true-join: '&cSorry, but you cannot use this command when bungee-mode is set to true'
@@ -88,3 +94,6 @@ unknown-item: '&cUnknown item.'
 
 doublejump:
   cooldown: '&cYou must wait for &e%timeleft% &cseconds.'
+
+fireball:
+  launch: '&6Fireball Launched!'

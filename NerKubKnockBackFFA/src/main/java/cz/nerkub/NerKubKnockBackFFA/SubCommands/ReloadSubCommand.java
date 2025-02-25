@@ -54,6 +54,7 @@ public class ReloadSubCommand extends SubCommandManager {
 		plugin.reloadConfig();
 		plugin.getShop().reloadConfig();
 		plugin.getRanks().reloadConfig();
+		plugin.getMenu().reloadConfig();
 		rankManager.loadRanks();
 		scoreBoardManager.reloadScoreboard();
 

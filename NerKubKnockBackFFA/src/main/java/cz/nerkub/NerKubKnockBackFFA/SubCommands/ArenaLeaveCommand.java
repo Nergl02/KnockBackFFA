@@ -3,25 +3,21 @@ package cz.nerkub.NerKubKnockBackFFA.SubCommands;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 
 
 public class ArenaLeaveCommand extends SubCommandManager {
 
 	private final NerKubKnockBackFFA plugin;
-	private InventoryManager inventoryManager;
+	private InventoryRestoreManager inventoryRestoreManager;
 	private final ArenaManager arenaManager;
 	private final ScoreBoardManager scoreBoardManager;
 	private final DamagerMap damagerMap;
 
-	public ArenaLeaveCommand(NerKubKnockBackFFA plugin, InventoryManager inventoryManager, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DamagerMap damagerMap) {
+	public ArenaLeaveCommand(NerKubKnockBackFFA plugin, InventoryRestoreManager inventoryRestoreManager, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DamagerMap damagerMap) {
 		this.plugin = plugin;
-		this.inventoryManager = inventoryManager;
+		this.inventoryRestoreManager = inventoryRestoreManager;
 		this.arenaManager = arenaManager;
 		this.scoreBoardManager = scoreBoardManager;
 		this.damagerMap = damagerMap;
@@ -63,8 +59,8 @@ public class ArenaLeaveCommand extends SubCommandManager {
 				plugin.getMessages().getConfig().getString("arena-leave")));
 
 		// Obnov inventář a lokaci hráče
-		inventoryManager.restoreInventory(player);
-		inventoryManager.restoreLocation(player);
+		inventoryRestoreManager.restoreInventory(player);
+		inventoryRestoreManager.restoreLocation(player);
 
 		// TODO nefunguje odstranění scoreboardu
 		// Odstraň skóreboard

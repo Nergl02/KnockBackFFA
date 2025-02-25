@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.TabCompleters;
 
+import cz.nerkub.NerKubKnockBackFFA.Managers.DatabaseManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -9,6 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KnbffaTabCompleter implements TabCompleter{
+
+	private final DatabaseManager databaseManager;
+
+	public KnbffaTabCompleter(DatabaseManager databaseManager) {
+		this.databaseManager = databaseManager;
+	}
+
 	@Override
 	public List<String> onTabComplete( CommandSender sender, Command command, String label, String[] args) {
 
@@ -26,6 +34,12 @@ public class KnbffaTabCompleter implements TabCompleter{
 				suggestions.add("arenalist");
 				suggestions.add("arenatp");
 
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("removearena")) {
+				suggestions.addAll(databaseManager.getAllArenaNames());
+			} else  if (args.length == 2 && args[0].equalsIgnoreCase("setarenaspawn")) {
+				suggestions.addAll(databaseManager.getAllArenaNames());
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("arenatp")) {
+				suggestions.addAll(databaseManager.getAllArenaNames());
 			}
 		}
 

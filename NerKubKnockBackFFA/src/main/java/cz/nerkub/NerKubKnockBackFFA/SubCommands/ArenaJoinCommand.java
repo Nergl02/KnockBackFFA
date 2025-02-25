@@ -23,11 +23,11 @@ public class ArenaJoinCommand extends SubCommandManager {
 	private final BuildBlockItem buildBlockItem;
 	private final ScoreBoardManager scoreBoardManager;
 	private final RankManager rankManager;
-	private InventoryManager inventoryManager;
+	private InventoryRestoreManager inventoryRestoreManager;
 
 	private final KillsMap killsMap;
 
-	public ArenaJoinCommand(NerKubKnockBackFFA plugin, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ScoreBoardManager scoreBoardManager, RankManager rankManager, InventoryManager inventoryManager, KillsMap killsMap) {
+	public ArenaJoinCommand(NerKubKnockBackFFA plugin, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ScoreBoardManager scoreBoardManager, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager, KillsMap killsMap) {
 		this.plugin = plugin;
 		this.arenaManager = arenaManager;
 		this.knockBackStickItem = knockBackStickItem;
@@ -36,7 +36,7 @@ public class ArenaJoinCommand extends SubCommandManager {
 		this.buildBlockItem = buildBlockItem;
 		this.scoreBoardManager = scoreBoardManager;
 		this.rankManager = rankManager;
-		this.inventoryManager = inventoryManager;
+		this.inventoryRestoreManager = inventoryRestoreManager;
 		this.killsMap = killsMap;
 	}
 
@@ -69,8 +69,8 @@ public class ArenaJoinCommand extends SubCommandManager {
 
 		String currentArena = plugin.getArenaManager().getCurrentArenaName();
 
-		inventoryManager.saveInventory(player);
-		inventoryManager.saveLocation(player);
+		inventoryRestoreManager.saveInventory(player);
+		inventoryRestoreManager.saveLocation(player);
 
 		player.getInventory().clear();
 

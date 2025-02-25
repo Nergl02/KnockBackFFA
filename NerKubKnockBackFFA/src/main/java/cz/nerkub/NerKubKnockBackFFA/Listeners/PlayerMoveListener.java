@@ -33,9 +33,10 @@ public class PlayerMoveListener implements Listener {
 	private final PunchBowItem punchBowItem;
 	private final LeatherTunicItem leatherTunicItem;
 	private final MaxItemInInvListener maxItemInInvListener;
+	private final DefaultInventoryManager defaultInventoryManager;
 
 
-	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DatabaseManager databaseManager, DamagerMap damagerMap, KillStreakMap killStreakMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, MaxItemInInvListener maxItemInInvListener) {
+	public PlayerMoveListener(NerKubKnockBackFFA plugin, Random random, DatabaseManager databaseManager, DamagerMap damagerMap, KillStreakMap killStreakMap, DeathsMap deathsMap, BuildBlockItem buildBlockItem, ArenaManager arenaManager, RankManager rankManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, MaxItemInInvListener maxItemInInvListener, DefaultInventoryManager defaultInventoryManager) {
 		this.plugin = plugin;
 		this.databaseManager = databaseManager;
 		this.damagerMap = damagerMap;
@@ -48,6 +49,7 @@ public class PlayerMoveListener implements Listener {
 		this.punchBowItem = punchBowItem;
 		this.leatherTunicItem = leatherTunicItem;
 		this.maxItemInInvListener = maxItemInInvListener;
+		this.defaultInventoryManager = defaultInventoryManager;
 		this.random = new Random();
 	}
 
@@ -90,12 +92,7 @@ public class PlayerMoveListener implements Listener {
 		arenaManager.joinCurrentArena(player);
 		player.getInventory().clear();
 
-		player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());
-		player.getInventory().setItem(2, punchBowItem.createBowItem());
-		player.getInventory().setItem(0, knockBackStickItem.createKnockBackStickItem());
-		player.getInventory().setItem(1, new ItemStack(Material.ENDER_PEARL, 1));
-		player.getInventory().setItem(9, new ItemStack(Material.ARROW, 1));
-		player.getInventory().setItem(8, buildBlockItem.createBuildBlockItem(plugin.getConfig().getInt("build-blocks.default-amount")));
+		defaultInventoryManager.setPlayerInventory(player);
 
 		player.playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0f, 1.0f);
 	}

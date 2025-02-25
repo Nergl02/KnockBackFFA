@@ -5,16 +5,21 @@ import com.zaxxer.hikari.HikariDataSource;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import cz.nerkub.NerKubKnockBackFFA.Arena;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class DatabaseManager {
 
@@ -94,10 +99,20 @@ public class DatabaseManager {
 				"FOREIGN KEY (arena_name) REFERENCES arenas(arena_name) ON DELETE CASCADE" +
 				");";
 
+		// Nová tabulka pro inventáře
+		String playerInventoriesSQL = "CREATE TABLE IF NOT EXISTS player_inventories (" +
+				"uuid VARCHAR(36) PRIMARY KEY, " +
+				"main_inventory TEXT NOT NULL, " +
+				"hotbar TEXT NOT NULL, " +
+				"FOREIGN KEY (uuid) REFERENCES player_stats(uuid) ON DELETE CASCADE" +
+				");";
+
+
 		try (Connection conn = getConnection();
 			 PreparedStatement playerStatsStmt = conn.prepareStatement(playerStatsSQL);
 			 PreparedStatement arenasStmt = conn.prepareStatement(arenasSQL);
-			 PreparedStatement playersInArenaStmt = conn.prepareStatement(playersInArenaSQL)) {
+			 PreparedStatement playersInArenaStmt = conn.prepareStatement(playersInArenaSQL);
+			 PreparedStatement playerInventoriesStmt = conn.prepareStatement(playerInventoriesSQL)) {
 
 			// Vytvoření tabulek
 			playerStatsStmt.executeUpdate();
@@ -109,12 +124,114 @@ public class DatabaseManager {
 			playersInArenaStmt.executeUpdate();
 			plugin.getLogger().info("✅ Table 'players_in_arena' created or already exists.");
 
+			playerInventoriesStmt.executeUpdate();
+			plugin.getLogger().info("✅ Table 'player_inventories' created or already exists.");
+
 		} catch (SQLException e) {
 			plugin.getLogger().severe("❌ Error creating tables!");
 			e.printStackTrace();
 		}
 	}
 
+	// Uložení inventáře
+	public void savePlayerInventory(UUID uuid, ItemStack[] mainInventory, ItemStack[] hotbar) {
+		String query = "INSERT INTO player_inventories (uuid, main_inventory, hotbar) VALUES (?, ?, ?) " +
+				"ON DUPLICATE KEY UPDATE main_inventory = ?, hotbar = ?";
+
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			String serializedMainInventory = serializeInventory(mainInventory);
+			String serializedHotbar = serializeInventory(hotbar);
+
+			ps.setString(1, uuid.toString());
+			ps.setString(2, serializedMainInventory);
+			ps.setString(3, serializedHotbar);
+			ps.setString(4, serializedMainInventory);
+			ps.setString(5, serializedHotbar);
+
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public ItemStack[] loadMainInventory(UUID uuid) {
+		String query = "SELECT main_inventory FROM player_inventories WHERE uuid = ?";
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setString(1, uuid.toString());
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				ItemStack[] inventory = deserializeInventory(rs.getString("main_inventory"));
+				return inventory;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return new ItemStack[27];
+	}
+
+	public ItemStack[] loadHotbar(UUID uuid) {
+		String query = "SELECT hotbar FROM player_inventories WHERE uuid = ?";
+
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setString(1, uuid.toString());
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				ItemStack[] hotbar = deserializeInventory(rs.getString("hotbar"));
+				return hotbar;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return new ItemStack[9];
+	}
+
+	// Serializace inventáře (libovolné velikosti)
+	private String serializeInventory(ItemStack[] inventory) {
+		try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			 BukkitObjectOutputStream out = new BukkitObjectOutputStream(byteOut)) {
+
+			out.writeInt(inventory.length);  // Ulož velikost pole
+			for (ItemStack item : inventory) {
+				// Ošetření null položek
+				if (item == null) {
+					item = new ItemStack(Material.AIR);  // Použij prázdný item, místo null
+				}
+				out.writeObject(item);
+			}
+
+			return Base64.getEncoder().encodeToString(byteOut.toByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	// Deserializace inventáře
+	private ItemStack[] deserializeInventory(String data) {
+		try (ByteArrayInputStream byteIn = new ByteArrayInputStream(Base64.getDecoder().decode(data));
+			 BukkitObjectInputStream in = new BukkitObjectInputStream(byteIn)) {
+
+			int size = in.readInt();
+			ItemStack[] inventory = new ItemStack[size];
+
+			for (int i = 0; i < size; i++) {
+				inventory[i] = (ItemStack) in.readObject();
+			}
+			return inventory;
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			return new ItemStack[0]; // Return empty array on error
+		}
+	}
 
 
 	public void insertPlayer(String uuid, String name) {
@@ -482,6 +599,21 @@ public class DatabaseManager {
 		}
 
 		return players;
+	}
+
+	public List<String> getAllArenaNames() {
+		List<String> arenaNames = new ArrayList<>();
+		try (Connection connection = getConnection();
+			 PreparedStatement statement = connection.prepareStatement("SELECT arena_name FROM arenas");
+			 ResultSet resultSet = statement.executeQuery()) {
+
+			while (resultSet.next()) {
+				arenaNames.add(resultSet.getString("arena_name"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return arenaNames;
 	}
 
 

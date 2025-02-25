@@ -33,6 +33,7 @@ public class FireBallLauncherListener implements Listener {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		Player player = event.getPlayer();
 		ItemStack item = player.getInventory().getItemInMainHand();
 
@@ -40,7 +41,8 @@ public class FireBallLauncherListener implements Listener {
 			if (item.getType() == Material.BLAZE_ROD && item.hasItemMeta()) {
 
 				// Debug zpráva
-				player.sendMessage(ChatColor.GREEN + "🔥 Fireball Launched!");
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+						plugin.getMessages().getConfig().getString("fireball.launch")));
 
 				// **Vytvoření fireballu a zpomalení rychlosti**
 				Fireball fireball = player.launchProjectile(Fireball.class);

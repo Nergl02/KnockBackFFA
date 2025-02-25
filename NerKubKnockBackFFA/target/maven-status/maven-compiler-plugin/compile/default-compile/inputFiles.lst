@@ -35,7 +35,9 @@ C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\mai
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\BossBarManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\CommandManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.java
-C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\InventoryManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\DefaultInventoryManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\InventoryMenuManager.java
+C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\InventoryRestoreManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerMenuManager.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStats.java
 C:\Users\matej\Desktop\NerKub Studio\Coding\workspace\NerKubKnockBackFFA\src\main\java\cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStatsManager.java

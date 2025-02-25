@@ -1,0 +1,22 @@
+main-menu:
+  title: "&8Player's Menu"
+  buttons:
+    inventory-editor:
+      material: CHEST
+      display-name: '&6Edit Inventory'
+    stats:
+      material: PAPER
+      display-name: '&bMy stats'
+
+inventory-editor-menu:
+  title: '&8Inventory Editor'
+  section-separator:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: "&7Hotbar Section"
+  buttons:
+    save-inventory:
+      material: LIME_WOOL
+      display-name: '&aSave Inventory'
+    reset-inventory:
+      material: RED_WOOL
+      display-name: '&cReset Inventory'
