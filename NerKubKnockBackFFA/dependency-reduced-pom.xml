@@ -4,7 +4,7 @@
   <groupId>cz.nerkub</groupId>
   <artifactId>NerKubKnockBackFFA</artifactId>
   <name>NerKubKnockBackFFA</name>
-  <version>1.0.0</version>
+  <version>1.2.2</version>
   <build>
     <defaultGoal>clean package</defaultGoal>
     <resources>

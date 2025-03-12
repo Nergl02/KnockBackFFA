@@ -2,9 +2,12 @@ package cz.nerkub.NerKubKnockBackFFA.Managers;
 
 import cz.nerkub.NerKubKnockBackFFA.Items.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class DefaultInventoryManager {
 
@@ -26,27 +29,46 @@ public class DefaultInventoryManager {
 
 	// 🌟 Nastavení inventáře pro hráče
 	public void setPlayerInventory(Player player) {
-		// 🟢 Načtení hlavního inventáře a hotbaru z DB
+		// Načtení uloženého inventáře z DB
 		ItemStack[] mainInventory = databaseManager.loadMainInventory(player.getUniqueId());
 		ItemStack[] hotbar = databaseManager.loadHotbar(player.getUniqueId());
 
-		if (hasItems(mainInventory) || hasItems(hotbar)) {
-			// Pokud existují uloženy předměty, načteme je
-			player.getInventory().clear();
+		player.getInventory().clear(); // Vyčištění inventáře
 
-			// 🔲 Nastavení hlavního inventáře (sloty 9–35)
-			for (int i = 0; i < 27; i++) {
-				player.getInventory().setItem(9 + i, mainInventory[i] != null ? mainInventory[i] : new ItemStack(Material.AIR));
-			}
+		// 🔄 **Kontrola Extra Punch Bow eventu**
+		boolean isExtraPunchBowActive = plugin.getCustomEventManager().isEventActive("ExtraPunchBow");
 
-			// 🔳 Nastavení hotbaru (sloty 0–8)
-			for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < 9; i++) {
+			if (i == 0) {
+				// ✅ KnockBack Stick se přidá pouze pokud není aktivní NoKnockBackStick event
+				if (!plugin.getCustomEventManager().isEventActive("NoKnockBackStick")) {
+					player.getInventory().setItem(i, hotbar[i] != null ? hotbar[i] : knockBackStickItem.createKnockBackStickItem());
+				} else {
+					player.getInventory().setItem(i, new ItemStack(Material.AIR));
+				}
+			} else if (i == 2) {
+				if (isExtraPunchBowActive) {
+					// ✅ Přidání Extra Punch Bow pokud je event aktivní
+					ItemStack punchBow = new ItemStack(Material.BOW);
+					ItemMeta meta = punchBow.getItemMeta();
+					if (meta != null) {
+						meta.addEnchant(Enchantment.ARROW_KNOCKBACK, 5, true);
+						meta.setDisplayName(ChatColor.GOLD + "Extra Punch Bow");
+						punchBow.setItemMeta(meta);
+					}
+					player.getInventory().setItem(i, punchBow);
+				} else {
+					// 🌟 **Po skončení eventu hráč dostane zpět normální luk**
+					player.getInventory().setItem(i, hotbar[i] != null ? hotbar[i] : punchBowItem.createBowItem());
+				}
+			} else {
 				player.getInventory().setItem(i, hotbar[i] != null ? hotbar[i] : new ItemStack(Material.AIR));
 			}
+		}
 
-		} else {
-			// Pokud neexistuje vlastní inventář, nastav výchozí
-			setDefaultInventory(player);
+		// Nastavení hlavního inventáře (sloty 9–35)
+		for (int i = 0; i < 27; i++) {
+			player.getInventory().setItem(9 + i, (mainInventory[i] != null) ? mainInventory[i] : new ItemStack(Material.AIR));
 		}
 	}
 
@@ -95,11 +117,30 @@ public class DefaultInventoryManager {
 	public ItemStack[] getDefaultHotbar() {
 		ItemStack[] hotbar = new ItemStack[9];
 
-		hotbar[0] = knockBackStickItem.createKnockBackStickItem();
-		hotbar[1] = new ItemStack(Material.ENDER_PEARL, 1);
-		hotbar[2] = punchBowItem.createBowItem();
-		hotbar[8] = buildBlockItem.createBuildBlockItem(plugin.getConfig().getInt("build-blocks.default-amount"));
+		// ✅ KnockBack Stick se přidá pouze pokud není aktivní NoKnockBackStick event
+		if (!plugin.getCustomEventManager().isEventActive("NoKnockBackStick")) {
+			hotbar[0] = knockBackStickItem.createKnockBackStickItem();
+		} else {
+			hotbar[0] = new ItemStack(Material.AIR);
+		}
 
+		hotbar[1] = new ItemStack(Material.ENDER_PEARL, 1);
+
+		// ✅ Pokud je aktivní ExtraPunchBow event, přidá se luk s vyšším Punch
+		if (plugin.getCustomEventManager().isEventActive("ExtraPunchBow")) {
+			ItemStack punchBow = new ItemStack(Material.BOW);
+			ItemMeta meta = punchBow.getItemMeta();
+			if (meta != null) {
+				meta.addEnchant(Enchantment.ARROW_KNOCKBACK, 5, true);
+				punchBow.setItemMeta(meta);
+			}
+			hotbar[2] = punchBow;
+		} else {
+			hotbar[2] = punchBowItem.createBowItem();
+		}
+
+		hotbar[8] = buildBlockItem.createBuildBlockItem(plugin.getConfig().getInt("build-blocks.default-amount"));
 		return hotbar;
 	}
+
 }

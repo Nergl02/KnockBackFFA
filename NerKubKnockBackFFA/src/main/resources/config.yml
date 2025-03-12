@@ -87,4 +87,4 @@ safe-zone-radius: 15
 doublejump:
   # Cooldown in seconds
   cooldown: 5
-  power: 3
+  power: 1.3

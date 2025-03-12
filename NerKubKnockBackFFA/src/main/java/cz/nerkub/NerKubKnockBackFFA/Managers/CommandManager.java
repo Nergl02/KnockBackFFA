@@ -6,6 +6,7 @@ import cz.nerkub.NerKubKnockBackFFA.Items.BuildBlockItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.KnockBackStickItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.LeatherTunicItem;
 import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
+import cz.nerkub.NerKubKnockBackFFA.Listeners.BlazingDashListener;
 import cz.nerkub.NerKubKnockBackFFA.Listeners.DoubleJumpListener;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import cz.nerkub.NerKubKnockBackFFA.SubCommands.*;
@@ -31,13 +32,14 @@ public class CommandManager implements CommandExecutor {
 	private final InventoryRestoreManager inventoryRestoreManager;
 	private final PlayerMenuManager playerMenuManager;
 	private final DoubleJumpListener doubleJumpListener;
+	private final BlazingDashListener blazingDashListener;
 
 	private final KillsMap killsMap;
 	private final DamagerMap damagerMap;
 
 	private ArrayList<SubCommandManager> subCommandManagers = new ArrayList<>();
 
-	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, ShopManager shopManager, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager, PlayerMenuManager playerMenuManager, DoubleJumpListener doubleJumpListener, KillsMap killsMap, DamagerMap damagerMap) {
+	public CommandManager(NerKubKnockBackFFA plugin, ScoreBoardManager scoreBoardManager, ShopManager shopManager, ArenaManager arenaManager, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager, PlayerMenuManager playerMenuManager, DoubleJumpListener doubleJumpListener, BlazingDashListener blazingDashListener, KillsMap killsMap, DamagerMap damagerMap) {
 		this.plugin = plugin;
 		this.scoreBoardManager = scoreBoardManager;
 		this.shopManager = shopManager;
@@ -50,10 +52,11 @@ public class CommandManager implements CommandExecutor {
 		this.inventoryRestoreManager = inventoryRestoreManager;
 		this.playerMenuManager = playerMenuManager;
 		this.doubleJumpListener = doubleJumpListener;
+		this.blazingDashListener = blazingDashListener;
 		this.killsMap = killsMap;
 		this.damagerMap = damagerMap;
 		subCommandManagers.add(new ShopSubCommand(plugin, shopManager));
-		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener, rankManager));
+		subCommandManagers.add(new ReloadSubCommand(plugin, scoreBoardManager, doubleJumpListener, blazingDashListener, rankManager));
 		subCommandManagers.add(new SetArenaSpawnCommand(plugin));
 		subCommandManagers.add(new RemoveArenaCommand(plugin, arenaManager));
 		subCommandManagers.add(new ArenaJoinCommand(plugin, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, scoreBoardManager, rankManager, inventoryRestoreManager, killsMap));

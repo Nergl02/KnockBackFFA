@@ -50,22 +50,31 @@ public class ExplodingChickListener implements Listener {
 				.map(entity -> (Player) entity)
 				.findFirst().orElse(null);
 
-		// Sekundy odpočítávání výbuchu
-		// Výbuch po odpočítávání
 		new BukkitRunnable() {
 			int countdown = plugin.getItems().getConfig().getInt("exploding-chick.explosion-delay");
 			int radius = plugin.getItems().getConfig().getInt("exploding-chick.explosion-radius");
 			int power = plugin.getItems().getConfig().getInt("exploding-chick.power");
 
+			Player trackingTarget = target; // Uložíme target přímo do instance Runnable
+
 			@Override
 			public void run() {
-				if (!chick.isValid() || !target.isOnline()) {
+				if (!chick.isValid()) {
 					cancel();
 					return;
 				}
 
-				// Sleduj hráče jako creeper
-				chick.getPathfinder().moveTo(target.getLocation(), 1.2);  // 1.2 = rychlost pohybu
+				// Najdi nejbližšího hráče v okolí 10 bloků, pokud žádného nemáme nebo pokud už není online
+				if (trackingTarget == null || !trackingTarget.isOnline()) {
+					trackingTarget = chick.getWorld().getNearbyEntities(chick.getLocation(), 10, 10, 10).stream()
+							.filter(entity -> entity instanceof Player && !entity.equals(player))
+							.map(entity -> (Player) entity)
+							.findFirst().orElse(null);
+				}
+
+				if (trackingTarget != null && trackingTarget.isOnline()) {
+					chick.getPathfinder().moveTo(trackingTarget.getLocation(), 1.2);
+				}
 
 				if (countdown <= 0) {
 					// Výbuch

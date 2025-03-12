@@ -4,19 +4,23 @@ import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class ScoreboardUpdater extends BukkitRunnable {
+public class ScoreBoardUpdater extends BukkitRunnable {
 
 	private final NerKubKnockBackFFA plugin;
 	private final Player player;
 
-	public ScoreboardUpdater(NerKubKnockBackFFA plugin, Player player) {
+	public ScoreBoardUpdater(NerKubKnockBackFFA plugin, Player player) {
 		this.plugin = plugin;
 		this.player = player;
 	}
 
 	@Override
 	public void run() {
-		// Vykoná update scoreboardu každých 20 ticků
+		if (!player.isOnline()) {
+			cancel();
+			return;
+		}
 		plugin.getScoreBoardManager().updateScoreboard(player);
 	}
+
 }

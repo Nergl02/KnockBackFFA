@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.awt.print.PrinterAbortException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -36,6 +37,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private CustomConfig shop;
 	private CustomConfig ranks;
 	private CustomConfig menu;
+	private CustomConfig events;
 
 	private PlayerStatsManager playerStatsManager;
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
@@ -52,14 +54,18 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private final InvisibilityCloakItem invisibilityCloakItem = new InvisibilityCloakItem(this);
 	private final FireBallLauncherItem fireBallLauncherItem = new FireBallLauncherItem(this);
 	private final ExplodingChickItem explodingChickItem = new ExplodingChickItem(this);
+	private final BlazingDashItem blazingDashItem = new BlazingDashItem(this);
+	private final SpeedBoostItem speedBoostItem = new SpeedBoostItem(this);
 	private ShopManager shopManager;
 	private InventoryRestoreManager inventoryRestoreManager = new InventoryRestoreManager();
 	private final MaxItemInInvListener maxItemInInvListener = new MaxItemInInvListener(this);
 	private DoubleJumpListener doubleJumpListener;
+	private BlazingDashListener blazingDashListener;
 	private BossBarManager bossBarManager;
+	private CustomEventManager customEventManager;
 
 	private ScoreBoardManager scoreBoardManager;
-	private ScoreboardUpdater scoreboardUpdater;
+	private ScoreBoardUpdater scoreboardUpdater;
 
 
 	@Override
@@ -79,7 +85,15 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		ranks.saveConfig();
 		menu = new CustomConfig("inventories", "menu.yml", this);
 		menu.saveConfig();
+		events = new CustomConfig("events", "events.yml", this);
 
+		updateMainConfig();
+		messages.updateConfig();
+		items.updateConfig();
+		shop.updateConfig();
+		ranks.updateConfig();
+		menu.updateConfig();
+		events.updateConfig();
 
 		plugin = this;
 		random = new Random();
@@ -91,10 +105,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		this.playerStatsManager = new PlayerStatsManager(databaseManager);
 		this.rankManager = new RankManager(this);
 		bossBarManager = new BossBarManager(this);
-		ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem, explodingChickItem, playerStatsManager);
+		ShopManager shopManager = new ShopManager(this, levitationBootsItem, swapperBallItem, invisibilityCloakItem, fireBallLauncherItem,
+				explodingChickItem, blazingDashItem, speedBoostItem, playerStatsManager);
 		DefaultInventoryManager defaultInventoryManager = new DefaultInventoryManager(this, databaseManager);
 		InventoryMenuManager inventoryMenumanager = new InventoryMenuManager(this, databaseManager, defaultInventoryManager);
 		PlayerMenuManager playerMenuManager = new PlayerMenuManager(this, inventoryMenumanager);
+		customEventManager = new CustomEventManager(this, knockBackStickItem);
 
 		// Otestuj připojení
 		try (Connection conn = databaseManager.getConnection()) {
@@ -109,7 +125,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv1.0.0"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv1.2.2"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studio"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|   \\|  | \\	&aPremium: &bThis plugin is a premium resource."));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
@@ -121,7 +137,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), databaseManager, damagerMap, killStreakMap, deathsMap, buildBlockItem, arenaManager, rankManager,
 				knockBackStickItem, punchBowItem, leatherTunicItem, maxItemInInvListener, defaultInventoryManager), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, arenaManager, scoreBoardManager, databaseManager, defaultInventoryManager, damagerMap,
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, arenaManager, scoreBoardManager, databaseManager, defaultInventoryManager, damagerMap,
 				killStreakMap, killsMap, rankManager, inventoryRestoreManager), this);
 		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(this, arenaManager), this);
@@ -134,12 +150,14 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new MaxItemInInvListener(this), this);
 		getServer().getPluginManager().registerEvents(new FireBallLauncherListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new ExplodingChickListener(this, damagerMap), this);
+		getServer().getPluginManager().registerEvents(new BlazingDashListener(this), this);
 		getServer().getPluginManager().registerEvents(doubleJumpListener, this);
+		getServer().getPluginManager().registerEvents(new SpeedBoostListener(this), this);
 		getServer().getPluginManager().registerEvents(inventoryMenumanager, this);
 		getServer().getPluginManager().registerEvents(playerMenuManager, this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryRestoreManager,
-				playerMenuManager, doubleJumpListener, killsMap, damagerMap));
+				playerMenuManager, doubleJumpListener, blazingDashListener, killsMap, damagerMap));
 		getCommand("knbffa").setTabCompleter(new KnbffaTabCompleter(databaseManager));
 
 		arenaManager.loadArenas();
@@ -168,6 +186,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			} else {
 				Bukkit.getLogger().warning("⚠️ [DB DEBUG] Even after automatic setting, no arena is active.");
 			}
+
 		}
 
 
@@ -219,11 +238,6 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			}
 		}.runTaskLater(this, 40L);
 
-
-
-
-
-
 		// Registrace PlaceholderAPI, pokud je povolena
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			new KnockBackPlaceholderExpansion(this, killStreakMap, databaseManager).register();
@@ -266,6 +280,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		plugin.getShop().saveConfig();
 		plugin.getRanks().saveConfig();
 		plugin.getMenu().saveConfig();
+		plugin.getEvents().saveConfig();
 
 		if (databaseManager != null) {
 			databaseManager.close();
@@ -275,6 +290,11 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			bossBarManager.removeBossBar();
 		}
 
+	}
+
+	public void updateMainConfig() {
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 	}
 
 
@@ -302,6 +322,10 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return menu;
 	}
 
+	public CustomConfig getEvents() {
+		return events;
+	}
+
 
 	public ArenaManager getArenaManager() {
 		return arenaManager;
@@ -325,6 +349,10 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 	public BossBarManager getBossBarManager() {
 		return bossBarManager;
+	}
+
+	public CustomEventManager getCustomEventManager() {
+		return customEventManager;
 	}
 
 }

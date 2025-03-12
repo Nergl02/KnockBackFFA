@@ -1,20 +1,22 @@
 package cz.nerkub.NerKubKnockBackFFA.CustomFiles;
 
+import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 
 public class CustomConfig {
 
+	private final NerKubKnockBackFFA plugin;
 	private File file;
 	private FileConfiguration customConfig;
+	private final String fileName;
 
-	public CustomConfig(String directory,String fileName, Plugin plugin){
+	public CustomConfig(String directory, String fileName, NerKubKnockBackFFA plugin){
+		this.plugin = plugin;
+		this.fileName = fileName;
 		if (directory == null || directory.isEmpty()) {
 			file = new File(plugin.getDataFolder(), fileName);
 		} else {
@@ -46,9 +48,12 @@ public class CustomConfig {
 	}
 
 	public void saveConfig() {
-		try {
-			customConfig.save(file);
+		if (file == null || customConfig == null) return;
+
+		try (Writer writer = new FileWriter(file)) {
+			writer.write(customConfig.saveToString());  // Ručně zapíšeme YAML obsah
 		} catch (IOException e) {
+			plugin.getLogger().severe("❌ Error while saving " + file.getName() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -57,5 +62,25 @@ public class CustomConfig {
 		customConfig = YamlConfiguration.loadConfiguration(file);
 	}
 
+	// 🔹 Automatická aktualizace chybějících hodnot
+	public void updateConfig() {
+		InputStream defaultConfigStream = plugin.getResource(fileName);
+		if (defaultConfigStream != null) {
+			YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultConfigStream));
+
+			boolean updated = false;
+			for (String key : defaultConfig.getKeys(true)) {
+				if (!customConfig.contains(key)) {
+					customConfig.set(key, defaultConfig.get(key));
+					updated = true;
+				}
+			}
+
+			if (updated) {
+				saveConfig();
+				plugin.getLogger().info("✅ Config file " + fileName + " has been updated with missing values!");
+			}
+		}
+	}
 }
 

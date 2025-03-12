@@ -54,6 +54,8 @@ public class ShopBuyListener implements Listener {
 			String invisibilityCloakName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("invisibility-cloak.display-name")));
 			String fireBallLauncherName= ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("fireball-launcher.display-name")));
 			String explodingChickName= ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("exploding-chick.display-name")));
+			String blazindDashName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("blazing-dash.display-name")));
+			String speedBoostName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', plugin.getItems().getConfig().getString("speed-boost.display-name")));
 
 			if (itemName.equals(levitationBootsName)) {
 				shopManager.purchaseItem(player, clickedItem, "levitation-boots");
@@ -63,8 +65,12 @@ public class ShopBuyListener implements Listener {
 				shopManager.purchaseItem(player, clickedItem, "invisibility-cloak");
 			} else if (itemName.equals(fireBallLauncherName)) {
 				shopManager.purchaseItem(player, clickedItem, "fireball-launcher");
-			}else if (itemName.equals(explodingChickName)) {
+			} else if (itemName.equals(explodingChickName)) {
 				shopManager.purchaseItem(player, clickedItem, "exploding-chick");
+			} else if (itemName.equals(blazindDashName)) {
+				shopManager.purchaseItem(player, clickedItem, "blazing-dash");
+			} else if (itemName.equals(speedBoostName)) {
+				shopManager.purchaseItem(player, clickedItem, "speed-boost");
 			} else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") +
 						plugin.getMessages().getConfig().getString("unknown-item")));

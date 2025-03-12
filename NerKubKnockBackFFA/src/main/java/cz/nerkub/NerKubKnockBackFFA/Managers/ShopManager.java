@@ -25,16 +25,20 @@ public class ShopManager {
 	private final InvisibilityCloakItem invisibilityCloakItem;
 	private final FireBallLauncherItem fireBallLauncherItem;
 	private final ExplodingChickItem explodingChickItem;
+	private final BlazingDashItem blazingDashItem;
+	private final SpeedBoostItem speedBoostItem;
 
 	private final PlayerStatsManager playerStatsManager;
 
-	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem, ExplodingChickItem explodingChickItem, PlayerStatsManager playerStatsManager) {
+	public ShopManager(NerKubKnockBackFFA plugin, LevitationBootsItem levitationBootsItem, SwapperBallItem swapperBallItem, InvisibilityCloakItem invisibilityCloakItem, FireBallLauncherItem fireBallLauncherItem, ExplodingChickItem explodingChickItem, BlazingDashItem blazingDashItem, SpeedBoostItem speedBoostItem, PlayerStatsManager playerStatsManager) {
 		this.plugin = plugin;
 		this.levitationBootsItem = levitationBootsItem;
 		this.swapperBallItem = swapperBallItem; // Inicializace
 		this.invisibilityCloakItem = invisibilityCloakItem;
 		this.fireBallLauncherItem = fireBallLauncherItem;
 		this.explodingChickItem = explodingChickItem;
+		this.blazingDashItem = blazingDashItem;
+		this.speedBoostItem = speedBoostItem;
 		this.playerStatsManager = playerStatsManager;
 	}
 
@@ -106,6 +110,14 @@ public class ShopManager {
 		ItemStack explodingChick = explodingChickItem.createExplodingChickItem();
 		addItemWithPriceToLore(explodingChick, "exploding-chick");
 		shopInventory.addItem(explodingChick);
+
+		ItemStack blazingDash = blazingDashItem.createBlazingDashItem();
+		addItemWithPriceToLore(blazingDash, "blazing-dash");
+		shopInventory.addItem(blazingDash);
+
+		ItemStack speedBoost = speedBoostItem.createSpeedBoostItem();
+		addItemWithPriceToLore(speedBoost, "speed-boost");
+		shopInventory.addItem(speedBoost);
 	}
 
 	private void addItemWithPriceToLore(ItemStack item, String itemKey) {
@@ -120,7 +132,7 @@ public class ShopManager {
 				lore = new ArrayList<>();
 			}
 			lore.add("");
-			lore.add(ChatColor.translateAlternateColorCodes('&', "&aPrice: &e" + price + " &acoins"));
+			lore.add(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("shop.price").replace("%price%", String.valueOf(price))));
 			meta.setLore(lore);
 			item.setItemMeta(meta); // Aktualizace ItemMeta na item
 		}

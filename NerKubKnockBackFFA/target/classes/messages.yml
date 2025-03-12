@@ -17,7 +17,7 @@ arena:
   remove-fail: "&cFailed to remove the arena &e'%arena%' &cfrom the database."
   teleport: '&aYou have been teleported to the arena: &e%arena%'
   switch: '&aYou have been teleported to a new arena: &e%arena%&a.'
-  spawn-set: '&aTha spawn point for arena &e%arena% &awas successfully set.'
+  spawn-set: '&aThe spawn point for arena &e%arena% &awas successfully set.'
   no-spawn: '&cThe spawn point for arena &e%arena% &cwas not found!'
   no-set: '&cNo arena is currently set.'
   invalid-arena: '&cThe arena &e%arena% &cdoes not exist!'
@@ -82,6 +82,7 @@ safe-zone:
 shop:
   purchased: '&aYou have successfully purchased %item% &afor &e%price% &acoins.'
   not-enough-coins: '&cYou do not have enough coins to purchase this item!'
+  price: "&aPrice: &e%price% &acoins."
 
 usages:
   create-arena: '&cUsage: /knbffa createarena <arenaName>'

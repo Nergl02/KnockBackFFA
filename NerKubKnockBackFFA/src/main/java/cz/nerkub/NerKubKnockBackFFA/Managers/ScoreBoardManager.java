@@ -14,7 +14,7 @@ public class ScoreBoardManager {
 
 	private final NerKubKnockBackFFA plugin;
 	private final Map<Integer, String> scoreBoardLines;
-	private final Map<Player, ScoreboardUpdater> scoreboardUpdaters; // Mapa pro sledování updaters
+	private final Map<Player, ScoreBoardUpdater> scoreboardUpdaters; // Mapa pro sledování updaters
 
 	private String title;
 
@@ -36,21 +36,31 @@ public class ScoreBoardManager {
 	}
 
 	public void updateScoreboard(Player player) {
-		ScoreboardManager manager = Bukkit.getScoreboardManager();
-		Scoreboard scoreboard = manager.getNewScoreboard();
-		Objective objective = scoreboard.registerNewObjective("gameInfo", "dummy", title);
-		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		Scoreboard scoreboard = player.getScoreboard();
 
+		if (scoreboard == null || scoreboard.getObjective("gameInfo") == null) {
+			ScoreboardManager manager = Bukkit.getScoreboardManager();
+			scoreboard = manager.getNewScoreboard();
+			Objective objective = scoreboard.registerNewObjective("gameInfo", "dummy", title);
+			objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		}
+
+		Objective objective = scoreboard.getObjective("gameInfo");
 		for (Map.Entry<Integer, String> entry : scoreBoardLines.entrySet()) {
 			String line = PlaceholderAPI.setPlaceholders(player, entry.getValue());
-			Team team = scoreboard.registerNewTeam("line" + entry.getKey());
-			team.addEntry(ChatColor.values()[entry.getKey()] + "");
+			Team team = scoreboard.getTeam("line" + entry.getKey());
+
+			if (team == null) {
+				team = scoreboard.registerNewTeam("line" + entry.getKey());
+				team.addEntry(ChatColor.values()[entry.getKey()] + "");
+				objective.getScore(ChatColor.values()[entry.getKey()] + "").setScore(entry.getKey());
+			}
 			team.setPrefix(line);
-			objective.getScore(ChatColor.values()[entry.getKey()] + "").setScore(entry.getKey());
 		}
 
 		player.setScoreboard(scoreboard);
 	}
+
 
 	public void reloadScoreboard() {
 		loadScoreboard();
@@ -60,7 +70,7 @@ public class ScoreBoardManager {
 	}
 
 	public void startScoreboardUpdater(Player player) {
-		ScoreboardUpdater updater = new ScoreboardUpdater(plugin, player);
+		ScoreBoardUpdater updater = new ScoreBoardUpdater(plugin, player);
 		updater.runTaskTimer(plugin, 0, 20); // Aktualizace každou sekundu
 
 		// Přidejte updater do mapy pro pozdější zastavení
@@ -68,7 +78,7 @@ public class ScoreBoardManager {
 	}
 
 	public void stopScoreboardUpdater(Player player) {
-		ScoreboardUpdater updater = scoreboardUpdaters.remove(player); // Odeber a vrať updater
+		ScoreBoardUpdater updater = scoreboardUpdaters.remove(player); // Odeber a vrať updater
 		if (updater != null) {
 			updater.cancel(); // Zruš updater pro zastavení aktualizace
 		}

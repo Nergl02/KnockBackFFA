@@ -1,0 +1,37 @@
+# 🔥 Event settings for NerKubKnockBackFFA
+
+# ⏳ General event settings
+# !!! After changing things in this section you need to restart the server (for now, will be manage in future) !!!
+event-settings:
+  min-delay: 300  # Minimum time between events (in seconds)
+  max-delay: 600  # Maximum time between events (in seconds)
+  event-duration: 60  # Duration of each event (in seconds)
+  enable-random-events: true  # Enable random events?
+
+# 📌 Individual settings for each event
+events:
+  arrow-storm:
+    enabled: true  # Enable this event?
+    arrow-count: 300  # Number of arrows in the storm
+    explosion-radius: 2.0  # Explosion radius when an arrow hits the ground
+    arrow-spawn-radius: 30  # Maximum distance from the center where arrows spawn
+    message-start: "&c⚡ Arrow Storm has begun! Watch out for falling arrows!"
+    message-end: "&aArrow Storm is over!"
+
+  no-knockback-stick:
+    enabled: true  # Enable this event?
+    remove-stick: true  # Should KnockBack Sticks be removed?
+    message-start: "&c🚫 No KnockBack Stick event is active!"
+    message-end: "&aKnockBack Stick event has ended. Your stick is back!"
+
+  low-gravity:
+    enabled: true
+    effect-strength: 2  # The power of the jump boost effect (negative means reduced jump)
+    message-start: "&c⚠ Low Gravity has been activated! Jumping is really easy!"
+    message-end: "&aGravity is back to normal!"
+
+  bow-extra-punch:
+    enabled: true
+    punch-level: 5  # Nastav úroveň Punch enchantu během eventu
+    message-start: "&a🏹 Bow Extra Punch Event has begun! Knock players further away!"
+    message-end: "&c🏹 Bow Extra Punch Event has ended! Your bows are back to normal."

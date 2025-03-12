@@ -99,5 +99,21 @@ exploding-chick:
   exploding-info: '&cExploding in '
 
 speed-boost:
-  display-name: ''
+  material: 'SUGAR'
+  display-name: '&bSpeed Boost'
+  lore:
+    - '&7Gives you a speed'
+    - '&7effect for a while.'
+  speed:
+    effect: 2
+    duration: 5
+  hide-enchantments: true
+
+blazing-dash:
+  display-name: '&6Blazing Dash'
+  lore:
+    - '&7Ignite your path and'
+    - '&7leave only embers behind'
+  power: 3
+  hide-enchantments: true
 

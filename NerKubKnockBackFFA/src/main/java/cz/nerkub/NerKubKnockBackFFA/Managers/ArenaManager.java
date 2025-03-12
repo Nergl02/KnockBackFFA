@@ -97,7 +97,6 @@ public class ArenaManager implements Listener {
 		}
 	}
 
-
 	public Map<String, Arena> getArenas() {
 		return arenas;
 	}

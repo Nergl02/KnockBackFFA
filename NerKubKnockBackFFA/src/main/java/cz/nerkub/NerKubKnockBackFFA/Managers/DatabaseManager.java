@@ -384,6 +384,8 @@ public class DatabaseManager {
 			stmt.setFloat(5, spawn.getPitch());
 			stmt.setString(6, arenaName);
 
+			stmt.executeUpdate();
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

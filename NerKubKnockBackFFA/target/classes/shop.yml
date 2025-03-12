@@ -18,3 +18,9 @@ fireball-launcher:
 
 exploding-chick:
   price: 25
+
+blazing-dash:
+  price: 12
+
+speed-boost:
+  price: 10

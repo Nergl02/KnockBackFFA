@@ -10,21 +10,21 @@ import cz.nerkub.NerKubKnockBackFFA.Items.PunchBowItem;
 import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 
 public class PlayerJoinListener implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
-	private final KnockBackStickItem knockBackStickItem;
-	private final PunchBowItem punchBowItem;
-	private final LeatherTunicItem leatherTunicItem;
-	private final BuildBlockItem buildBlockItem;
 	private final ArenaManager arenaManager;
 	private final ScoreBoardManager scoreBoardManager;
 	private final DatabaseManager databaseManager;
@@ -36,12 +36,8 @@ public class PlayerJoinListener implements Listener {
 	private final RankManager rankManager;
 	private InventoryRestoreManager inventoryRestoreManager;
 
-	public PlayerJoinListener(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, PunchBowItem punchBowItem, LeatherTunicItem leatherTunicItem, BuildBlockItem buildBlockItem, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DatabaseManager databaseManager, DefaultInventoryManager defaultInventoryManager, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager) {
+	public PlayerJoinListener(NerKubKnockBackFFA plugin, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DatabaseManager databaseManager, DefaultInventoryManager defaultInventoryManager, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager) {
 		this.plugin = plugin;
-		this.knockBackStickItem = knockBackStickItem;
-		this.punchBowItem = punchBowItem;
-		this.leatherTunicItem = leatherTunicItem;
-		this.buildBlockItem = buildBlockItem;
 		this.arenaManager = arenaManager;
 		this.scoreBoardManager = scoreBoardManager;
 		this.databaseManager = databaseManager;
@@ -66,15 +62,15 @@ public class PlayerJoinListener implements Listener {
 			// Pokud je bungee-mode vypnutý, obnovíme inventář a pozici
 			inventoryRestoreManager.restoreInventory(player);
 			inventoryRestoreManager.restoreLocation(player);
-			scoreBoardManager.removeScoreboard(player);
 		}
+
+		plugin.getScoreBoardManager().removeScoreboard(player);
+		plugin.getScoreBoardManager().startScoreboardUpdater(player);
+		plugin.getScoreBoardManager().updateScoreboard(player);
 
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
 			if (currentArena != null) {
 				// Přiřazení hráče do arény
-				plugin.getScoreBoardManager().removeScoreboard(player);
-				plugin.getScoreBoardManager().startScoreboardUpdater(player);
-				plugin.getScoreBoardManager().updateScoreboard(player);
 
 				player.getInventory().clear();
 				defaultInventoryManager.setPlayerInventory(player);
@@ -95,6 +91,22 @@ public class PlayerJoinListener implements Listener {
 
 				if (!currentArena.equals("Žádná aréna")) {
 					arenaManager.joinCurrentArena(player);
+				}
+
+				if (plugin.getCustomEventManager().isEventActive("LowGravity")) {
+					player.removePotionEffect(PotionEffectType.JUMP);
+					player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, -2)); // LowGravity efekt
+					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0)); // Mírnější dopad
+				}
+
+				if (plugin.getCustomEventManager().isEventActive("ExtraPunchBow")) {
+					ItemStack bow = new ItemStack(Material.BOW);
+					ItemMeta meta = bow.getItemMeta();
+					if (meta != null) {
+						meta.addEnchant(Enchantment.ARROW_KNOCKBACK, 5, true);
+						bow.setItemMeta(meta);
+					}
+					player.getInventory().setItem(2, bow);
 				}
 
 			}
@@ -120,6 +132,7 @@ public class PlayerJoinListener implements Listener {
 		event.setQuitMessage(null);
 
 		// Uložení hráčů a skóre
+		scoreBoardManager.stopScoreboardUpdater(player);
 		scoreBoardManager.removeScoreboard(player);
 
 		// Obnovení inventáře a pozice, pokud není bungee-mode
@@ -131,6 +144,11 @@ public class PlayerJoinListener implements Listener {
 		if (plugin.getArenaManager().isPlayerInArena(player)) {
 			plugin.getDatabaseManager().removePlayerFromArena(player.getUniqueId());
 			plugin.getArenaManager().getPlayersInArena().remove(player.getUniqueId());
+		}
+
+		if (plugin.getCustomEventManager().isEventActive("LowGravity")) {
+			player.removePotionEffect(PotionEffectType.JUMP);
+			player.removePotionEffect(PotionEffectType.SLOW_FALLING);
 		}
 
 		event.setQuitMessage(ChatColor.translateAlternateColorCodes('&', prefix +
