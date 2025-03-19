@@ -27,6 +27,7 @@ cz\nerkub\NerKubKnockBackFFA\Items\ExplodingChickItem.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$CustomChart.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\ArmorInteractListener.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$SimplePie.class
+cz\nerkub\NerKubKnockBackFFA\Managers\KitMenuManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\PlayerMenuManager.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\ArenaJoinCommand.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\InvisibilityCloakListener$1.class
@@ -73,11 +74,13 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\CancelBlockDestroyListener.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\MaxItemInInvListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\SwapperBallItem.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\PlayerMenuSubCommand.class
+cz\nerkub\NerKubKnockBackFFA\Managers\SafeZoneManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStats.class
 cz\nerkub\NerKubKnockBackFFA\Items\InvisibilityCloakItem.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\PlayerJoinListener.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\DeathsMap.class
+cz\nerkub\NerKubKnockBackFFA\Managers\KitManager.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener$1.class
 cz\nerkub\NerKubKnockBackFFA\Events\NoKnockBackStickEvent$1.class
 cz\nerkub\NerKubKnockBackFFA\Metrics.class

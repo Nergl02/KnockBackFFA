@@ -17,10 +17,12 @@ public class PlayerMenuManager implements Listener {
 
 	private final NerKubKnockBackFFA plugin;
 	private final InventoryMenuManager inventoryMenuManager;
+	private final KitMenuManager kitMenuManager;
 
-	public PlayerMenuManager(NerKubKnockBackFFA plugin, InventoryMenuManager inventoryMenuManager) {
+	public PlayerMenuManager(NerKubKnockBackFFA plugin, InventoryMenuManager inventoryMenuManager, KitMenuManager kitMenuManager) {
 		this.plugin = plugin;
 		this.inventoryMenuManager = inventoryMenuManager;
+		this.kitMenuManager = kitMenuManager;
 	}
 
 	public void openMenu(Player player) {
@@ -35,6 +37,16 @@ public class PlayerMenuManager implements Listener {
 				plugin.getMenu().getConfig().getString("main-menu.buttons.inventory-editor.display-name")));
 		inventoryButton.setItemMeta(invMeta);
 		menuInventory.setItem(11, inventoryButton);
+
+		// 🛡️ 3. Tlačítko pro výběr kitů
+		ItemStack kitsButton = new ItemStack(Material.valueOf(
+				plugin.getMenu().getConfig().getString("main-menu.buttons.kits.material").toUpperCase()));
+		ItemMeta kitsMeta = kitsButton.getItemMeta();
+		kitsMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+				plugin.getMenu().getConfig().getString("main-menu.buttons.kits.display-name")));
+		kitsButton.setItemMeta(kitsMeta);
+		menuInventory.setItem(13, kitsButton);
+
 
 		// 🏆 2. Tlačítko pro statistiky
 		ItemStack statsButton = new ItemStack(Material.valueOf(
@@ -74,6 +86,12 @@ public class PlayerMenuManager implements Listener {
 
 			Material invEditMaterial = Material.valueOf(plugin.getMenu().getConfig().getString("main-menu.buttons.inventory-editor.material").toUpperCase());
 			Material statsMaterial = Material.valueOf(plugin.getMenu().getConfig().getString("main-menu.buttons.stats.material").toUpperCase());
+			Material kitsMaterial = Material.valueOf(plugin.getMenu().getConfig().getString("main-menu.buttons.kits.material").toUpperCase());
+
+			if (clickedItem.getType() == kitsMaterial) {
+				player.closeInventory();
+				kitMenuManager.openKitMenu(player); // Otevře menu s kity
+			}
 
 			if (clickedItem.getType() == invEditMaterial) {
 				player.closeInventory();

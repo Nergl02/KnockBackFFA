@@ -1,10 +1,11 @@
 package cz.nerkub.NerKubKnockBackFFA.Events;
 
+import cz.nerkub.NerKubKnockBackFFA.Managers.ArenaManager;
+import cz.nerkub.NerKubKnockBackFFA.Managers.SafeZoneManager;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -23,6 +24,8 @@ public class ArrowStormEvent extends Event implements Listener {
 
 	private static final HandlerList handlers = new HandlerList();
 	private final NerKubKnockBackFFA plugin;
+	private final SafeZoneManager safeZoneManager;
+	private final ArenaManager arenaManager;
 	private final Random random = new Random();
 
 	private int arrowCount;
@@ -35,8 +38,10 @@ public class ArrowStormEvent extends Event implements Listener {
 
 	private boolean eventActive = true; // Přidáno pro kontrolu ukončení eventu
 
-	public ArrowStormEvent(NerKubKnockBackFFA plugin) {
+	public ArrowStormEvent(NerKubKnockBackFFA plugin, SafeZoneManager safeZoneManager, ArenaManager arenaManager) {
 		this.plugin = plugin;
+		this.safeZoneManager = safeZoneManager;
+		this.arenaManager = arenaManager;
 		loadConfig();
 
 		if (!plugin.getEvents().getConfig().getBoolean("events.arrow-storm.enabled", true)) {
@@ -94,10 +99,25 @@ public class ArrowStormEvent extends Event implements Listener {
 	}
 
 	private void spawnArrow(Location location) {
+		Location arenaSpawn = plugin.getArenaManager().getArenaSpawn(plugin.getArenaManager().getCurrentArenaName());
+
+		// Dynamicky nastavíme výšku podle arény (např. +15 až +25 bloků)
+		double arrowSpawnY = arenaSpawn.getY() + 15 + random.nextInt(10); // 15 až 25 bloků nad arénou
+
+		// Znovu generujeme souřadnice, pokud jsou v safezóně
+		do {
+			double xOffset = (random.nextDouble() * (arrowSpawnRadius * 2)) - arrowSpawnRadius;
+			double zOffset = (random.nextDouble() * (arrowSpawnRadius * 2)) - arrowSpawnRadius;
+			location = new Location(arenaSpawn.getWorld(), arenaSpawn.getX() + xOffset, arrowSpawnY, arenaSpawn.getZ() + zOffset);
+		} while (safeZoneManager.isInSafeZone(location, arenaSpawn));
+
+		// Když už není v safezóně, spawneme šíp
 		Arrow arrow = location.getWorld().spawnArrow(location, new Vector(0, -1, 0), 1.5f, 12);
 		arrow.setGravity(true);
 		arrow.setMetadata("arrowstorm", new FixedMetadataValue(plugin, true)); // Označení eventových šípů
 	}
+
+
 
 	private void removeAllArrows() {
 		Bukkit.getWorlds().forEach(world ->

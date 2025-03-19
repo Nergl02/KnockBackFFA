@@ -38,8 +38,11 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private CustomConfig ranks;
 	private CustomConfig menu;
 	private CustomConfig events;
+	private CustomConfig kits;
 
 	private PlayerStatsManager playerStatsManager;
+	private SafeZoneManager safeZoneManager;
+	private KitManager kitManager;
 	private final DamagerMap damagerMap = new DamagerMap(); //Nejlepší řešení místo getInstance();
 	private final KillStreakMap killStreakMap = new KillStreakMap();
 	private final DeathsMap deathsMap = new DeathsMap();
@@ -86,6 +89,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		menu = new CustomConfig("inventories", "menu.yml", this);
 		menu.saveConfig();
 		events = new CustomConfig("events", "events.yml", this);
+		kits = new CustomConfig("kits", "kits.yml", this);
+		kits.saveConfig();
 
 		updateMainConfig();
 		messages.updateConfig();
@@ -94,6 +99,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		ranks.updateConfig();
 		menu.updateConfig();
 		events.updateConfig();
+		kits.updateConfig();
 
 		plugin = this;
 		random = new Random();
@@ -109,8 +115,11 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 				explodingChickItem, blazingDashItem, speedBoostItem, playerStatsManager);
 		DefaultInventoryManager defaultInventoryManager = new DefaultInventoryManager(this, databaseManager);
 		InventoryMenuManager inventoryMenumanager = new InventoryMenuManager(this, databaseManager, defaultInventoryManager);
-		PlayerMenuManager playerMenuManager = new PlayerMenuManager(this, inventoryMenumanager);
-		customEventManager = new CustomEventManager(this, knockBackStickItem);
+		KitMenuManager kitMenuManager = new KitMenuManager(this, databaseManager);
+		PlayerMenuManager playerMenuManager = new PlayerMenuManager(this, inventoryMenumanager, kitMenuManager);
+		this.safeZoneManager = new SafeZoneManager(this, arenaManager, playerMenuManager, shopManager, kitManager, kitMenuManager, databaseManager, defaultInventoryManager, leatherTunicItem, knockBackStickItem);
+		this.kitManager = new KitManager(this, defaultInventoryManager);
+		customEventManager = new CustomEventManager(this, safeZoneManager, arenaManager, knockBackStickItem);
 
 		// Otestuj připojení
 		try (Connection conn = databaseManager.getConnection()) {
@@ -125,7 +134,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv1.2.2"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv2.0.0"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studio"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|   \\|  | \\	&aPremium: &bThis plugin is a premium resource."));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
@@ -155,6 +164,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new SpeedBoostListener(this), this);
 		getServer().getPluginManager().registerEvents(inventoryMenumanager, this);
 		getServer().getPluginManager().registerEvents(playerMenuManager, this);
+		getServer().getPluginManager().registerEvents(new KitMenuManager(this, databaseManager), this);
+		getServer().getPluginManager().registerEvents(new SafeZoneManager(this, arenaManager, playerMenuManager, shopManager, kitManager ,kitMenuManager, databaseManager, defaultInventoryManager, leatherTunicItem, knockBackStickItem), this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryRestoreManager,
 				playerMenuManager, doubleJumpListener, blazingDashListener, killsMap, damagerMap));
@@ -281,6 +292,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		plugin.getRanks().saveConfig();
 		plugin.getMenu().saveConfig();
 		plugin.getEvents().saveConfig();
+		plugin.getKits().saveConfig();
 
 		if (databaseManager != null) {
 			databaseManager.close();
@@ -326,6 +338,10 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return events;
 	}
 
+	public CustomConfig getKits() {
+		return kits;
+	}
+
 
 	public ArenaManager getArenaManager() {
 		return arenaManager;
@@ -355,4 +371,12 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		return customEventManager;
 	}
 
+	public SafeZoneManager getSafeZoneManager() {
+		return safeZoneManager;
+	}
+
+
+	public KitManager getKitManager() {
+		return kitManager;
+	}
 }

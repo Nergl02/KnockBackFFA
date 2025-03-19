@@ -73,7 +73,7 @@ public class DatabaseManager {
 				"max_killstreak INT DEFAULT 0, " +
 				"coins INT DEFAULT 0, " +
 				"elo INT DEFAULT 0, " +
-				"rank VARCHAR(16) DEFAULT 'Unranked'" +
+				"rank VARCHAR(16) DEFAULT 'Unranked' " +
 				");";
 
 		String arenasSQL = "CREATE TABLE IF NOT EXISTS arenas (" +
@@ -99,7 +99,6 @@ public class DatabaseManager {
 				"FOREIGN KEY (arena_name) REFERENCES arenas(arena_name) ON DELETE CASCADE" +
 				");";
 
-		// Nová tabulka pro inventáře
 		String playerInventoriesSQL = "CREATE TABLE IF NOT EXISTS player_inventories (" +
 				"uuid VARCHAR(36) PRIMARY KEY, " +
 				"main_inventory TEXT NOT NULL, " +
@@ -107,12 +106,36 @@ public class DatabaseManager {
 				"FOREIGN KEY (uuid) REFERENCES player_stats(uuid) ON DELETE CASCADE" +
 				");";
 
+		// ✅ Tabulka `player_kits` pro zakoupené kity
+		String playerKitsSQL = "CREATE TABLE IF NOT EXISTS player_kits (" +
+				"uuid VARCHAR(36) NOT NULL, " +
+				"kit_name VARCHAR(64) NOT NULL, " +
+				"selected TINYINT(1) DEFAULT 0, " +
+				"PRIMARY KEY (uuid, kit_name), " +
+				"FOREIGN KEY (uuid) REFERENCES player_stats(uuid) ON DELETE CASCADE" +
+				");";
+
+		// ✅ Tabulka `player_custom_kits` pro uložení upravených kitů hráčů
+		String playerCustomKitsSQL = "CREATE TABLE IF NOT EXISTS player_custom_kits (" +
+				"uuid VARCHAR(36) NOT NULL, " +
+				"kit_name VARCHAR(64) NOT NULL, " +
+				"main_inventory TEXT NOT NULL, " +
+				"hotbar TEXT NOT NULL, " +
+				"helmet TEXT, " +  // Přidání sloupce pro helm
+				"chestplate TEXT, " +  // Přidání sloupce pro chestplate
+				"leggings TEXT, " +  // Přidání sloupce pro leggings
+				"boots TEXT, " +  // Přidání sloupce pro boots
+				"PRIMARY KEY (uuid, kit_name), " +
+				"FOREIGN KEY (uuid) REFERENCES player_stats(uuid) ON DELETE CASCADE" +
+				");";
 
 		try (Connection conn = getConnection();
 			 PreparedStatement playerStatsStmt = conn.prepareStatement(playerStatsSQL);
 			 PreparedStatement arenasStmt = conn.prepareStatement(arenasSQL);
 			 PreparedStatement playersInArenaStmt = conn.prepareStatement(playersInArenaSQL);
-			 PreparedStatement playerInventoriesStmt = conn.prepareStatement(playerInventoriesSQL)) {
+			 PreparedStatement playerInventoriesStmt = conn.prepareStatement(playerInventoriesSQL);
+			 PreparedStatement playerKitsStmt = conn.prepareStatement(playerKitsSQL);
+			 PreparedStatement playerCustomKitsStmt = conn.prepareStatement(playerCustomKitsSQL)) {
 
 			// Vytvoření tabulek
 			playerStatsStmt.executeUpdate();
@@ -127,11 +150,18 @@ public class DatabaseManager {
 			playerInventoriesStmt.executeUpdate();
 			plugin.getLogger().info("✅ Table 'player_inventories' created or already exists.");
 
+			playerKitsStmt.executeUpdate();
+			plugin.getLogger().info("✅ Table 'player_kits' created or already exists.");
+
+			playerCustomKitsStmt.executeUpdate();
+			plugin.getLogger().info("✅ Table 'player_custom_kits' created or already exists.");
+
 		} catch (SQLException e) {
 			plugin.getLogger().severe("❌ Error creating tables!");
 			e.printStackTrace();
 		}
 	}
+
 
 	// Uložení inventáře
 	public void savePlayerInventory(UUID uuid, ItemStack[] mainInventory, ItemStack[] hotbar) {
@@ -616,6 +646,260 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 		return arenaNames;
+	}
+
+	public boolean hasKit(UUID uuid, String kitName) {
+		String sql = "SELECT COUNT(*) FROM player_kits WHERE uuid = ? AND kit_name = ?;";
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, uuid.toString());
+			stmt.setString(2, kitName);
+
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0; // Pokud hráč má kit, vrátíme true
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false; // Pokud hráč kit nemá, vrátíme false
+	}
+
+	public void addKit(UUID uuid, String kitName) {
+		String sql = "INSERT INTO player_kits (uuid, kit_name, selected) VALUES (?, ?, FALSE) " +
+				"ON DUPLICATE KEY UPDATE kit_name = kit_name;";
+
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, uuid.toString());
+			stmt.setString(2, kitName);
+
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setSelectedKit(UUID uuid, String kitName) {
+		String resetSQL = "UPDATE player_kits SET selected = 0 WHERE uuid = ?";
+		String updateSQL = "UPDATE player_kits SET selected = 1 WHERE uuid = ? AND kit_name = ?";
+
+		try (Connection conn = getConnection();
+			 PreparedStatement resetStmt = conn.prepareStatement(resetSQL);
+			 PreparedStatement updateStmt = conn.prepareStatement(updateSQL)) {
+
+			resetStmt.setString(1, uuid.toString());
+			resetStmt.executeUpdate();
+
+			updateStmt.setString(1, uuid.toString());
+			updateStmt.setString(2, kitName);
+			updateStmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getSelectedKit(UUID uuid) {
+		String sql = "SELECT kit_name FROM player_kits WHERE uuid = ? AND selected = 1";
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setString(1, uuid.toString());
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return rs.getString("kit_name");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null; // Pokud hráč nemá vybraný žádný kit
+	}
+
+	// ✅ Ověření, zda hráč má vlastní kit
+	public boolean hasCustomKit(UUID uuid, String kitName) {
+		String sql = "SELECT COUNT(*) FROM player_custom_kits WHERE uuid = ? AND kit_name = ?;";
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+			stmt.setString(1, uuid.toString());
+			stmt.setString(2, kitName);
+			ResultSet rs = stmt.executeQuery();
+			return rs.next() && rs.getInt(1) > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	// 🛡 Uložit brnění hráče do databáze
+	public void saveCustomKit(UUID uuid, String kitName, ItemStack[] mainInventory, ItemStack[] hotbar, ItemStack[] armor) {
+		String query = "INSERT INTO player_custom_kits (uuid, kit_name, main_inventory, hotbar, helmet, chestplate, leggings, boots) " +
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
+				"ON DUPLICATE KEY UPDATE " +
+				"main_inventory = VALUES(main_inventory), " +
+				"hotbar = VALUES(hotbar), " +
+				"helmet = IF(VALUES(helmet) IS NOT NULL, VALUES(helmet), helmet), " +
+				"chestplate = IF(VALUES(chestplate) IS NOT NULL, VALUES(chestplate), chestplate), " +
+				"leggings = IF(VALUES(leggings) IS NOT NULL, VALUES(leggings), leggings), " +
+				"boots = IF(VALUES(boots) IS NOT NULL, VALUES(boots), boots)";
+
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			String serializedMainInventory = serializeInventory(mainInventory);
+			String serializedHotbar = serializeInventory(hotbar);
+
+			// Pokud je armor null, načteme brnění z kits.yml
+			if (armor == null || armor.length != 4) {
+				armor = plugin.getKitManager().getKitArmor(kitName);
+			}
+
+// Pokud i teď je armor null, nastavíme prázdné sloty
+			if (armor == null) {
+				armor = new ItemStack[]{null, null, null, null};
+			}
+
+
+			// ✅ Pokud část brnění není v kitu, neukládáme ji
+			String serializedHelmet = (armor != null && armor.length > 3 && armor[3] != null) ? serializeArmor(armor[3]) : null;
+			String serializedChestplate = (armor != null && armor.length > 2 && armor[2] != null) ? serializeArmor(armor[2]) : null;
+			String serializedLeggings = (armor != null && armor.length > 1 && armor[1] != null) ? serializeArmor(armor[1]) : null;
+			String serializedBoots = (armor != null && armor.length > 0 && armor[0] != null) ? serializeArmor(armor[0]) : null;
+
+			ps.setString(1, uuid.toString());
+			ps.setString(2, kitName);
+			ps.setString(3, serializedMainInventory);
+			ps.setString(4, serializedHotbar);
+			ps.setString(5, serializedHelmet);
+			ps.setString(6, serializedChestplate);
+			ps.setString(7, serializedLeggings);
+			ps.setString(8, serializedBoots);
+
+			ps.executeUpdate();
+			Bukkit.getLogger().info("[NerKubKnockBackFFA] ✅ Kit " + kitName + " uložen pro hráče " + uuid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// 🛡 Načíst brnění hráče z databáze
+	public ItemStack[] loadCustomKitArmor(UUID uuid, String kitName) {
+		String query = "SELECT helmet, chestplate, leggings, boots FROM player_custom_kits WHERE uuid = ? AND kit_name = ?";
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setString(1, uuid.toString());
+			ps.setString(2, kitName);
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				// ✅ Ověříme, zda některý slot obsahuje brnění
+				boolean hasArmor = false;
+				ItemStack[] armor = new ItemStack[4];
+
+				armor[3] = deserializeArmor(rs.getString("helmet"));     // Helmet
+				armor[2] = deserializeArmor(rs.getString("chestplate")); // Chestplate
+				armor[1] = deserializeArmor(rs.getString("leggings"));   // Leggings
+				armor[0] = deserializeArmor(rs.getString("boots"));      // Boots
+
+				Bukkit.getLogger().info("[NerKubKnockBackFFA] 🛡 Načteno brnění pro kit " + kitName + ":");
+				for (ItemStack piece : armor) {
+					if (piece != null) {
+						hasArmor = true;
+						break;
+					}
+				}
+
+				// ✅ Pokud alespoň jedna část brnění existuje, vrátíme pole, jinak `null`
+				return hasArmor ? armor : null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null; // 🔴 Pokud nic nenajdeme, vrátíme `null` místo prázdného pole!
+	}
+
+	private String serializeArmor(ItemStack item) {
+		if (item == null) return "";
+		try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			 BukkitObjectOutputStream out = new BukkitObjectOutputStream(byteOut)) {
+
+			out.writeObject(item); // Serialize item
+			return Base64.getEncoder().encodeToString(byteOut.toByteArray()); // Encode to Base64
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	private ItemStack deserializeArmor(String data) {
+		if (data == null || data.isEmpty()) return null;
+		try (ByteArrayInputStream byteIn = new ByteArrayInputStream(Base64.getDecoder().decode(data));
+			 BukkitObjectInputStream in = new BukkitObjectInputStream(byteIn)) {
+
+			return (ItemStack) in.readObject(); // Deserialize item
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+
+	// ✅ Načtení vlastního kitu hráče
+	public ItemStack[] loadCustomKit(UUID playerUUID, String kitName, boolean isHotbar) {
+		ItemStack[] defaultKit = isHotbar ? new ItemStack[9] : new ItemStack[27];
+
+		String query = "SELECT " + (isHotbar ? "hotbar" : "main_inventory") + " FROM player_custom_kits WHERE uuid = ? AND kit_name = ?";
+		try (Connection conn = getConnection();
+			 PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setString(1, playerUUID.toString());
+			ps.setString(2, kitName);
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				String serialized = rs.getString(1);
+				Bukkit.getLogger().info("[DEBUG] Načítám inventář pro hráče " + playerUUID + " - Kit: " + kitName);
+
+				ItemStack[] deserializedInventory = deserializeInventory(serialized);
+
+				// Debugging slotů
+				for (int i = 0; i < deserializedInventory.length; i++) {
+					Bukkit.getLogger().info("[DEBUG] Slot " + i + ": " + getItemName(deserializedInventory[i]));
+				}
+
+				return deserializedInventory;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		Bukkit.getLogger().info("[DEBUG] Hráč " + playerUUID + " nemá custom kit " + kitName + ", vracím prázdný inventář.");
+		return defaultKit; // Pokud hráč nemá custom kit, vrátíme prázdný
+	}
+
+	private String getItemName(ItemStack item) {
+		if (item == null || item.getType() == Material.AIR) {
+			return "EMPTY";
+		}
+		return item.getType().name() + " x" + item.getAmount();
+	}
+
+
+	// ✅ Reset upraveného kitu (smazání)
+	public void deleteCustomKit(UUID uuid, String kitName) {
+		String sql = "DELETE FROM player_custom_kits WHERE uuid = ? AND kit_name = ?;";
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+			stmt.setString(1, uuid.toString());
+			stmt.setString(2, kitName);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 

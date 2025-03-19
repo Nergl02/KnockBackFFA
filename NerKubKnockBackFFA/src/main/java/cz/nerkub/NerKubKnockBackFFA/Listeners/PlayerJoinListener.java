@@ -58,8 +58,26 @@ public class PlayerJoinListener implements Listener {
 
 		databaseManager.insertPlayer(String.valueOf(player.getUniqueId()), player.getName());
 
+		// Pokud hráč hraje poprvé, teleportujeme ho do arény
+		if (!player.hasPlayedBefore()) {
+			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+				if (currentArena != null && !currentArena.equals("Žádná aréna")) {
+					Location arenaSpawn = plugin.getArenaManager().getArenaSpawn(currentArena);
+					if (arenaSpawn != null) {
+						player.teleport(arenaSpawn);
+						Bukkit.getLogger().info("[DEBUG] Player " + player.getName() + " joined the server.");
+						if (!player.hasPlayedBefore()) {
+							Bukkit.getLogger().info("[DEBUG] First time join detected!");
+						}
+						Bukkit.getLogger().info("[DEBUG] Current arena: " + currentArena);
+
+					}
+				}
+			}, 20L); // 1 sekunda delay
+		}
+
+		// Pokud není bungee-mode, obnovíme inventář a pozici
 		if (!plugin.getConfig().getBoolean("bungee-mode")) {
-			// Pokud je bungee-mode vypnutý, obnovíme inventář a pozici
 			inventoryRestoreManager.restoreInventory(player);
 			inventoryRestoreManager.restoreLocation(player);
 		}
@@ -70,22 +88,13 @@ public class PlayerJoinListener implements Listener {
 
 		if (plugin.getConfig().getBoolean("bungee-mode")) {
 			if (currentArena != null) {
-				// Přiřazení hráče do arény
-
 				player.getInventory().clear();
 				defaultInventoryManager.setPlayerInventory(player);
 
-				// TODO
-				// if in config.yml join-message set to true, take join-message from messages.yml if false, set to null
 				event.setJoinMessage(null);
 
-				// Získat kills z killsMap
 				Integer kills = killsMap.getInt(player.getUniqueId());
-
-				// Zkontrolovat, zda je kills null nebo 0
-				if (kills == null || kills == 0) {
-					kills = 0; // Pokud je null nebo 0, nastav na 0
-				}
+				if (kills == null) kills = 0;
 
 				rankManager.savePlayerRank(player);
 
@@ -93,12 +102,14 @@ public class PlayerJoinListener implements Listener {
 					arenaManager.joinCurrentArena(player);
 				}
 
+				// Pokud je aktivní LowGravity, přidej efekty
 				if (plugin.getCustomEventManager().isEventActive("LowGravity")) {
 					player.removePotionEffect(PotionEffectType.JUMP);
 					player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, -2)); // LowGravity efekt
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0)); // Mírnější dopad
 				}
 
+				// Pokud je aktivní ExtraPunchBow, dej hráči luk
 				if (plugin.getCustomEventManager().isEventActive("ExtraPunchBow")) {
 					ItemStack bow = new ItemStack(Material.BOW);
 					ItemMeta meta = bow.getItemMeta();
@@ -108,16 +119,16 @@ public class PlayerJoinListener implements Listener {
 					}
 					player.getInventory().setItem(2, bow);
 				}
-
 			}
-
 		}
+
 		player.setGameMode(GameMode.SURVIVAL);
 		event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', prefix +
 				plugin.getMessages().getConfig().getString("join-message").replace("%player%", player.getName().toString())));
 
 		plugin.getBossBarManager().updateBossBar();
 	}
+
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {

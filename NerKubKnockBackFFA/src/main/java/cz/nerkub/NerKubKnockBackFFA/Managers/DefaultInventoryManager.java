@@ -28,6 +28,7 @@ public class DefaultInventoryManager {
 	}
 
 	// 🌟 Nastavení inventáře pro hráče
+	// 🌟 Nastavení inventáře pro hráče
 	public void setPlayerInventory(Player player) {
 		// Načtení uloženého inventáře z DB
 		ItemStack[] mainInventory = databaseManager.loadMainInventory(player.getUniqueId());
@@ -35,20 +36,21 @@ public class DefaultInventoryManager {
 
 		player.getInventory().clear(); // Vyčištění inventáře
 
-		// 🔄 **Kontrola Extra Punch Bow eventu**
+		// 🔄 **Kontrola aktivních eventů**
 		boolean isExtraPunchBowActive = plugin.getCustomEventManager().isEventActive("ExtraPunchBow");
+		boolean isNoKnockBackStickActive = plugin.getCustomEventManager().isEventActive("NoKnockBackStick");
 
 		for (int i = 0; i < 9; i++) {
 			if (i == 0) {
 				// ✅ KnockBack Stick se přidá pouze pokud není aktivní NoKnockBackStick event
-				if (!plugin.getCustomEventManager().isEventActive("NoKnockBackStick")) {
+				if (!isNoKnockBackStickActive || plugin.getSafeZoneManager().wasInSafeZone(player.getUniqueId())) {
 					player.getInventory().setItem(i, hotbar[i] != null ? hotbar[i] : knockBackStickItem.createKnockBackStickItem());
 				} else {
 					player.getInventory().setItem(i, new ItemStack(Material.AIR));
 				}
 			} else if (i == 2) {
-				if (isExtraPunchBowActive) {
-					// ✅ Přidání Extra Punch Bow pokud je event aktivní
+				if (isExtraPunchBowActive || plugin.getSafeZoneManager().wasInSafeZone(player.getUniqueId())) {
+					// ✅ Přidání Extra Punch Bow pokud je event aktivní nebo hráč byl v safezóně
 					ItemStack punchBow = new ItemStack(Material.BOW);
 					ItemMeta meta = punchBow.getItemMeta();
 					if (meta != null) {

@@ -4,6 +4,9 @@ main-menu:
     inventory-editor:
       material: CHEST
       display-name: '&6Edit Inventory'
+    kits:
+      material: IRON_SWORD
+      display-name: '&5Kits'
     stats:
       material: PAPER
       display-name: '&bMy stats'

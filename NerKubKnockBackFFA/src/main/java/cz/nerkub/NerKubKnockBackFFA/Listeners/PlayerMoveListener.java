@@ -118,6 +118,16 @@ public class PlayerMoveListener implements Listener {
 		rankManager.savePlayerRank(player);
 		resetPlayer(player);
 		damagerMap.removeDamager(playerUUID);
+
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "LowGravity")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "LowGravity");
+		}
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "ExtraPunchBow")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "ExtraPunchBow");
+		}
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "NoKnockBackStick")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "NoKnockBackStick");
+		}
 	}
 
 	private void handleDeathByPlayer(Player player, Player damager, PlayerStats stats) {
@@ -204,6 +214,17 @@ public class PlayerMoveListener implements Listener {
 
 		resetPlayer(player);
 		damagerMap.removeDamager(playerUUID);
+
+		// ✅ Odstraníme hráče z aktivních eventů, protože byl eliminován
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "LowGravity")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "LowGravity");
+		}
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "ExtraPunchBow")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "ExtraPunchBow");
+		}
+		if (plugin.getCustomEventManager().hasPlayerEvent(playerUUID, "NoKnockBackStick")) {
+			plugin.getCustomEventManager().removePlayerFromEvent(playerUUID, "NoKnockBackStick");
+		}
 	}
 
 

@@ -1,0 +1,107 @@
+kits:
+  knockback-master:
+    display-name: "&aKnockback Master"
+    price: 500
+    display-item: STICK
+    items:
+      stick:
+        material: "STICK"
+        amount: 1
+        enchantments:
+          KNOCKBACK: 3
+      quartz_block:
+        material: "QUARTZ_BLOCK"
+        amount: 32
+    armor: {}  # Žádné brnění v tomto kitu
+
+  sniper:
+    display-name: "&bSniper"
+    price: 600
+    display-item: BOW
+    items:
+      bow:
+        material: "BOW"
+        amount: 1
+        enchantments:
+          PUNCH: 3
+      arrow:
+        material: "ARROW"
+        amount: 16
+    armor: {}  # Žádné brnění v tomto kitu
+
+  builder:
+    display-name: "&6Builder"
+    price: 400
+    display-item: BRICK
+    items:
+      stick:
+        material: "STICK"
+        amount: 1
+        enchantments:
+          KNOCKBACK: 1
+      quartz_block:
+        material: "QUARTZ_BLOCK"
+        amount: 64
+      ender_pearl:
+        material: "ENDER_PEARL"
+        amount: 3
+    armor: {}  # Žádné brnění v tomto kitu
+
+  ninja:
+    display-name: "&7Ninja"
+    price: 1000
+    display-item: POTION
+    items:
+      stick:
+        material: "STICK"
+        amount: 1
+        enchantments:
+          KNOCKBACK: 2
+      invisibility_potion:
+        material: "POTION"
+        amount: 1
+        effects:
+          INVISIBILITY: 600  # 30 sekund neviditelnosti
+    armor: {}  # Žádné brnění v tomto kitu
+
+  tank:
+    display-name: "&cTank"
+    price: 800
+    display-item: IRON_CHESTPLATE
+    items:
+      stick:
+        material: "STICK"
+        amount: 1
+        enchantments:
+          KNOCKBACK: 1
+    armor:
+      helmet:
+        material: "IRON_HELMET"
+        enchantments:
+          PROTECTION: 2
+      leggings:
+        material: "IRON_LEGGINGS"
+        enchantments:
+          PROTECTION: 1
+      boots:
+        material: "IRON_BOOTS"
+
+  ender-warrior:
+    display-name: "&5Ender Warrior"
+    price: 1200
+    display-item: ENDER_PEARL
+    items:
+      stick:
+        material: "STICK"
+        amount: 1
+        enchantments:
+          KNOCKBACK: 2
+      ender_pearl:
+        material: "ENDER_PEARL"
+        amount: 3
+    armor:
+      boots:
+        material: "DIAMOND_BOOTS"
+        enchantments:
+          FEATHER_FALLING: 4
+      # Žádné další brnění v tomto kitu

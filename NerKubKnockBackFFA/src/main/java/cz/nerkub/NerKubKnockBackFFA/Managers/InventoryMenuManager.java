@@ -13,8 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.Objects;
 
 public class InventoryMenuManager implements Listener {
 
@@ -29,157 +27,201 @@ public class InventoryMenuManager implements Listener {
 	}
 
 	public void openInventoryEditor(Player player) {
-		// Vytvoření inventáře s kapacitou 45 slotů
+		String selectedKit = databaseManager.getSelectedKit(player.getUniqueId());
+		boolean hasKit = selectedKit != null;
+
 		Inventory inv = Bukkit.createInventory(null, 45, ChatColor.translateAlternateColorCodes('&',
 				plugin.getMenu().getConfig().getString("inventory-editor-menu.title")));
 
-		// Načtení hlavního inventáře a hotbaru z databáze
-		ItemStack[] mainInventory = databaseManager.loadMainInventory(player.getUniqueId());
-		ItemStack[] hotbar = databaseManager.loadHotbar(player.getUniqueId());
+		ItemStack[] mainInventory;
+		ItemStack[] hotbar;
+		ItemStack[] armor = new ItemStack[4];
 
-		// Pokud není inventář uložen v databázi, použij výchozí hodnoty (např. prázdný inventář)
-		if (mainInventory == null || Arrays.stream(mainInventory).allMatch(Objects::isNull)) {
-			mainInventory = defaultInventoryManager.getDefaultMainInventory(); // Výchozí inventář
+		if (hasKit) {
+			if (databaseManager.hasCustomKit(player.getUniqueId(), selectedKit)) {
+				mainInventory = databaseManager.loadCustomKit(player.getUniqueId(), selectedKit, false);
+				hotbar = databaseManager.loadCustomKit(player.getUniqueId(), selectedKit, true);
+				armor = databaseManager.loadCustomKitArmor(player.getUniqueId(), selectedKit);
+			} else {
+				mainInventory = plugin.getKitManager().getKitItems(selectedKit);
+				hotbar = defaultInventoryManager.getDefaultHotbar();
+				armor = plugin.getKitManager().getKitArmor(selectedKit);
+			}
+		} else {
+			// ✅ Pokud hráč nemá žádný kit, načte se defaultní inventář i brnění
+			player.sendMessage(ChatColor.YELLOW + "⚠ Nemáš aktivní žádný kit, zobrazujeme výchozí výbavu.");
+			mainInventory = defaultInventoryManager.getDefaultMainInventory();
+			hotbar = defaultInventoryManager.getDefaultHotbar();
+			armor = new ItemStack[4]; // Žádné brnění
 		}
 
-		if (hotbar == null || Arrays.stream(hotbar).allMatch(Objects::isNull)) {
-			hotbar = defaultInventoryManager.getDefaultHotbar(); // Výchozí hotbar
+		boolean hasArrow = false;
+		for (ItemStack item : mainInventory) {
+			if (item != null && item.getType() == Material.ARROW) {
+				hasArrow = true;
+				break;
+			}
 		}
 
-		// 🔳 1. řádek - Hráčův hotbar (sloty 36–44)
-		for (int i = 0; i < 9; i++) {
-			inv.setItem(36 + i, hotbar[i] != null ? hotbar[i] : new ItemStack(Material.AIR));
+		if (!hasArrow) {
+			// Přidání šípu **před** nahráním kitu
+			for (int i = 0; i < mainInventory.length; i++) {
+				if (mainInventory[i] == null || mainInventory[i].getType() == Material.AIR) {
+					mainInventory[i] = new ItemStack(Material.ARROW, 1);
+					break; // Přidáme **jen jeden šíp**
+				}
+			}
 		}
 
-		// 🟦 2. řádek - Skleněná přepážka (sloty 27–35)
-		ItemStack glass = createGlassPane(ChatColor.translateAlternateColorCodes('&',
-				plugin.getMenu().getConfig().getString("inventory-editor-menu.section-separator.display-name")));
-		for (int i = 27; i < 36; i++) {
-			inv.setItem(i, glass);
-		}
-
-		// 🟢 Uložit tlačítko (slot 30)
-		inv.setItem(30, createButton(Material.valueOf(
-				plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.material").toUpperCase()
-		), ChatColor.translateAlternateColorCodes('&',
-				plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.display-name"))));
-
-		// 🔴 Resetovat tlačítko (slot 32)
-		inv.setItem(32, createButton(Material.valueOf(
-				plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.material").toUpperCase()
-		), ChatColor.translateAlternateColorCodes('&',
-				plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.display-name"))));
-
-		// 🔲 3.–5. řádek - Zbytek inventáře (sloty 0–26)
 		for (int i = 0; i < 27; i++) {
 			inv.setItem(i, mainInventory[i] != null ? mainInventory[i] : new ItemStack(Material.AIR));
 		}
 
-		// 📜 Otevření inventáře hráči
+		ItemStack glass = createGlassPane(" ");
+		for (int i = 27; i < 36; i++) {
+			inv.setItem(i, glass);
+		}
+
+		inv.setItem(30, createButton(Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.material")), ChatColor.translateAlternateColorCodes('&', plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.display-name"))));
+		inv.setItem(32, createButton(Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.material")), ChatColor.translateAlternateColorCodes('&', plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.display-name"))));
+
+		for (int i = 0; i < 9; i++) {
+			inv.setItem(36 + i, hotbar[i] != null ? hotbar[i] : new ItemStack(Material.AIR));
+		}
+
 		player.openInventory(inv);
+		if (!plugin.getSafeZoneManager().isInSafeZone(player.getLocation(), plugin.getArenaManager().getArenaSpawn(plugin.getArenaManager().getCurrentArenaName()))) {
+			player.getInventory().setArmorContents(armor);
+		}
 	}
 
+	public void savePlayerKit(Player player, Inventory inv) {
+		String selectedKit = databaseManager.getSelectedKit(player.getUniqueId());
 
-	// 💾 Uložení inventáře
-	public void savePlayerInventory(Player player, Inventory inv) {
+		if (selectedKit == null) {
+			player.sendMessage(ChatColor.RED + "❌ Nemáš aktivní žádný kit!");
+			return;
+		}
+
 		ItemStack[] mainInventory = new ItemStack[27];
 		ItemStack[] hotbar = new ItemStack[9];
 
-		// 🔲 Uložení hlavního inventáře (sloty 0–26)
 		for (int i = 0; i < 27; i++) {
 			mainInventory[i] = inv.getItem(i);
 		}
 
-		// 🔳 Uložení hotbaru (sloty 36–44)
 		for (int i = 0; i < 9; i++) {
 			hotbar[i] = inv.getItem(36 + i);
 		}
 
-		// 📀 Uložení do databáze
-		databaseManager.savePlayerInventory(player.getUniqueId(), mainInventory, hotbar);
+		ItemStack[] armor = null;
+		if (!plugin.getSafeZoneManager().isInSafeZone(player.getLocation(), plugin.getArenaManager().getArenaSpawn(plugin.getArenaManager().getCurrentArenaName()))) {
+			armor = databaseManager.loadCustomKitArmor(player.getUniqueId(), selectedKit);
+		}
+
+
+		databaseManager.saveCustomKit(player.getUniqueId(), selectedKit, mainInventory, hotbar, armor);
+
+		player.sendMessage(ChatColor.GREEN + "✅ Tvůj kit '" + selectedKit + "' byl uložen!");
 	}
 
-
-	// 🛑 Kliknutí v editoru
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		if (!(event.getWhoClicked() instanceof Player player)) return;
 		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&',
 				plugin.getMenu().getConfig().getString("inventory-editor-menu.title")))) return;
 
 		int slot = event.getRawSlot();
 		ItemStack clicked = event.getCurrentItem();
+		String selectedKit = databaseManager.getSelectedKit(player.getUniqueId());
 
-		// Zakázat manipulaci se sklem a tlačítky, které nejsou určeny pro interakci (pro panely skla)
-		if (slot >= 27 && slot <= 35 && (slot != 30 && slot != 32)) {
-			event.setCancelled(true);  // Zablokování přetahování na skleněné panely
+		if (slot == 30) {
+			event.setCancelled(true);
+			savePlayerKit(player, event.getInventory()); // ✅ Uložení kitu
+			player.sendMessage(ChatColor.GREEN + "✅ Tvůj kit byl uložen!");
+		} else if (slot == 32) {
+			event.setCancelled(true);
+			resetToDefault(player, event.getInventory(), selectedKit); // ✅ Reset kitu (nebo defaultního inventáře)
+			player.sendMessage(ChatColor.YELLOW + "⚠️ Inventář byl resetován na výchozí hodnoty.");
+		}
+
+		if (slot >= 27 && slot <= 35) {
+			event.setCancelled(true);
 			return;
 		}
 
-		// Zakázat interakci s hráčovým skutečným inventářem (sloty 45 a výš)
 		if (slot >= 45) {
-			event.setCancelled(true);  // Zablokování interakce s hráčovým inventářem
+			event.setCancelled(true);
 			return;
 		}
 
-		// Pokud bylo kliknuto na nějaký item
 		if (clicked != null && clicked.hasItemMeta()) {
-
-			// Ověříme, zda je item skutečně emerald block nebo redstone block
-			if (clicked.getType() == Material.valueOf(
-					plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.material").toUpperCase())) {
-				savePlayerInventory(player, event.getInventory()); // Uložení inventáře
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
-						plugin.getMessages().getConfig().getString("inventory-editor-menu.save-inventory")));
-				// Místo zavření inventáře ho necháme otevřený a pouze aktualizujeme položky
-				updateInventory(player);
-			} else if (clicked.getType() == Material.valueOf(
-					plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.material").toUpperCase())) {
-				resetToDefault(player, event.getInventory());  // Reset na výchozí inventář
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
-						plugin.getMessages().getConfig().getString("inventory-editor-menu.reset-inventory")));
-				// Opět místo zavření jen znovu otevřeme editor a resetujeme inventář i tlačítka
-				updateInventory(player);
+			if (clicked.getType() == Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.save-inventory.material"))) {
+				savePlayerKit(player, event.getInventory());
+			} else if (clicked.getType() == Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.material"))) {
+				resetToDefault(player, event.getInventory(), selectedKit);
+				player.sendMessage(ChatColor.YELLOW + "⚠️ Kit byl resetován na výchozí hodnoty.");
 			}
 		}
 	}
 
+	private void resetToDefault(Player player, Inventory inv, String kitName) {
+		ItemStack[] mainInventory = new ItemStack[27];
+		ItemStack[] defaultInv;
+		ItemStack[] defaultHotbar;
+		ItemStack[] defaultArmor;
 
-	// 🔄 Reset na výchozí inventář
-	private void resetToDefault(Player player, Inventory inv) {
-		ItemStack[] defaultInv = defaultInventoryManager.getDefaultMainInventory();
-		ItemStack[] defaultHotbar = defaultInventoryManager.getDefaultHotbar();
+		boolean hasArrow = false;
+		for (ItemStack item : mainInventory) {
+			if (item != null && item.getType() == Material.ARROW) {
+				hasArrow = true;
+				break;
+			}
+		}
 
-		// Resetuj hlavní inventář (sloty 0–26)
+		if (!hasArrow) {
+			// Přidání šípu **před** nahráním kitu
+			for (int i = 0; i < mainInventory.length; i++) {
+				if (mainInventory[i] == null || mainInventory[i].getType() == Material.AIR) {
+					mainInventory[i] = new ItemStack(Material.ARROW, 1);
+					break; // Přidáme **jen jeden šíp**
+				}
+			}
+		}
+
+		if (kitName != null) {
+			// ✅ Hráč má aktivní kit → načteme jeho výchozí hodnoty
+			defaultInv = plugin.getKitManager().getKitItems(kitName);
+			defaultHotbar = defaultInventoryManager.getDefaultHotbar();
+			defaultArmor = plugin.getKitManager().getKitArmor(kitName);
+		} else {
+			// ❌ Hráč nemá aktivní kit → načteme defaultní inventář
+			defaultInv = defaultInventoryManager.getDefaultMainInventory();
+			defaultHotbar = defaultInventoryManager.getDefaultHotbar();
+			defaultArmor = new ItemStack[4]; // Žádné brnění
+		}
+
 		for (int i = 0; i < 27; i++) {
 			inv.setItem(i, defaultInv[i] != null ? defaultInv[i] : new ItemStack(Material.AIR));
 		}
 
-		// Resetuj hotbar (sloty 36–44)
 		for (int i = 0; i < 9; i++) {
 			inv.setItem(36 + i, defaultHotbar[i] != null ? defaultHotbar[i] : new ItemStack(Material.AIR));
 		}
-		updateInventory(player);
+
+		player.getInventory().setArmorContents(defaultArmor);
 	}
 
-	private void updateInventory(Player player) {
-		openInventoryEditor(player);
-	}
 
-	// 📏 Uložení při zavření
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&',
 				plugin.getMenu().getConfig().getString("inventory-editor-menu.title")))) return;
 
 		Player player = (Player) event.getPlayer();
-		savePlayerInventory(player, event.getInventory());  // Změněno na savePlayerInventory
+		savePlayerKit(player, event.getInventory());
 	}
 
-
-
-	// 🌟 Vytvoření tlačítek
 	private ItemStack createButton(Material material, String name) {
 		ItemStack button = new ItemStack(material);
 		ItemMeta meta = button.getItemMeta();
@@ -190,9 +232,8 @@ public class InventoryMenuManager implements Listener {
 		return button;
 	}
 
-	// 🟦 Skleněné panely
 	private ItemStack createGlassPane(String name) {
-		ItemStack pane = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
+		ItemStack pane = new ItemStack(Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.section-separator.material")));
 		ItemMeta meta = pane.getItemMeta();
 		if (meta != null) {
 			meta.setDisplayName(name);
