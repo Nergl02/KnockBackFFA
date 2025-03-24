@@ -26,7 +26,7 @@ public class KitMenuManager implements Listener {
 
 	public void openKitMenu(Player player) {
 		Inventory kitInventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&',
-				"&6Select or Buy a Kit"));
+				plugin.getMenu().getConfig().getString("kits-menu.title")));
 
 		String selectedKit = databaseManager.getSelectedKit(player.getUniqueId()); // Získání aktuálně vybraného kitu
 
@@ -46,19 +46,25 @@ public class KitMenuManager implements Listener {
 				if (ownsKit) {
 					if (kitName.equals(selectedKit)) {
 						meta.setLore(List.of(
-								ChatColor.GOLD + "⭐ Selected Kit!", // Zlatá pro aktuálně vybraný kit
-								ChatColor.YELLOW + "Click to select another!"
+								ChatColor.translateAlternateColorCodes('&',
+										plugin.getMessages().getConfig().getString("kits.selected")), // Zlatá pro aktuálně vybraný kit
+								ChatColor.translateAlternateColorCodes('&',
+										plugin.getMessages().getConfig().getString("kits.select-another"))
 						));
 					} else {
 						meta.setLore(List.of(
-								ChatColor.GREEN + "✅ You own this kit!",
-								ChatColor.YELLOW + "Click to select!"
+								ChatColor.translateAlternateColorCodes('&',
+										plugin.getMessages().getConfig().getString("kits.own")),
+								ChatColor.translateAlternateColorCodes('&',
+										plugin.getMessages().getConfig().getString("kits.select"))
 						));
 					}
 				} else {
 					meta.setLore(List.of(
-							ChatColor.RED + "❌ Price: " + price + " coins",
-							ChatColor.YELLOW + "Click to buy!"
+							ChatColor.translateAlternateColorCodes('&',
+									plugin.getMessages().getConfig().getString("kits.price").replace("%price%", String.valueOf(price))),
+							ChatColor.translateAlternateColorCodes('&',
+									plugin.getMessages().getConfig().getString("kits.buy"))
 					));
 				}
 
@@ -73,8 +79,10 @@ public class KitMenuManager implements Listener {
 
 	@EventHandler
 	public void onKitMenuClick(InventoryClickEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		if (!(event.getWhoClicked() instanceof Player player)) return;
-		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&', "&6Select or Buy a Kit")))
+		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&',
+				plugin.getMenu().getConfig().getString("kits-menu.title"))))
 			return;
 
 		event.setCancelled(true);
@@ -90,14 +98,17 @@ public class KitMenuManager implements Listener {
 
 		if (databaseManager.hasKit(player.getUniqueId(), kitName)) {
 			databaseManager.setSelectedKit(player.getUniqueId(), kitName);
-			player.sendMessage(ChatColor.GREEN + "✅ You selected the kit " + kitName + "!");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("kits.select-message").replace("%kitname%", kitName)));
 		} else {
 			if (playerCoins >= price) {
 				plugin.getPlayerStatsManager().getStats(player.getUniqueId()).setCoins(playerCoins - price);
 				databaseManager.addKit(player.getUniqueId(), kitName);
-				player.sendMessage(ChatColor.GREEN + "✅ Kit " + kitName + " purchased!");
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+						plugin.getMessages().getConfig().getString("kits.purchased").replace("%kitname%", kitName)));
 			} else {
-				player.sendMessage(ChatColor.RED + "❌ Not enough coins!");
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+						plugin.getMessages().getConfig().getString("kits.not-enough-coins")));
 			}
 		}
 

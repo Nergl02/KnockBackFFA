@@ -47,13 +47,16 @@ public class ArenaManager implements Listener {
 
 		if (!arenaName.equals("Žádná aréna")) {
 			playersInArena.add(player.getUniqueId());
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().info("🔄 [DEBUG] Player added to arena list for reload: " + player.getName());
 
 			// Debug hráčova stavu
 			if (player.isOnline()) {
+				// TODO: DEBUG PŘIDAT
 				Bukkit.getLogger().info("[DEBUG] Player is online: " + player.getName());
 				plugin.getDatabaseManager().addPlayerToArena(player.getUniqueId(), arenaName);
 			} else {
+				// TODO: DEBUG PŘIDAT
 				Bukkit.getLogger().warning("[DEBUG] Player is offline: " + player.getName());
 			}
 
@@ -61,6 +64,7 @@ public class ArenaManager implements Listener {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
 					plugin.getMessages().getConfig().getString("arena.player-removed").replace("%arena%", arenaName)));
 		} else {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("⚠️ [DEBUG] Player tried to leave an arena, but none was found.");
 		}
 	}
@@ -70,8 +74,10 @@ public class ArenaManager implements Listener {
 		if (currentArena != null && !currentArena.equals("Žádná aréna")) {
 			plugin.getDatabaseManager().addPlayerToArena(player.getUniqueId(), currentArena);
 			playersInArena.add(player.getUniqueId());
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().info("[DEBUG] Player added to arena: " + player.getName() + " in arena: " + currentArena);
 		} else {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("[DEBUG] Cannot add player to arena, no arena is active.");
 		}
 	}
@@ -80,6 +86,7 @@ public class ArenaManager implements Listener {
 	public void removePlayerFromArena(Player player) {
 		playersInArena.remove(player.getUniqueId());
 		plugin.getDatabaseManager().removePlayerFromArena(player.getUniqueId());
+		// TODO: DEBUG PŘIDAT
 		Bukkit.getLogger().info("[DEBUG] Player " + player.getName() + " removed from arena.");
 	}
 
@@ -211,8 +218,10 @@ public class ArenaManager implements Listener {
 		String activeArena = plugin.getDatabaseManager().getCurrentArena();
 		if (activeArena != null) {
 			this.currentArena = activeArena;
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().info("[DEBUG] Loaded current arena: " + currentArena);
 		} else {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("[DEBUG] No current arena set.");
 		}
 	}
@@ -223,6 +232,7 @@ public class ArenaManager implements Listener {
 		Map<String, Arena> loadedArenas = plugin.getDatabaseManager().loadArenasFromDatabase();
 
 		if (loadedArenas.isEmpty()) {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("[DEBUG] Nebyly nalezeny žádné arény v databázi.");
 			return;
 		}
@@ -293,6 +303,7 @@ public class ArenaManager implements Listener {
 		List<String> arenaList = new ArrayList<>(arenas.keySet());
 
 		if (arenaList.isEmpty()) {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("[DEBUG] Žádné arény nejsou dostupné pro přepnutí.");
 			return;
 		}
@@ -302,6 +313,7 @@ public class ArenaManager implements Listener {
 		String nextArena = arenaList.get(nextIndex);
 
 		if (nextArena != null && !nextArena.equals(currentArena)) {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().info("🔄 [DEBUG] Switching from arena '" + currentArena + "' to arena '" + nextArena + "'.");
 			setCurrentArena(nextArena);
 			plugin.getDatabaseManager().setCurrentArenaInDatabase(nextArena);
@@ -314,9 +326,11 @@ public class ArenaManager implements Listener {
 							plugin.getMessages().getConfig().getString("arena.switch").replace("%arena%", nextArena)));
 				}
 			} else {
+				// TODO: DEBUG PŘIDAT
 				Bukkit.getLogger().warning("⚠️ [DEBUG] Spawn pro arénu '" + nextArena + "' nebyl nalezen.");
 			}
 		} else {
+			// TODO: DEBUG PŘIDAT
 			Bukkit.getLogger().warning("⚠️ [DEBUG] Aréna se nezměnila.");
 		}
 	}

@@ -48,8 +48,6 @@ public class InventoryMenuManager implements Listener {
 				armor = plugin.getKitManager().getKitArmor(selectedKit);
 			}
 		} else {
-			// ✅ Pokud hráč nemá žádný kit, načte se defaultní inventář i brnění
-			player.sendMessage(ChatColor.YELLOW + "⚠ Nemáš aktivní žádný kit, zobrazujeme výchozí výbavu.");
 			mainInventory = defaultInventoryManager.getDefaultMainInventory();
 			hotbar = defaultInventoryManager.getDefaultHotbar();
 			armor = new ItemStack[4]; // Žádné brnění
@@ -96,10 +94,12 @@ public class InventoryMenuManager implements Listener {
 	}
 
 	public void savePlayerKit(Player player, Inventory inv) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		String selectedKit = databaseManager.getSelectedKit(player.getUniqueId());
 
 		if (selectedKit == null) {
-			player.sendMessage(ChatColor.RED + "❌ Nemáš aktivní žádný kit!");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("kits.no-active-kit")));
 			return;
 		}
 
@@ -122,11 +122,11 @@ public class InventoryMenuManager implements Listener {
 
 		databaseManager.saveCustomKit(player.getUniqueId(), selectedKit, mainInventory, hotbar, armor);
 
-		player.sendMessage(ChatColor.GREEN + "✅ Tvůj kit '" + selectedKit + "' byl uložen!");
 	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		if (!(event.getWhoClicked() instanceof Player player)) return;
 		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&',
 				plugin.getMenu().getConfig().getString("inventory-editor-menu.title")))) return;
@@ -138,11 +138,15 @@ public class InventoryMenuManager implements Listener {
 		if (slot == 30) {
 			event.setCancelled(true);
 			savePlayerKit(player, event.getInventory()); // ✅ Uložení kitu
-			player.sendMessage(ChatColor.GREEN + "✅ Tvůj kit byl uložen!");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("inventory-editor-menu.save-inventory")));
+			player.closeInventory();
 		} else if (slot == 32) {
 			event.setCancelled(true);
 			resetToDefault(player, event.getInventory(), selectedKit); // ✅ Reset kitu (nebo defaultního inventáře)
-			player.sendMessage(ChatColor.YELLOW + "⚠️ Inventář byl resetován na výchozí hodnoty.");
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+					plugin.getMessages().getConfig().getString("inventory-editor-menu.reset-inventory")));
+			player.closeInventory();
 		}
 
 		if (slot >= 27 && slot <= 35) {
@@ -160,7 +164,8 @@ public class InventoryMenuManager implements Listener {
 				savePlayerKit(player, event.getInventory());
 			} else if (clicked.getType() == Material.valueOf(plugin.getMenu().getConfig().getString("inventory-editor-menu.buttons.reset-inventory.material"))) {
 				resetToDefault(player, event.getInventory(), selectedKit);
-				player.sendMessage(ChatColor.YELLOW + "⚠️ Kit byl resetován na výchozí hodnoty.");
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+						plugin.getMessages().getConfig().getString("inventory-editor-menu.reset-inventory")));
 			}
 		}
 	}
@@ -218,8 +223,6 @@ public class InventoryMenuManager implements Listener {
 		if (!event.getView().getTitle().equals(ChatColor.translateAlternateColorCodes('&',
 				plugin.getMenu().getConfig().getString("inventory-editor-menu.title")))) return;
 
-		Player player = (Player) event.getPlayer();
-		savePlayerKit(player, event.getInventory());
 	}
 
 	private ItemStack createButton(Material material, String name) {

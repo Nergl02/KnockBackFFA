@@ -1,107 +1,96 @@
 kits:
+  # Knockback Master kit
   knockback-master:
-    display-name: "&aKnockback Master"
-    price: 500
-    display-item: STICK
+    # The display name shown to the player
+    display-name: "&aKnockback Master"  # Green color for the name
+    # The price of the kit, it can be set to any value
+    price: 500  # Cost of this kit
+    # The item shown in the menu or shop to represent the kit
+    display-item: STICK  # The item representing the kit (a stick in this case)
     items:
-      stick:
-        material: "STICK"
-        amount: 1
-        enchantments:
-          KNOCKBACK: 3
       quartz_block:
-        material: "QUARTZ_BLOCK"
-        amount: 32
-    armor: {}  # Žádné brnění v tomto kitu
+        material: "QUARTZ_BLOCK"  # Another item (Quartz Block) in the kit
+        amount: 32  # The number of Quartz Blocks the player gets
+    armor: {}  # No armor is given in this kit
 
+  # Sniper kit
   sniper:
-    display-name: "&bSniper"
+    display-name: "&bSniper"  # Blue color for the name
     price: 600
-    display-item: BOW
+    display-item: BOW  # The item representing this kit is a Bow
     items:
-      bow:
-        material: "BOW"
-        amount: 1
-        enchantments:
-          PUNCH: 3
       arrow:
         material: "ARROW"
-        amount: 16
-    armor: {}  # Žádné brnění v tomto kitu
-
-  builder:
-    display-name: "&6Builder"
-    price: 400
-    display-item: BRICK
-    items:
-      stick:
-        material: "STICK"
-        amount: 1
-        enchantments:
-          KNOCKBACK: 1
-      quartz_block:
-        material: "QUARTZ_BLOCK"
-        amount: 64
+        amount: 16  # Gives the player 16 arrows
       ender_pearl:
         material: "ENDER_PEARL"
-        amount: 3
-    armor: {}  # Žádné brnění v tomto kitu
+        amount: 3  # Gives the player 3 Ender Pearls for teleportation
+    armor: {}  # No armor for this kit
 
-  ninja:
-    display-name: "&7Ninja"
-    price: 1000
-    display-item: POTION
+  # Builder kit
+  builder:
+    display-name: "&6Builder"  # Yellow color for the name
+    price: 400
+    display-item: BRICK  # The item representing this kit is a Brick
     items:
-      stick:
-        material: "STICK"
-        amount: 1
-        enchantments:
-          KNOCKBACK: 2
+      quartz_block:
+        material: "QUARTZ_BLOCK" # You can for now only use QUARTZ_BLOCK!!!!!!!!!
+        amount: 64  # Gives the player 64 Quartz Blocks for building
+      ender_pearl:
+        material: "ENDER_PEARL"
+        amount: 3  # Gives the player 3 Ender Pearls for teleportation
+    armor: {}  # No armor for this kit
+
+  # Ninja kit (contains potions)
+  ninja:
+    display-name: "&7Ninja"  # Gray color for the name
+    price: 1000
+    display-item: POTION  # The item representing this kit is a Potion
+    items:
       invisibility_potion:
-        material: "POTION"
+        material: POTION
         amount: 1
         effects:
-          INVISIBILITY: 600  # 30 sekund neviditelnosti
-    armor: {}  # Žádné brnění v tomto kitu
+          INVISIBILITY: 600  # 600 ticks = 30 seconds of invisibility
+        splash: false  # This potion is not splashable (normal potion)
+      speed_potion:
+        material: POTION
+        amount: 3
+        effects:
+          SPEED: 600  # 600 ticks = 30 seconds of speed
+        splash: true  # This potion is splashable (splash potion)
+    armor: {}  # No armor for this kit
 
+  # Tank kit (includes armor)
   tank:
-    display-name: "&cTank"
+    display-name: "&cTank"  # Red color for the name
     price: 800
-    display-item: IRON_CHESTPLATE
+    display-item: IRON_CHESTPLATE  # The item representing this kit is an Iron Chestplate
     items:
-      stick:
-        material: "STICK"
-        amount: 1
-        enchantments:
-          KNOCKBACK: 1
     armor:
       helmet:
         material: "IRON_HELMET"
         enchantments:
-          PROTECTION: 2
+          PROTECTION: 2  # Adds Protection enchantment level 2 to the Iron Helmet
       leggings:
         material: "IRON_LEGGINGS"
         enchantments:
-          PROTECTION: 1
+          PROTECTION: 1  # Adds Protection enchantment level 1 to the Iron Leggings
       boots:
-        material: "IRON_BOOTS"
+        material: "IRON_BOOTS"  # Gives the player Iron Boots with no enchantments
 
+  # Ender Warrior kit (includes Ender Pearls and special armor)
   ender-warrior:
-    display-name: "&5Ender Warrior"
+    display-name: "&5Ender Warrior"  # Purple color for the name
     price: 1200
-    display-item: ENDER_PEARL
+    display-item: ENDER_PEARL  # The item representing this kit is an Ender Pearl
     items:
-      stick:
-        material: "STICK"
-        amount: 1
-        enchantments:
-          KNOCKBACK: 2
       ender_pearl:
         material: "ENDER_PEARL"
-        amount: 3
+        amount: 5  # Gives the player 3 Ender Pearls for teleportation
     armor:
       boots:
-        material: "DIAMOND_BOOTS"
+        material: "DIAMOND_BOOTS"  # Gives the player Diamond Boots
         enchantments:
-          FEATHER_FALLING: 4
-      # Žádné další brnění v tomto kitu
+          FEATHER_FALLING: 4  # Adds Feather Falling enchantment level 4 (to reduce fall damage)
+      # No other armor is given in this kit

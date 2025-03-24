@@ -23,3 +23,6 @@ inventory-editor-menu:
     reset-inventory:
       material: RED_WOOL
       display-name: '&cReset Inventory'
+
+kits-menu:
+  title: '&6Select or Buy a Kit'

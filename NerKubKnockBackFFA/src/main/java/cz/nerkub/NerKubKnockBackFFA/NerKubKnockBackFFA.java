@@ -13,6 +13,7 @@ import cz.nerkub.NerKubKnockBackFFA.TabCompleters.KnbffaTabCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,6 +32,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 	private int timeRemaining;
 
 	private DatabaseManager databaseManager;
+	private CheckUpdatesGitHub checkUpdatesGitHub;
 
 	private CustomConfig messages;
 	private CustomConfig items;
@@ -101,6 +103,9 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		events.updateConfig();
 		kits.updateConfig();
 
+		checkUpdatesGitHub = new CheckUpdatesGitHub(this);
+		checkUpdatesGitHub.checkForUpdates();
+
 		plugin = this;
 		random = new Random();
 		arenaManager = new ArenaManager(this, inventoryRestoreManager);
@@ -134,7 +139,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv2.0.0"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv2.0.1"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studio"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|   \\|  | \\	&aPremium: &bThis plugin is a premium resource."));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
@@ -146,7 +151,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerDamageListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(this, new Random(), databaseManager, damagerMap, killStreakMap, deathsMap, buildBlockItem, arenaManager, rankManager,
 				knockBackStickItem, punchBowItem, leatherTunicItem, maxItemInInvListener, defaultInventoryManager), this);
-		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, arenaManager, scoreBoardManager, databaseManager, defaultInventoryManager, damagerMap,
+		getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, arenaManager, scoreBoardManager, databaseManager, defaultInventoryManager, checkUpdatesGitHub, damagerMap,
 				killStreakMap, killsMap, rankManager, inventoryRestoreManager), this);
 		getServer().getPluginManager().registerEvents(new SwapperBallListener(this, damagerMap), this);
 		getServer().getPluginManager().registerEvents(new DropItemListener(this, arenaManager), this);
@@ -302,6 +307,32 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 			bossBarManager.removeBossBar();
 		}
 
+		String arenaName = arenaManager.getCurrentArenaName();
+		if (arenaName != null && !arenaName.equals("No arena is set")) {
+			Location min = arenaManager.getArenaMinBounds(arenaName);
+			Location max = arenaManager.getArenaMaxBounds(arenaName);
+
+			if (min != null && max != null) {
+				World world = min.getWorld();
+
+				for (org.bukkit.entity.Arrow arrow : world.getEntitiesByClass(org.bukkit.entity.Arrow.class)) {
+					Location loc = arrow.getLocation();
+					if (isInArea(loc, min, max)) {
+						arrow.remove();
+					}
+				}
+
+				getLogger().info("🏹 Smazány všechny šípy v aréně: " + arenaName);
+			}
+		}
+
+	}
+
+	private boolean isInArea(Location loc, Location min, Location max) {
+		return loc.getX() >= min.getX() && loc.getX() <= max.getX()
+				&& loc.getY() >= min.getY() && loc.getY() <= max.getY()
+				&& loc.getZ() >= min.getZ() && loc.getZ() <= max.getZ()
+				&& loc.getWorld().equals(min.getWorld());
 	}
 
 	public void updateMainConfig() {

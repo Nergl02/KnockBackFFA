@@ -33,12 +33,15 @@ public class KnbffaTabCompleter implements TabCompleter{
 				suggestions.add("setarenaspawn");
 				suggestions.add("arenalist");
 				suggestions.add("arenatp");
+				suggestions.add("cleararrows");
 
 			} else if (args.length == 2 && args[0].equalsIgnoreCase("removearena")) {
 				suggestions.addAll(databaseManager.getAllArenaNames());
 			} else  if (args.length == 2 && args[0].equalsIgnoreCase("setarenaspawn")) {
 				suggestions.addAll(databaseManager.getAllArenaNames());
 			} else if (args.length == 2 && args[0].equalsIgnoreCase("arenatp")) {
+				suggestions.addAll(databaseManager.getAllArenaNames());
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("cleararrows")) {
 				suggestions.addAll(databaseManager.getAllArenaNames());
 			}
 		}

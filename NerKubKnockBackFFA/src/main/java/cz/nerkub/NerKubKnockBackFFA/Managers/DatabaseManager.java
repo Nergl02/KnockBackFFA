@@ -867,7 +867,9 @@ public class DatabaseManager {
 
 				// Debugging slotů
 				for (int i = 0; i < deserializedInventory.length; i++) {
-					Bukkit.getLogger().info("[DEBUG] Slot " + i + ": " + getItemName(deserializedInventory[i]));
+					if (plugin.getConfig().getBoolean("debug")) {
+						Bukkit.getLogger().info("[DEBUG] Slot " + i + ": " + getItemName(deserializedInventory[i]));
+					}
 				}
 
 				return deserializedInventory;

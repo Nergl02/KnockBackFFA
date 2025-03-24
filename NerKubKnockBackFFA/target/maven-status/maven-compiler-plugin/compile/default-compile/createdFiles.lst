@@ -37,6 +37,7 @@ cz\nerkub\NerKubKnockBackFFA\Events\ExtraPunchBowEvent.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\DropItemListener.class
 cz\nerkub\NerKubKnockBackFFA\HashMaps\KillsMap.class
+cz\nerkub\NerKubKnockBackFFA\CheckUpdatesGitHub.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\BlockBreakListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$2.class
@@ -75,6 +76,7 @@ cz\nerkub\NerKubKnockBackFFA\Listeners\MaxItemInInvListener.class
 cz\nerkub\NerKubKnockBackFFA\Items\SwapperBallItem.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\PlayerMenuSubCommand.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SafeZoneManager.class
+cz\nerkub\NerKubKnockBackFFA\SubCommands\ClearArrowsSubcommand.class
 cz\nerkub\NerKubKnockBackFFA\Managers\SubCommandManager.class
 cz\nerkub\NerKubKnockBackFFA\Managers\PlayerStats.class
 cz\nerkub\NerKubKnockBackFFA\Items\InvisibilityCloakItem.class

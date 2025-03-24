@@ -4,18 +4,13 @@ import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.ChatColor;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 public class KitManager {
@@ -49,7 +44,6 @@ public class KitManager {
 
 		// 🚫 Zabrání aplikaci kitu v safezóně
 		if (plugin.getSafeZoneManager().isInSafeZone(player.getLocation(), plugin.getArenaManager().getArenaSpawn(plugin.getArenaManager().getCurrentArenaName()))) {
-			player.sendMessage(ChatColor.RED + "❌ Kit nemůžeš aktivovat v safezóně!");
 			return;
 		}
 
@@ -75,8 +69,6 @@ public class KitManager {
 			}
 		}
 
-		// ✅ Přidání předmětů do inventáře
-		player.getInventory().setContents(mainInventory);
 		player.getInventory().setArmorContents(armor);
 
 
@@ -85,7 +77,6 @@ public class KitManager {
 			plugin.getDatabaseManager().saveCustomKit(player.getUniqueId(), kitName, mainInventory, hotbar, armor);
 		}
 
-		player.sendMessage(ChatColor.GREEN + "🎒 Kit " + kitName + " byl aktivován!");
 	}
 
 
@@ -108,14 +99,48 @@ public class KitManager {
 			if (material != null && material != Material.AIR) {
 				ItemStack item = new ItemStack(material, amount);
 
-				// Zkontrolujeme, zda má item enchantments
-				if (kitSection.contains(key + ".enchantments")) {
-					ConfigurationSection enchantsSection = kitSection.getConfigurationSection(key + ".enchantments");
-					for (String enchantKey : enchantsSection.getKeys(false)) {
-						try {
-							item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.getByName(enchantKey.toUpperCase()), enchantsSection.getInt(enchantKey));
-						} catch (Exception e) {
-							Bukkit.getLogger().warning("⚠️ Neplatný enchantment '" + enchantKey + "' pro item '" + material + "' v kitu '" + kitName + "'");
+				// Zpracování efektů pro lektvary
+				if (material == Material.POTION || material == Material.SPLASH_POTION) {
+					if (kitSection.contains(key + ".effects")) {
+						PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+
+						ConfigurationSection effectsSection = kitSection.getConfigurationSection(key + ".effects");
+						for (String effectKey : effectsSection.getKeys(false)) {
+							try {
+								PotionEffectType effectType = PotionEffectType.getByName(effectKey.toUpperCase());
+								if (effectType != null) {
+									int duration = effectsSection.getInt(effectKey, 600); // Default 30 sekund
+									potionMeta.addCustomEffect(new PotionEffect(effectType, duration, 1), true); // Přidání efektu
+								}
+							} catch (Exception e) {
+								if (plugin.getConfig().getBoolean("debug")) {
+									Bukkit.getLogger().warning("⚠️ Neplatný efekt '" + effectKey + "' pro lektvar v kitu '" + kitName + "'");
+								}
+							}
+						}
+
+						// Kontrola pro splash lektvar
+						if (kitSection.contains(key + ".splash")) {
+							boolean splash = kitSection.getBoolean(key + ".splash", false);
+							if (splash) {
+								item.setType(Material.SPLASH_POTION);
+							}
+						}
+
+						item.setItemMeta(potionMeta);
+					}
+				} else {
+					// Zkontrolujeme, zda má item enchantments
+					if (kitSection.contains(key + ".enchantments")) {
+						ConfigurationSection enchantsSection = kitSection.getConfigurationSection(key + ".enchantments");
+						for (String enchantKey : enchantsSection.getKeys(false)) {
+							try {
+								item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.getByName(enchantKey.toUpperCase()), enchantsSection.getInt(enchantKey));
+							} catch (Exception e) {
+								if (plugin.getConfig().getBoolean("debug")) {
+									Bukkit.getLogger().warning("⚠️ Neplatný enchantment '" + enchantKey + "' pro item '" + material + "' v kitu '" + kitName + "'");
+								}
+							}
 						}
 					}
 				}
@@ -127,6 +152,7 @@ public class KitManager {
 
 		return items;
 	}
+
 
 	public ItemStack[] getKitArmor(String kitName) {
 		ConfigurationSection kitSection = plugin.getKits().getConfig().getConfigurationSection("kits." + kitName + ".armor");
@@ -154,6 +180,7 @@ public class KitManager {
 									enchantmentsSection.getInt(enchantKey)
 							);
 						} catch (Exception e) {
+							// TODO: DEBUG PŘIDAT
 							Bukkit.getLogger().warning("⚠ Chyba při aplikaci enchantmentu " + enchantKey + " pro " + material.name());
 						}
 					}

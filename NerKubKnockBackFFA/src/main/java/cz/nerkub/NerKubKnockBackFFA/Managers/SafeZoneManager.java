@@ -170,6 +170,7 @@ public class SafeZoneManager implements Listener {
 	}
 
 	private void exitSafeZone(Player player) {
+		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		UUID playerId = player.getUniqueId();
 
 		// 🌟 Obnovení inventáře (pokud hráč NEMÁ kit)
@@ -206,36 +207,63 @@ public class SafeZoneManager implements Listener {
 				ItemStack[] savedArmor = plugin.getDatabaseManager().loadCustomKitArmor(playerId, selectedKit);
 
 
-				player.getInventory().setContents(savedMainInv);
-
 				// ✅ Aplikujeme obsah hotbaru
 				for (int i = 0; i < 9; i++) {
 					if (savedHotbar[i] != null) {
 						player.getInventory().setItem(i, savedHotbar[i]);
-						Bukkit.getLogger().info("Hotbar slot load " + i + ": " + getItemName(savedHotbar[i]));
+						if (plugin.getConfig().getBoolean("debug")) {
+							Bukkit.getLogger().info("Hotbar slot load " + i + ": " + getItemName(savedHotbar[i]));
+						}
 					}
 				}
 
 				for (int i = 0; i < 27; i++) {
 					if (savedMainInv[i] != null) {
 						player.getInventory().setItem(i + 9, savedMainInv[i]); // ✔ Teď se to zapíše od slotu 9
-						Bukkit.getLogger().info("MainInventory slot upload " + i + ": " + getItemName(savedMainInv[i]));
+						if (plugin.getConfig().getBoolean("debug")) {
+							Bukkit.getLogger().info("MainInventory slot upload " + i + ": " + getItemName(savedMainInv[i]));
+						}
+					}
+				}
+
+				// Kontrola, zda hráč má šíp v inventáři, pokud ne, přidáme ho
+				boolean hasArrow = false;
+				for (ItemStack item : player.getInventory().getContents()) {
+					if (item != null && item.getType() == Material.ARROW) {
+						hasArrow = true;
+						break;
+					}
+				}
+
+// Pokud hráč nemá šíp, přidáme mu ho
+				if (!hasArrow) {
+					player.getInventory().addItem(new ItemStack(Material.ARROW));
+					if (plugin.getConfig().getBoolean("debug")) {
+						Bukkit.getLogger().info("Arrow added to player inventory.");
 					}
 				}
 
 				if (!isInSafeZone(player.getLocation(), arenaManager.getArenaSpawn(arenaManager.getCurrentArenaName()))) {
 					if (savedArmor != null) {
 						player.getInventory().setArmorContents(savedArmor);
-						player.sendMessage(ChatColor.GREEN + "✔ Brnění bylo načteno pro kit " + selectedKit);
+						if (plugin.getConfig().getBoolean("debug")) {
+							player.sendMessage(ChatColor.GREEN + "✔ Brnění bylo načteno pro kit " + selectedKit);
+						}
 					} else {
-						player.sendMessage(ChatColor.RED + "⚠ Kit " + selectedKit + " nemá žádné brnění.");
+						if (plugin.getConfig().getBoolean("debug")) {
+							player.sendMessage(ChatColor.RED + "⚠ Kit " + selectedKit + " nemá žádné brnění.");
+						}
 					}
 				} else {
-					player.sendMessage(ChatColor.YELLOW + "⚠ Jsi v safezóně, brnění se nenasadilo.");
+					if (plugin.getConfig().getBoolean("debug")) {
+						player.sendMessage(ChatColor.YELLOW + "⚠ Jsi v safezóně, brnění se nenasadilo.");
+					}
 				}
 
 				player.getInventory().setArmorContents(savedArmor);
-				player.sendMessage(ChatColor.GREEN + "✔ Načtena tvoje uložená verze kitu: " + selectedKit);
+				if (plugin.getConfig().getBoolean("debug")) {
+					player.sendMessage(ChatColor.GREEN + "✔ Načtena tvoje uložená verze kitu: " + selectedKit);
+				}
 			} else {
 				// 🔹 Hráč NEMÁ custom verzi kitu – dostane výchozí kit a přidáme defaultní hotbar i main inventory
 				kitManager.applyKit(player, selectedKit);
@@ -249,16 +277,17 @@ public class SafeZoneManager implements Listener {
 					}
 				}
 
-				// ✅ Doplnění hlavního inventáře, pokud jsou tam prázdná místa
-				for (int i = 0; i < 27; i++) {
-					if (player.getInventory().getItem(i) == null || player.getInventory().getItem(i).getType() == Material.AIR) {
-						player.getInventory().setItem(i, defaultMainInventory[i]);
+				for (int i = 0; i < defaultMainInventory.length; i++) {
+					if (defaultMainInventory[i] != null) {
+						player.getInventory().addItem(defaultMainInventory[i]);
 					}
 				}
 			}
 		} else {
 			defaultInventoryManager.setDefaultInventory(player);
-			player.sendMessage(ChatColor.GRAY + "⚔ Nemáš žádný kit, dostal jsi základní výbavu.");
+			if (plugin.getConfig().getBoolean("debug")) {
+				player.sendMessage(ChatColor.GRAY + "⚔ Nemáš žádný kit, dostal jsi základní výbavu.");
+			}
 		}
 
 		// ✅ **Pokud má hráč naplánované vrácení KnockBack Sticku, vrátíme ho teď!**
@@ -290,7 +319,8 @@ public class SafeZoneManager implements Listener {
 		storedInventories.remove(player);
 		storedArmor.remove(player);
 		player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());
-		player.sendMessage(ChatColor.RED + "⚔ You left the safezone!");
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
+				plugin.getMessages().getConfig().getString("arena.safe-zone-leave")));
 
 	}
 

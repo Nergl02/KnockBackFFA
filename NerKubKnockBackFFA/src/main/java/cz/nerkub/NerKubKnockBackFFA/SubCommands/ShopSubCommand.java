@@ -36,6 +36,6 @@ public class ShopSubCommand extends SubCommandManager {
 		shopManager.openShop(player);
 		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("prefix") + plugin.getMessages().getConfig().getString("shop-open")));
 
-		return false;
+		return true;
 	}
 }

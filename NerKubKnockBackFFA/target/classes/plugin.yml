@@ -1,5 +1,5 @@
 name: NerKubKnockBackFFA
-version: '2.0.0'
+version: '2.0.1'
 main: cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA
 api-version: '1.20'
 

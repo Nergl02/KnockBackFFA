@@ -1,5 +1,6 @@
 package cz.nerkub.NerKubKnockBackFFA.Listeners;
 
+import cz.nerkub.NerKubKnockBackFFA.CheckUpdatesGitHub;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.DamagerMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillStreakMap;
 import cz.nerkub.NerKubKnockBackFFA.HashMaps.KillsMap;
@@ -29,6 +30,7 @@ public class PlayerJoinListener implements Listener {
 	private final ScoreBoardManager scoreBoardManager;
 	private final DatabaseManager databaseManager;
 	private final DefaultInventoryManager defaultInventoryManager;
+	private final CheckUpdatesGitHub updateChecker;
 
 	private final DamagerMap damagerMap;
 	private final KillStreakMap killStreakMap;
@@ -36,12 +38,13 @@ public class PlayerJoinListener implements Listener {
 	private final RankManager rankManager;
 	private InventoryRestoreManager inventoryRestoreManager;
 
-	public PlayerJoinListener(NerKubKnockBackFFA plugin, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DatabaseManager databaseManager, DefaultInventoryManager defaultInventoryManager, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager) {
+	public PlayerJoinListener(NerKubKnockBackFFA plugin, ArenaManager arenaManager, ScoreBoardManager scoreBoardManager, DatabaseManager databaseManager, DefaultInventoryManager defaultInventoryManager, CheckUpdatesGitHub updateChecker, DamagerMap damagerMap, KillStreakMap killStreakMap, KillsMap killsMap, RankManager rankManager, InventoryRestoreManager inventoryRestoreManager) {
 		this.plugin = plugin;
 		this.arenaManager = arenaManager;
 		this.scoreBoardManager = scoreBoardManager;
 		this.databaseManager = databaseManager;
 		this.defaultInventoryManager = defaultInventoryManager;
+		this.updateChecker = updateChecker;
 		this.damagerMap = damagerMap;
 		this.killStreakMap = killStreakMap;
 		this.killsMap = killsMap;
@@ -75,6 +78,8 @@ public class PlayerJoinListener implements Listener {
 				}
 			}, 20L); // 1 sekunda delay
 		}
+
+		updateChecker.notifyPlayerOnJoin(player);
 
 		// Pokud není bungee-mode, obnovíme inventář a pozici
 		if (!plugin.getConfig().getBoolean("bungee-mode")) {

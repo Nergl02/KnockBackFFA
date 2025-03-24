@@ -66,6 +66,7 @@ public class CommandManager implements CommandExecutor {
 		subCommandManagers.add(new PlayerMenuSubCommand(plugin, playerMenuManager));
 		subCommandManagers.add(new ArenaToolCommand(plugin, arenaManager));
 		subCommandManagers.add(new CreateArenaCommand(plugin, arenaManager));
+		subCommandManagers.add(new ClearArrowsSubcommand(plugin, arenaManager));
 	}
 
 	@Override

@@ -28,12 +28,25 @@ arena:
   points-not-set: '&cYou must set both points before creating an arena!'
   already-exists: "&cArena '&e%arena%' &calready exists!"
   arena-no-found: '&cArena &e%arena% &cwas not found'
+  safe-zone-leave: "&cYou left the safezone!"
 
 inventory-editor-menu:
   save-inventory: "&eYour inventory has been &asuccessfully saved&e!"
   reset-inventory: "&eYour inventory has been &creset &eto the default layout."
   inventory-opened: "&eOpening inventory editor."
   error-invalid-inventory: "&cError: Invalid inventory data!"
+
+kits:
+  no-active-kit: "&cYou have no active kit at the moment."
+  selected: "&6Selected Kit"
+  select: "&eClick to select"
+  select-another: "&eSelect another kit"
+  select-message: "&aYou selected the kit &e%kitname%&a!"
+  own: "&aYou own this kit!"
+  buy: "&eClick to buy"
+  purchased: "&aKit &e%kitname% &apurchased!"
+  price: "&cPrice: &e%price% &ccoins"
+  not-enough-coins: "&cNot enough coins."
 
 player-leave-command-not-in-arena: '&cYou are not in the arena.'
 
@@ -89,6 +102,7 @@ usages:
   remove-arena: '&cUsage: /knbffa removearena <arenaName>'
   setspawn-arena: '&cUsage: /knbffa setarenaspawn <arenaName>'
   teleport-arena: '&cUsage: /knbffa teleport <arenaName>'
+  clear-arrows: '&cUsage: /knbffa cleararrows <arenaName>'
 
 shop-open: '&aThe shop is now open!'
 unknown-item: '&cUnknown item.'

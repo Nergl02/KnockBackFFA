@@ -8,6 +8,8 @@ database:
   username: "username"
   password: "123456789"
 
+debug: false
+
 # Time (in minutes) after which players will be teleported to the new arena
 arena-time: 15
 
