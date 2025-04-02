@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +34,6 @@ public class CustomEventManager {
 	private final boolean enableRandomEvents;
 	private final int minDelay;
 	private final int maxDelay;
-	private final int eventDuration;
 	final List<String> eventList = Arrays.asList("ArrowStorm", "NoKnockBackStick", "LowGravity", "ExtraPunchBow");
 	private final Map<UUID, Set<String>> activePlayerEvents = new HashMap<>();
 	private final Set<UUID> knockBackStickReturnList = new HashSet<>();
@@ -49,7 +49,6 @@ public class CustomEventManager {
 		this.enableRandomEvents = config.getBoolean("event-settings.enable-random-events", true);
 		this.minDelay = config.getInt("event-settings.min-delay", 300);
 		this.maxDelay = config.getInt("event-settings.max-delay", 600);
-		this.eventDuration = config.getInt("event-settings.event-duration", 60);
 
 		if (enableRandomEvents) {
 			startRandomEventTimer();
@@ -104,12 +103,14 @@ public class CustomEventManager {
 				break;
 		}
 
+		int duration = plugin.getEvents().getConfig().getInt("event-settings.event-duration", 60);
+
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				endCurrentEvent();
 			}
-		}.runTaskLater(plugin, eventDuration * 20L);
+		}.runTaskLater(plugin, duration * 20L);
 	}
 
 
@@ -142,13 +143,24 @@ public class CustomEventManager {
 
 	public void endCurrentEvent() {
 		if (currentEvent != null) {
+			// TODO info o konci!!
 			Bukkit.broadcastMessage(ChatColor.GREEN + "✅ The event has ended!");
+			if (currentEvent instanceof ArrowStormEvent) {
+				Bukkit.getWorlds().forEach(world ->
+						world.getEntitiesByClass(Arrow.class).forEach(arrow -> {
+							if (arrow.hasMetadata("arrowstorm")) {
+								arrow.remove();
+							}
+						}));
+			}
 			currentEvent = null;
-			activePlayerEvents.clear(); // ✅ Vyčištění všech hráčů z aktivních eventů
+			activePlayerEvents.clear();
 		}
 
-		// 🛠 Ujistíme se, že další event začne
-		Bukkit.getScheduler().runTaskLater(plugin, this::startRandomEvent, 20L * 10);
+		// 🕐 Nový delay podle configu
+		int delay = (minDelay + random.nextInt(maxDelay - minDelay + 1)) * 20;
+
+		Bukkit.getScheduler().runTaskLater(plugin, this::startRandomEvent, delay);
 	}
 
 
@@ -290,7 +302,7 @@ public class CustomEventManager {
 		// ✅ Použijeme existující metodu pro vytvoření Extra Punch Bow
 		Event currentEvent = plugin.getCustomEventManager().getCurrentEvent();
 		if (currentEvent instanceof ExtraPunchBowEvent) {
-			ItemStack newBow = ((ExtraPunchBowEvent) currentEvent).createExtraPunchBow();
+			ItemStack newBow = ((ExtraPunchBowEvent) currentEvent).createExtraPunchBow(plugin.getItems().getConfig().getInt("bow.punch"));
 			player.getInventory().addItem(newBow);
 			player.sendMessage(ChatColor.GREEN + "🏹 Extra Punch Bow byl obnoven!");
 		}
@@ -302,12 +314,29 @@ public class CustomEventManager {
 		}
 	}
 
-
-
 	public Event getCurrentEvent() {
 		return currentEvent;
 	}
 
+	public void reload() {
+		// Znovu načteme config hodnoty pro plánování
+		FileConfiguration config = plugin.getEvents().getConfig();
+		int newMinDelay = config.getInt("event-settings.min-delay", 300);
+		int newMaxDelay = config.getInt("event-settings.max-delay", 600);
 
+		// Pokud byl jiný čas, nastavíme nový timer
+		if (!isEventActive()) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					if (!isEventActive()) startRandomEvent();
+				}
+			}.runTaskLater(plugin, (newMinDelay + random.nextInt(newMaxDelay - newMinDelay + 1)) * 20L);
+		}
+
+		if (plugin.getConfig().getBoolean("debug")) {
+			Bukkit.getLogger().info("🔄 CustomEventManager reload complete. New delay range: " + newMinDelay + "-" + newMaxDelay + "s.");
+		}
+	}
 
 }

@@ -117,3 +117,24 @@ blazing-dash:
   power: 3
   hide-enchantments: true
 
+# ----- SafeZoneItems -----
+main-menu-item:
+  material: NETHER_STAR
+  display-name: "&6Main Menu"
+  lore:
+    - "&7Opens a main menu for player."
+  slot: 4
+
+shop-item:
+  material: EMERALD
+  display-name: "&aShop"
+  lore:
+    - "&7Opens a shop for player."
+  slot: 2
+
+kits-item:
+  material: CHEST
+  display-name: "&bKits"
+  lore:
+    - "&7Opens a kits for player."
+  slot: 6

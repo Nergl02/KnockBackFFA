@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -17,8 +18,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SafeZoneManager implements Listener {
 
@@ -34,10 +37,14 @@ public class SafeZoneManager implements Listener {
 	private final KnockBackStickItem knockBackStickItem;
 
 	private final Map<UUID, List<ItemStack>> pendingItems = new HashMap<>();
-	private final Map<Player, ItemStack[]> storedInventories = new HashMap<>();
-	private final Map<Player, ItemStack[]> storedArmor = new HashMap<>();
+	private final Map<UUID, ItemStack[]> storedInventories = new HashMap<>();
+	private final Map<UUID, ItemStack[]> storedArmor = new HashMap<>();
 	private final Map<UUID, List<Class<? extends Event>>> pendingEvents = new HashMap<>();
 	private final Set<UUID> playersInSafeZone = new HashSet<>();
+
+	public String cachedArenaName = null;
+	public Location cachedArenaSpawn = null;
+
 
 	public SafeZoneManager(NerKubKnockBackFFA plugin, ArenaManager arenaManager, PlayerMenuManager playerMenuManager, ShopManager shopManager, KitManager kitManager, KitMenuManager kitMenuManager, DatabaseManager databaseManager, DefaultInventoryManager defaultInventoryManager, LeatherTunicItem leatherTunicItem, KnockBackStickItem knockBackStickItem) {
 		this.plugin = plugin;
@@ -52,29 +59,59 @@ public class SafeZoneManager implements Listener {
 		this.knockBackStickItem = knockBackStickItem;
 	}
 
+	public void updateActiveArena(String arenaName) {
+		this.cachedArenaName = arenaName;
+		this.cachedArenaSpawn = arenaManager.getArenaSpawn(arenaName);
+	}
+
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		UUID playerId = player.getUniqueId();
-		String currentArena = arenaManager.getCurrentArenaName();
-		Location arenaSpawn = arenaManager.getArenaSpawn(currentArena);
 
-		boolean inSafeZone = isInSafeZone(player.getLocation(), arenaSpawn);
+		Location from = event.getFrom();
+		Location to = event.getTo();
+
+		if (from.getBlockX() == to.getBlockX() &&
+				from.getBlockY() == to.getBlockY() &&
+				from.getBlockZ() == to.getBlockZ()) {
+			return;
+		}
+
+		if (cachedArenaSpawn == null) {
+			if (plugin.getConfig().getBoolean("debug")) {
+				Bukkit.getLogger().info("[DEBUG] cachedArenaSpawn je null, žádná aréna není nastavena.");
+			}
+			return;
+		}
+
+		boolean inSafeZone = isInSafeZone(to, cachedArenaSpawn);
+		if (plugin.getConfig().getBoolean("debug")) {
+			Bukkit.getLogger().info("[DEBUG] " + player.getName() + " safeZone = " + inSafeZone);
+		}
 
 		if (inSafeZone) {
-			if (!storedInventories.containsKey(player)) {
+			if (!storedInventories.containsKey(playerId)) {
+				if (plugin.getConfig().getBoolean("debug")) {
+					Bukkit.getLogger().info("[DEBUG] ➕ enterSafeZone() spuštěno pro " + player.getName());
+				}
 				enterSafeZone(player);
+			} else {
+				if (plugin.getConfig().getBoolean("debug")) {
+					Bukkit.getLogger().info("[DEBUG] " + player.getName() + " už je v safezóně.");
+				}
 			}
 		} else {
-			if (storedInventories.containsKey(player)) {
+			if (storedInventories.containsKey(playerId)) {
+				if (plugin.getConfig().getBoolean("debug")) {
+					Bukkit.getLogger().info("[DEBUG] ➖ exitSafeZone() spuštěno pro " + player.getName());
+				}
 				exitSafeZone(player);
 			}
 
-			// 🎯 **Zabránění duplicitnímu připojení k eventu**
 			if (!playersInSafeZone.contains(playerId)) return;
-			playersInSafeZone.remove(playerId); // ✅ Označení hráče jako "mimo safezónu"
+			playersInSafeZone.remove(playerId);
 
-			// ✅ **Přidej hráče do aktivních eventů, ale jen pokud tam ještě není**
 			for (String eventName : plugin.getCustomEventManager().eventList) {
 				if (plugin.getCustomEventManager().isEventActive(eventName)) {
 					plugin.getCustomEventManager().applyEventEffect(player, eventName);
@@ -90,14 +127,13 @@ public class SafeZoneManager implements Listener {
 
 		if (item == null) return;
 
-		// ✅ Otevření menu podle itemu
-		if (item.getType() == Material.NETHER_STAR && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', "&6Main Menu"))) {
+		if (isMatchingConfigItem(item, "main-menu-item")) {
 			playerMenuManager.openMenu(player);
 			event.setCancelled(true);
-		} else if (item.getType() == Material.EMERALD && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', "&aShop"))) {
+		} else if (isMatchingConfigItem(item, "shop-item")) {
 			shopManager.openShop(player);
 			event.setCancelled(true);
-		} else if (item.getType() == Material.CHEST && item.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', "&bKits"))) {
+		} else if (isMatchingConfigItem(item, "kits-item")) {
 			kitMenuManager.openKitMenu(player);
 			event.setCancelled(true);
 		}
@@ -123,8 +159,10 @@ public class SafeZoneManager implements Listener {
 	}
 
 	public boolean isInSafeZone(Location location, Location arenaSpawn) {
-		int safeZoneRadius = plugin.getConfig().getInt("safe-zone-radius"); // Musí odpovídat radiusu, který jsi definoval
-		return location.distance(arenaSpawn) <= safeZoneRadius;
+		if (!location.getWorld().equals(arenaSpawn.getWorld())) return false;
+
+		int safeZoneRadius = plugin.getConfig().getInt("safe-zone-radius");
+		return location.distanceSquared(arenaSpawn) <= safeZoneRadius * safeZoneRadius;
 	}
 
 	public boolean isLocationInSafeZone(Location location) {
@@ -139,189 +177,168 @@ public class SafeZoneManager implements Listener {
 		return location.distance(arenaSpawn) <= safeZoneRadius;
 	}
 
+	private boolean isMatchingConfigItem(ItemStack clicked, String path) {
+		FileConfiguration config = plugin.getItems().getConfig();
+
+		if (clicked == null || clicked.getType() == Material.AIR || !clicked.hasItemMeta()) return false;
+
+		Material expectedMaterial = Material.valueOf(config.getString(path + ".material"));
+		String expectedName = ChatColor.translateAlternateColorCodes('&', config.getString(path + ".display-name"));
+
+		return clicked.getType() == expectedMaterial &&
+				clicked.getItemMeta().hasDisplayName() &&
+				clicked.getItemMeta().getDisplayName().equals(expectedName);
+	}
 
 	private void enterSafeZone(Player player) {
-		// 🌟 Uložit inventář před vstupem do safezóny
-		storedInventories.put(player, player.getInventory().getContents().clone());
-		storedArmor.put(player, player.getInventory().getArmorContents().clone());
+		UUID playerId = player.getUniqueId();
 
-		playersInSafeZone.add(player.getUniqueId());
-		// 🧹 Vyčistit inventář
+		// ✅ Už je hráč v safezóně? Vynech akci
+		if (storedInventories.containsKey(playerId)) return;
+
+		storedInventories.put(playerId, player.getInventory().getContents().clone());
+		storedArmor.put(playerId, player.getInventory().getArmorContents().clone());
+		playersInSafeZone.add(playerId);
 		player.getInventory().clear();
 
-		// 🛡 Uložit pouze obsah inventáře, ale NE brnění!
-		player.getInventory().setItem(0, createMenuItem(Material.NETHER_STAR, "&6Main Menu"));
-		player.getInventory().setItem(1, createMenuItem(Material.EMERALD, "&aShop"));
-		player.getInventory().setItem(2, createMenuItem(Material.CHEST, "&bKits"));
+		// ✅ Cache config hodnoty na proměnné – levnější a přehlednější
+		FileConfiguration config = plugin.getItems().getConfig();
 
+		setMenuItem(player, config, "main-menu-item");
+		setMenuItem(player, config, "shop-item");
+		setMenuItem(player, config, "kits-item");
+
+		// 📦 Zaznamenání aktivních eventů
 		List<Class<? extends Event>> activeEvents = new ArrayList<>();
-		if (plugin.getCustomEventManager().isEventActive(String.valueOf(LowGravityEvent.class))) {
+		if (plugin.getCustomEventManager().isEventActive(LowGravityEvent.class.getSimpleName())) {
 			activeEvents.add(LowGravityEvent.class);
 		}
-		if (plugin.getCustomEventManager().isEventActive(String.valueOf(ExtraPunchBowEvent.class))) {
+		if (plugin.getCustomEventManager().isEventActive(ExtraPunchBowEvent.class.getSimpleName())) {
 			activeEvents.add(ExtraPunchBowEvent.class);
 		}
-		if (plugin.getCustomEventManager().isEventActive(String.valueOf(NoKnockBackStickEvent.class))) {
+		if (plugin.getCustomEventManager().isEventActive(NoKnockBackStickEvent.class.getSimpleName())) {
 			activeEvents.add(NoKnockBackStickEvent.class);
 		}
-		pendingEvents.put(player.getUniqueId(), activeEvents);
+		pendingEvents.put(playerId, activeEvents);
 
-		player.sendMessage(ChatColor.GREEN + "🏰 You entered the safezone!");
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("arena.safe-zone-enter")));
+	}
+
+	// 🛠 Pomocná metoda
+	private void setMenuItem(Player player, FileConfiguration config, String path) {
+		player.getInventory().setItem(
+				config.getInt(path + ".slot"),
+				createMenuItem(
+						Material.valueOf(config.getString(path + ".material")),
+						ChatColor.translateAlternateColorCodes('&', config.getString(path + ".display-name")),
+						config.getStringList(path + ".lore")
+				)
+		);
 	}
 
 	private void exitSafeZone(Player player) {
 		String prefix = plugin.getMessages().getConfig().getString("prefix");
 		UUID playerId = player.getUniqueId();
 
-		// 🌟 Obnovení inventáře (pokud hráč NEMÁ kit)
-		player.getInventory().setContents(storedInventories.get(player));
-		player.getInventory().setArmorContents(storedArmor.get(player));
-		storedInventories.remove(player);
-		storedArmor.remove(player);
+		// ✅ Obnova inventáře a brnění
+		ItemStack[] inventory = storedInventories.remove(playerId);
+		ItemStack[] armor = storedArmor.remove(playerId);
 
-		// 🎁 Předání zakoupených itemů po opuštění safezóny
-		if (pendingItems.containsKey(playerId)) {
-			List<ItemStack> items = pendingItems.remove(playerId);
-			if (items != null && !items.isEmpty()) {
-				for (ItemStack item : items) {
-					player.getInventory().addItem(item);
-				}
-				player.sendMessage(ChatColor.GOLD + "🎁 Obdržel jsi zakoupené itemy!");
+		if (inventory != null) player.getInventory().setContents(inventory);
+		if (armor != null) player.getInventory().setArmorContents(armor);
+		else player.getInventory().setArmorContents(new ItemStack[]{null, null, null, null});
+
+		// 🎁 Vrácení pending itemů
+		List<ItemStack> items = pendingItems.remove(playerId);
+		if (items != null && !items.isEmpty()) {
+			for (ItemStack item : items) {
+				player.getInventory().addItem(item);
 			}
+			player.sendMessage(ChatColor.GOLD + "🎁 Obdržel jsi zakoupené itemy!");
 		}
 
-		// 🌟 Obnovení brnění, pokud bylo uloženo v safezóně
-		if (storedArmor.containsKey(player) && storedArmor.get(player) != null) {
-			player.getInventory().setArmorContents(storedArmor.get(player));
-		} else {
-			player.getInventory().setArmorContents(new ItemStack[]{null, null, null, null}); // Prázdné brnění
-		}
-
-		// 🎭 Aktivace kitu, pokud hráč nějaký vybral
+		// 🎯 Aktivace kitu
 		String selectedKit = databaseManager.getSelectedKit(playerId);
 		if (selectedKit != null) {
 			player.getInventory().clear();
+
 			if (plugin.getDatabaseManager().hasCustomKit(playerId, selectedKit)) {
 				ItemStack[] savedMainInv = plugin.getDatabaseManager().loadCustomKit(playerId, selectedKit, false);
 				ItemStack[] savedHotbar = plugin.getDatabaseManager().loadCustomKit(playerId, selectedKit, true);
 				ItemStack[] savedArmor = plugin.getDatabaseManager().loadCustomKitArmor(playerId, selectedKit);
 
-
-				// ✅ Aplikujeme obsah hotbaru
+				// 💡 Hotbar: sloty 0–8
 				for (int i = 0; i < 9; i++) {
-					if (savedHotbar[i] != null) {
-						player.getInventory().setItem(i, savedHotbar[i]);
-						if (plugin.getConfig().getBoolean("debug")) {
-							Bukkit.getLogger().info("Hotbar slot load " + i + ": " + getItemName(savedHotbar[i]));
-						}
-					}
+					if (savedHotbar[i] != null) player.getInventory().setItem(i, savedHotbar[i]);
 				}
 
+				// 💡 Main inv: sloty 9–35
 				for (int i = 0; i < 27; i++) {
-					if (savedMainInv[i] != null) {
-						player.getInventory().setItem(i + 9, savedMainInv[i]); // ✔ Teď se to zapíše od slotu 9
-						if (plugin.getConfig().getBoolean("debug")) {
-							Bukkit.getLogger().info("MainInventory slot upload " + i + ": " + getItemName(savedMainInv[i]));
-						}
-					}
+					if (savedMainInv[i] != null) player.getInventory().setItem(i + 9, savedMainInv[i]);
 				}
 
-				// Kontrola, zda hráč má šíp v inventáři, pokud ne, přidáme ho
-				boolean hasArrow = false;
-				for (ItemStack item : player.getInventory().getContents()) {
-					if (item != null && item.getType() == Material.ARROW) {
-						hasArrow = true;
-						break;
-					}
+				// 🏹 Zkontroluj šíp
+				boolean hasArrow = Arrays.stream(player.getInventory().getContents())
+						.anyMatch(item -> item != null && item.getType() == Material.ARROW);
+
+				if (!hasArrow) player.getInventory().addItem(new ItemStack(Material.ARROW));
+
+				// 👕 Brnění pokud hráč není v safezóně
+				if (!isInSafeZone(player.getLocation(), arenaManager.getArenaSpawn(arenaManager.getCurrentArenaName()))
+						&& savedArmor != null) {
+					player.getInventory().setArmorContents(savedArmor);
 				}
 
-// Pokud hráč nemá šíp, přidáme mu ho
-				if (!hasArrow) {
-					player.getInventory().addItem(new ItemStack(Material.ARROW));
-					if (plugin.getConfig().getBoolean("debug")) {
-						Bukkit.getLogger().info("Arrow added to player inventory.");
-					}
-				}
-
-				if (!isInSafeZone(player.getLocation(), arenaManager.getArenaSpawn(arenaManager.getCurrentArenaName()))) {
-					if (savedArmor != null) {
-						player.getInventory().setArmorContents(savedArmor);
-						if (plugin.getConfig().getBoolean("debug")) {
-							player.sendMessage(ChatColor.GREEN + "✔ Brnění bylo načteno pro kit " + selectedKit);
-						}
-					} else {
-						if (plugin.getConfig().getBoolean("debug")) {
-							player.sendMessage(ChatColor.RED + "⚠ Kit " + selectedKit + " nemá žádné brnění.");
-						}
-					}
-				} else {
-					if (plugin.getConfig().getBoolean("debug")) {
-						player.sendMessage(ChatColor.YELLOW + "⚠ Jsi v safezóně, brnění se nenasadilo.");
-					}
-				}
-
-				player.getInventory().setArmorContents(savedArmor);
-				if (plugin.getConfig().getBoolean("debug")) {
-					player.sendMessage(ChatColor.GREEN + "✔ Načtena tvoje uložená verze kitu: " + selectedKit);
-				}
+				player.sendMessage(ChatColor.GREEN + "✔ Načtena tvoje uložená verze kitu: " + selectedKit);
 			} else {
-				// 🔹 Hráč NEMÁ custom verzi kitu – dostane výchozí kit a přidáme defaultní hotbar i main inventory
+				// ⚔️ Defaultní kit
 				kitManager.applyKit(player, selectedKit);
-				ItemStack[] defaultHotbar = defaultInventoryManager.getDefaultHotbar();
-				ItemStack[] defaultMainInventory = defaultInventoryManager.getDefaultMainInventory();
+				ItemStack[] hotbar = defaultInventoryManager.getDefaultHotbar();
+				ItemStack[] mainInv = defaultInventoryManager.getDefaultMainInventory();
 
-				// ✅ Doplnění hotbaru, pokud jsou tam prázdná místa
 				for (int i = 0; i < 9; i++) {
 					if (player.getInventory().getItem(i) == null || player.getInventory().getItem(i).getType() == Material.AIR) {
-						player.getInventory().setItem(i, defaultHotbar[i]);
+						player.getInventory().setItem(i, hotbar[i]);
 					}
 				}
-
-				for (int i = 0; i < defaultMainInventory.length; i++) {
-					if (defaultMainInventory[i] != null) {
-						player.getInventory().addItem(defaultMainInventory[i]);
-					}
+				for (ItemStack item : mainInv) {
+					if (item != null) player.getInventory().addItem(item);
 				}
 			}
 		} else {
+			// ⚔️ Základní výbava
 			defaultInventoryManager.setDefaultInventory(player);
-			if (plugin.getConfig().getBoolean("debug")) {
-				player.sendMessage(ChatColor.GRAY + "⚔ Nemáš žádný kit, dostal jsi základní výbavu.");
-			}
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getMessages().getConfig().getString("kits.no-active-kit")));
 		}
 
-		// ✅ **Pokud má hráč naplánované vrácení KnockBack Sticku, vrátíme ho teď!**
+		// 🥊 KnockBack Stick?
 		if (plugin.getCustomEventManager().shouldReturnKnockBackStick(playerId)) {
 			player.getInventory().addItem(knockBackStickItem.createKnockBackStickItem());
 			plugin.getCustomEventManager().removeKnockBackStickReturn(playerId);
 		}
 
-		// ✅ Reset zpracování hráče pro Extra Punch Bow (aby ho dostal znovu)
+		// 🎯 Extra Punch Bow
 		plugin.getCustomEventManager().resetProcessedPlayer(playerId);
-
-		// ✅ Pokud hráč má naplánované vrácení Extra Punch Bow, dostane ho teď!
 		if (plugin.getCustomEventManager().shouldReturnExtraPunchBow(playerId)) {
 			plugin.getCustomEventManager().restoreExtraPunchBow(player);
 		}
 
-		// 🔥 **Aplikujeme efekty aktuálně probíhajícího eventu, pokud existuje**
+		// 🧪 Event efekty
 		Event currentEvent = plugin.getCustomEventManager().getCurrentEvent();
-		if (currentEvent != null) {
-			if (currentEvent instanceof LowGravityEvent) {
-				((LowGravityEvent) currentEvent).applyGravityEffect(player);
-			} else if (currentEvent instanceof ExtraPunchBowEvent) {
-				((ExtraPunchBowEvent) currentEvent).giveExtraPunchBow(player);
-			} else if (currentEvent instanceof NoKnockBackStickEvent) {
-				((NoKnockBackStickEvent) currentEvent).removeKnockBackStick(player);
-			}
+		if (currentEvent instanceof LowGravityEvent) {
+			((LowGravityEvent) currentEvent).applyGravityEffect(player);
+		} else if (currentEvent instanceof ExtraPunchBowEvent) {
+			((ExtraPunchBowEvent) currentEvent).giveExtraPunchBow(player);
+		} else if (currentEvent instanceof NoKnockBackStickEvent) {
+			((NoKnockBackStickEvent) currentEvent).removeKnockBackStick(player);
 		}
 
-		storedInventories.remove(player);
-		storedArmor.remove(player);
+		// 👕 Always nasadí tuniku
 		player.getInventory().setChestplate(leatherTunicItem.createLeatherTunicItem());
-		player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix +
-				plugin.getMessages().getConfig().getString("arena.safe-zone-leave")));
 
+		// 📢 Info zpráva
+		player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				prefix + plugin.getMessages().getConfig().getString("arena.safe-zone-leave")));
 	}
 
 	private String getItemName(ItemStack item) {
@@ -340,14 +357,19 @@ public class SafeZoneManager implements Listener {
 		return false;
 	}
 
-
-	private ItemStack createMenuItem(Material material, String name) {
+	private ItemStack createMenuItem(Material material, String displayName, List<String> lore) {
 		ItemStack item = new ItemStack(material);
-		var meta = item.getItemMeta();
+		ItemMeta meta = item.getItemMeta();
 		if (meta != null) {
-			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+			meta.setDisplayName(displayName);
+			if (lore != null && !lore.isEmpty()) {
+				meta.setLore(lore.stream()
+						.map(line -> ChatColor.translateAlternateColorCodes('&', line))
+						.collect(Collectors.toList()));
+			}
 			item.setItemMeta(meta);
 		}
 		return item;
 	}
+
 }

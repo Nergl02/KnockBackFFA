@@ -29,6 +29,7 @@ arena:
   already-exists: "&cArena '&e%arena%' &calready exists!"
   arena-no-found: '&cArena &e%arena% &cwas not found'
   safe-zone-leave: "&cYou left the safezone!"
+  safe-zone-enter: "&aYou have enterned safezone!"
 
 inventory-editor-menu:
   save-inventory: "&eYour inventory has been &asuccessfully saved&e!"

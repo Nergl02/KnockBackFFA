@@ -43,6 +43,7 @@ cz\nerkub\NerKubKnockBackFFA\Managers\DatabaseManager.class
 cz\nerkub\NerKubKnockBackFFA\NerKubKnockBackFFA$2.class
 cz\nerkub\NerKubKnockBackFFA\Metrics$AdvancedPie.class
 cz\nerkub\NerKubKnockBackFFA\SubCommands\SetArenaSpawnCommand.class
+cz\nerkub\NerKubKnockBackFFA\Managers\CustomEventManager$3.class
 cz\nerkub\NerKubKnockBackFFA\Events\ArrowStormEvent.class
 cz\nerkub\NerKubKnockBackFFA\Listeners\LevitationBootsListener.class
 cz\nerkub\NerKubKnockBackFFA\Managers\Rank.class

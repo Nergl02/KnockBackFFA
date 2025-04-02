@@ -139,7 +139,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 
 		Bukkit.getConsoleSender().sendMessage("");
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|\\   |  | /	&aPlugin: &6NerKub KnockBackFFA"));
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv2.0.1"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3| \\  |  |/	&aVersion: &bv2.1.0"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|  \\ |  |\\	&aAuthor: &3NerKub Studio"));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&3|   \\|  | \\	&aPremium: &bThis plugin is a premium resource."));
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
@@ -170,7 +170,8 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(inventoryMenumanager, this);
 		getServer().getPluginManager().registerEvents(playerMenuManager, this);
 		getServer().getPluginManager().registerEvents(new KitMenuManager(this, databaseManager), this);
-		getServer().getPluginManager().registerEvents(new SafeZoneManager(this, arenaManager, playerMenuManager, shopManager, kitManager ,kitMenuManager, databaseManager, defaultInventoryManager, leatherTunicItem, knockBackStickItem), this);
+		getServer().getPluginManager().registerEvents(safeZoneManager, this);
+		// getServer().getPluginManager().registerEvents(new SafeZoneManager(this, arenaManager, playerMenuManager, shopManager, kitManager ,kitMenuManager, databaseManager, defaultInventoryManager, leatherTunicItem, knockBackStickItem), this);
 
 		getCommand("knbffa").setExecutor(new CommandManager(this, scoreBoardManager, shopManager, arenaManager, knockBackStickItem, punchBowItem, leatherTunicItem, buildBlockItem, rankManager, inventoryRestoreManager,
 				playerMenuManager, doubleJumpListener, blazingDashListener, killsMap, damagerMap));
@@ -188,6 +189,7 @@ public final class NerKubKnockBackFFA extends JavaPlugin {
 		String currentArena = plugin.getDatabaseManager().getCurrentArena();
 		if (currentArena != null) {
 			arenaManager.setCurrentArena(currentArena);
+			plugin.getSafeZoneManager().updateActiveArena(currentArena);
 			Bukkit.getLogger().info("✅ [DB DEBUG] Current arena at startup: " + currentArena);
 		} else {
 			Bukkit.getLogger().warning("⚠️ [DB DEBUG] No arena is currently set as active.");

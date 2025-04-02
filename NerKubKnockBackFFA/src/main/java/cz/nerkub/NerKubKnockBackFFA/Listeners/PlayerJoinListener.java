@@ -12,6 +12,7 @@ import cz.nerkub.NerKubKnockBackFFA.Managers.*;
 import cz.nerkub.NerKubKnockBackFFA.NerKubKnockBackFFA;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -60,6 +61,30 @@ public class PlayerJoinListener implements Listener {
 		String currentArena = arenaManager.getCurrentArenaName();
 
 		databaseManager.insertPlayer(String.valueOf(player.getUniqueId()), player.getName());
+
+		if (!plugin.getCustomEventManager().isEventActive("ArrowStorm")) {
+			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+				Bukkit.getWorlds().forEach(world ->
+						world.getEntitiesByClass(Arrow.class).forEach(arrow -> {
+							if (arrow.hasMetadata("arrowstorm")) {
+								arrow.remove();
+							}
+						}));
+			}, 20L); // Po 1 sekundě
+		}
+
+
+		// 🛠 Teleportuj hráče na spawn aktuální arény i když NENÍ nový
+		if (!plugin.getConfig().getBoolean("bungee-mode") && currentArena != null && !currentArena.equals("Žádná aréna")) {
+			Location arenaSpawn = plugin.getArenaManager().getArenaSpawn(currentArena);
+			if (arenaSpawn != null) {
+				Bukkit.getScheduler().runTaskLater(plugin, () -> {
+					player.teleport(arenaSpawn);
+					arenaManager.addPlayerToArena(player);
+					Bukkit.getLogger().info("[DEBUG] Teleport hráče " + player.getName() + " na spawn arény: " + currentArena);
+				}, 20L);
+			}
+		}
 
 		// Pokud hráč hraje poprvé, teleportujeme ho do arény
 		if (!player.hasPlayedBefore()) {

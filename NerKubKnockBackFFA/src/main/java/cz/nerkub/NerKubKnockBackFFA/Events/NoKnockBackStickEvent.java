@@ -27,9 +27,10 @@ public class NoKnockBackStickEvent extends Event implements Listener {
 	private final NerKubKnockBackFFA plugin;
 	private final SafeZoneManager safeZoneManager;
 	private final ArenaManager arenaManager;
-	private final Map<UUID, Boolean> hadKnockBackStick = new HashMap<>();
 	private final KnockBackStickItem knockBackStickItem;
-	private boolean eventActive = true; // Flag pro aktivní event
+
+	private final Map<UUID, Boolean> hadKnockBackStick = new HashMap<>();
+	private boolean eventActive = true;
 
 	public NoKnockBackStickEvent(NerKubKnockBackFFA plugin, KnockBackStickItem knockBackStickItem, SafeZoneManager safeZoneManager) {
 		this.plugin = plugin;
@@ -37,33 +38,34 @@ public class NoKnockBackStickEvent extends Event implements Listener {
 		this.safeZoneManager = safeZoneManager;
 		this.arenaManager = plugin.getArenaManager();
 
-		// 📜 Načtení zpráv z `events.yml`
-		String startMessage = ChatColor.translateAlternateColorCodes('&', plugin.getEvents().getConfig().getString("events.no-knockback-stick.message-start"));
-		String endMessage = ChatColor.translateAlternateColorCodes('&', plugin.getEvents().getConfig().getString("events.no-knockback-stick.message-end"));
+		String startMessage = getConfigMessage("events.no-knockback-stick.message-start");
+		String endMessage = getConfigMessage("events.no-knockback-stick.message-end");
+		int duration = plugin.getEvents().getConfig().getInt("event-settings.event-duration", 60);
 
 		Bukkit.broadcastMessage(startMessage);
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 
-		// 🚫 Odebrání KnockBack Sticků hráčům mimo safezónu
+		// Odebrání KnockBack Sticků hráčům mimo safezónu
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (!safeZoneManager.isInSafeZone(player.getLocation(), arenaManager.getArenaSpawn(arenaManager.getCurrentArenaName()))) {
 				removeKnockBackStick(player);
 			}
 		}
 
-		// ⏳ Čas trvání eventu
-		int duration = plugin.getEvents().getConfig().getInt("event-settings.event-duration");
-
-		// 🕒 Naplánování návratu KnockBack Sticků po konci eventu
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				eventActive = false; // Deaktivace eventu
+				eventActive = false;
 				restoreKnockBackStick();
 				Bukkit.broadcastMessage(endMessage);
-				plugin.getCustomEventManager().setCurrentEvent(null); // Ukončení eventu
+				plugin.getCustomEventManager().setCurrentEvent(null);
 			}
-		}.runTaskLater(plugin, duration * 20L); // Převod sekund na ticky
+		}.runTaskLater(plugin, duration * 20L);
+	}
+
+	private String getConfigMessage(String path) {
+		String raw = plugin.getEvents().getConfig().getString(path, "&7[Missing message]");
+		return ChatColor.translateAlternateColorCodes('&', raw);
 	}
 
 	// ❌ Odebere hráči KnockBack Stick a uloží, že ho měl

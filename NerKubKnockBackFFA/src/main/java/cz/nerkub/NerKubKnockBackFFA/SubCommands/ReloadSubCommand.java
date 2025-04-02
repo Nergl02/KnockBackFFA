@@ -62,6 +62,7 @@ public class ReloadSubCommand extends SubCommandManager {
 		plugin.getKits().reloadConfig();
 		rankManager.loadRanks();
 		scoreBoardManager.reloadScoreboard();
+		plugin.getCustomEventManager().reload();
 
 		// ✅ Odregistrování starého listeneru před registrací nového
 		HandlerList.unregisterAll(doubleJumpListener);
